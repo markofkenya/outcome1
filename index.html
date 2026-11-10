@@ -8185,8 +8185,9 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   window.addEventListener('firebase-signed-out', ()=>{ fbWatch.forEach(off=>{ try{ off(); }catch(e){} }); fbWatch.clear(); });
 
   // ═══ Card ↔ section transition ═══
-  // Opening: the tapped card's colour grows into the section header while the other cards drop away; then the
-  // summary card slides down out of the pocket (slowly enough to notice) to reveal the "Add…" card.
+  // Opening: the tapped card's colour grows into the section header while the other cards drop away. The header's
+  // contents appear with the rest of the screen, the summary card tucked over the "Add…" card; once the colour has
+  // filled the header, the summary card slides down to reveal it.
   // Closing is quieter: Home is already in place and the header simply shrinks back into its card in the stack.
   // The screen itself switches straight away underneath; the movement is drawn on top. Off with Reduce Motion.
   const ANIM_TABS=['arcp','specialty','gim','cpd','logbook','admin'];
@@ -8216,23 +8217,32 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       k.classList.add('w-anim-clone'); Object.assign(k.style,{ position:'fixed', top:r.top+'px', left:r.left+'px', width:r.width+'px', height:r.height+'px', margin:'0', zIndex:String(2+i) }); layer.appendChild(k); return {k,r}; });
     const top=main().querySelector('.w-hometop'); let topClone=null;
     if(top){ const r=box(top); topClone=top.cloneNode(true); Object.assign(topClone.style,{ position:'fixed', top:r.top+'px', left:r.left+'px', width:r.width+'px', margin:'0', zIndex:'1' }); layer.appendChild(topClone); }
-    let done=false;
-    const finish=()=>{ if(done) return; done=true; const h=main().querySelector('.w-head'); if(h) h.style.visibility=''; layer.remove(); animBusy=false; };
+    let done=false, head=null, pk=null;
+    const restore=()=>{ if(head) Object.assign(head.style,{ background:'', borderBottomColor:'', position:'', zIndex:'', pointerEvents:'' }); };
+    const finish=()=>{ if(done) return; done=true; restore(); if(pk) pk.bal.style.transform=''; layer.remove(); animBusy=false; };
     try{
       goTab(tab); window.scrollTo(0,0);
-      const head=main().querySelector('.w-head'); if(!head){ finish(); return; }
-      head.style.visibility='hidden';
+      head=main().querySelector('.w-head'); if(!head){ finish(); return; }
       const to=shape(head);
-      clones.forEach(({k,r},i)=>{ const below=r.top>from.r.top; k.animate([{transform:'translateY(0)',opacity:1},{transform:`translateY(${below?vh*.6:-vh*.35}px)`,opacity:0}],{duration:280,delay:i*16,easing:'cubic-bezier(.45,0,.8,.45)',fill:'forwards'}); });
-      if(topClone) topClone.animate([{opacity:1},{opacity:0}],{duration:160,fill:'forwards'});
+      // the header's contents show straight away with the rest of the screen, drawn over the growing colour,
+      // with the summary card still tucked over the "Add…" card
+      pk=pocket(head); if(pk && !(pk.tab && pk.dy>0)) pk=null;
+      Object.assign(head.style,{ background:'transparent', borderBottomColor:'transparent', position:'relative', zIndex:'1501', pointerEvents:'none' });
+      if(pk) pk.bal.style.transform=`translateY(${-pk.dy}px)`;
+      [...head.children].forEach(ch=>ch.animate([{opacity:0},{opacity:1}],{duration:200,delay:70,easing:'ease-out',fill:'backwards'}));
+      // the other cards drop away and fade quickly, so they're gone before the header's contents arrive
+      clones.forEach(({k,r},i)=>{ const below=r.top>from.r.top;
+        k.animate([{transform:'translateY(0)'},{transform:`translateY(${below?vh*.6:-vh*.35}px)`}],{duration:280,delay:i*12,easing:'cubic-bezier(.45,0,.8,.45)',fill:'forwards'});
+        k.animate([{opacity:1},{opacity:0}],{duration:130,delay:i*12,easing:'ease-out',fill:'forwards'}); });
+      if(topClone) topClone.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'});
       const grow=g.animate([frame(from),frame(to,{borderRadius:'0px'})],{duration:360,easing:EASE,fill:'forwards'});
       grow.onfinish=()=>{
-        head.style.visibility=''; layer.remove(); done=true;
-        const pk=pocket(head);
-        // a short beat with the cards stacked, then a slower slide down to reveal the "Add…" card
-        if(pk && pk.tab && pk.dy>0){ const a=pk.bal.animate([{transform:`translateY(${-pk.dy}px)`},{transform:'translateY(0)'}],{duration:520,delay:90,easing:'cubic-bezier(.3,.7,.25,1)',fill:'backwards'}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
-        else if(pk){ const a=pk.bal.animate([{transform:'translateY(-10px)',opacity:.4},{transform:'none',opacity:1}],{duration:380,easing:EASE}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
-        else animBusy=false;
+        done=true; restore(); layer.remove();
+        if(!pk){ animBusy=false; return; }
+        // a short beat, then the summary card slides down to reveal the "Add…" card
+        pk.bal.style.transform='';
+        const a=pk.bal.animate([{transform:`translateY(${-pk.dy}px)`},{transform:'translateY(0)'}],{duration:520,delay:90,easing:'cubic-bezier(.3,.7,.25,1)',fill:'backwards'});
+        a.onfinish=a.oncancel=()=>{ animBusy=false; };
       };
       setTimeout(finish,1500);   // never leave the screen covered
       setTimeout(()=>{ animBusy=false; },2000);
@@ -8255,11 +8265,11 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       card=homeSource(fromTab); if(!card){ finish(); return; }
       card.style.visibility='hidden';
       const to=shape(card);
-      [...hc.children].forEach(ch=>ch.animate([{opacity:1},{opacity:0}],{duration:110,fill:'forwards'}));
-      const a=hc.animate([frame(hs,{borderRadius:'0px'}),frame(to)],{duration:440,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+      [...hc.children].forEach(ch=>ch.animate([{opacity:1},{opacity:0}],{duration:80,fill:'forwards'}));
+      const a=hc.animate([frame(hs,{borderRadius:'0px'}),frame(to)],{duration:270,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
       a.onfinish=()=>{   // the card takes its place underneath, and the colour block fades off it
         if(card) card.style.visibility='';
-        const f=hc.animate([{opacity:1},{opacity:0}],{duration:130,fill:'forwards'}); f.onfinish=f.oncancel=finish;
+        const f=hc.animate([{opacity:1},{opacity:0}],{duration:90,fill:'forwards'}); f.onfinish=f.oncancel=finish;
       };
       setTimeout(finish,1500);
     }catch(err){ console.warn('[Outcome1] close transition skipped', err); finish(); }
