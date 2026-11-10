@@ -1,103 +1,157 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Teaching feedback</title>
-<meta name="theme-color" content="#F7F4F2" />
-<meta name="robots" content="noindex" />
-<link rel="icon" type="image/png" href="outcome2.png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Teaching feedback · Outcome1</title>
+<link rel="icon" href="outcome2.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F7F4F2;--card:#FFFFFF;--line:#E3DDD5;--text:#262424;--text2:#3A3634;--dim:#6E6762;--green:#2F7A50;--mat:#2F6B4C;--ink:#1B1A19;--red:#B04A2F}
-@media (prefers-color-scheme: dark){:root{--bg:#0F1A14;--card:#16241C;--line:#2A3D31;--text:#F3EFE8;--text2:#D6D1C7;--dim:#A3AEA6;--green:#9FD8AE;--mat:#24543A;--ink:#F3EFE8;--red:#EC9680}}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--bg);color:var(--text);font-family:'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-main{max-width:640px;margin:0 auto;padding:32px 16px 64px}
-.eyebrow{font:500 11px 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);text-align:center}
-h1{font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:44px;line-height:1.02;letter-spacing:-.02em;text-align:center;margin-top:16px}
-h1 span{display:block;font-family:'Caveat',cursive;font-weight:600;font-size:56px;line-height:.95;color:var(--green)}
-.session{margin:28px 0 20px;padding:16px;border-radius:22px;background-color:var(--mat);background-image:linear-gradient(rgba(255,255,255,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.09) 1px,transparent 1px);background-size:24px 24px}
-.session dl{background:#fff;color:#262424;border-radius:16px;padding:16px 18px;display:grid;gap:12px}
-.session dt{font:500 10px 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#6E6762}
-.session dd{font-family:'Newsreader',Georgia,serif;font-size:21px;line-height:1.2}
-.guide{font-size:14px;color:var(--text2);margin-bottom:24px}
-label.q{display:block;font-family:'Newsreader',Georgia,serif;font-size:21px;line-height:1.25;margin:24px 0 10px}
-label.q b{font-family:'Caveat',cursive;font-weight:600;color:var(--green);font-size:26px;margin-right:6px}
-textarea{width:100%;min-height:96px;font:400 16px 'Hanken Grotesk',sans-serif;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;resize:vertical}
-textarea:focus{outline:3px solid color-mix(in srgb,var(--green) 35%,transparent);border-color:var(--green)}
-button{font:600 16px 'Hanken Grotesk',sans-serif;border:0;border-radius:999px;padding:16px 24px;cursor:pointer;background:var(--green);color:#fff;width:100%;margin-top:28px;min-height:52px}
-button:disabled{opacity:.55;cursor:default}
-.note{font:400 12px 'DM Mono',monospace;color:var(--dim);text-align:center;margin-top:12px}
-.msg{margin-top:40px;text-align:center;padding:32px 20px;background:var(--card);border:1px solid var(--line);border-radius:22px}
-.msg h2{font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:32px;margin-bottom:8px}
-.err{color:var(--red);font-size:14px;margin-top:12px;text-align:center}
+:root{
+  --bg:#F4F3EE;--card:#FFFFFF;--soft:#FAF9F5;--text:#1E1E1E;--dim:#6B6862;--line:#E6E3DA;--line2:#CFCABE;
+  --ink:#1E1E1E;--ink-fg:#F4F3EE;--edge:#1E1E1E;--red:#AE3F2C;
+  --c1:#C8BFF1;--c2:#F4B683;--c3:#A3EEF2;--c4:#EE9F98;--c5:#D3F69C;
+  --font:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121212;--card:#1C1C1B;--soft:#232321;--text:#F4F3EE;--dim:#A19D94;--line:#2F2F2C;--line2:#46453F;--ink:#F4F3EE;--ink-fg:#121212;--edge:#46453F;--red:#F0A090}
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:500 16px/1.5 var(--font);-webkit-text-size-adjust:100%}
+.wrap{max-width:600px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px max(32px,env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{font:800 21px var(--font);letter-spacing:-.045em}
+.pill{font:700 12px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border:1.5px solid var(--line2);border-radius:99px;padding:6px 12px}
+.hero{background:var(--c1);color:#1E1E1E;border:2px solid #1E1E1E;border-radius:30px;padding:22px 22px 24px}
+.kick{font:700 12.5px var(--font);letter-spacing:.09em;text-transform:uppercase;opacity:.75}
+h1{font:800 32px/1.05 var(--font);letter-spacing:-.04em;margin:8px 0 10px;overflow-wrap:anywhere}
+.meta{font:600 15.5px/1.4 var(--font);color:#3A3836}
+.note{font:500 15px/1.5 var(--font);color:var(--dim);margin:16px 4px 22px}
+form{display:grid;gap:14px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px}
+.q label{display:flex;gap:12px;align-items:flex-start;font:700 16.5px/1.35 var(--font);letter-spacing:-.01em;margin-bottom:12px}
+.q .n{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:800 14px var(--font);color:#1E1E1E;background:var(--c);border:2px solid #1E1E1E}
+textarea{-webkit-appearance:none;appearance:none;width:100%;min-height:96px;resize:vertical;border:1.5px solid var(--line2);border-radius:16px;background:var(--soft);color:var(--text);font:500 16px/1.45 var(--font);padding:12px 14px}
+textarea:focus{outline:3px solid var(--text);outline-offset:1px;border-color:var(--text)}
+.err{color:var(--red);font:600 15px/1.4 var(--font);min-height:1.4em;margin:2px 4px 0}
+.go{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;background:var(--ink);color:var(--ink-fg);border-radius:999px;padding:19px;font:700 18px var(--font)}
+.go:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.go[disabled]{opacity:.55;cursor:wait}
+.state{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:34px 22px;text-align:center}
+.state h2{font:800 28px/1.1 var(--font);letter-spacing:-.035em;margin:16px 0 8px}
+.state p{margin:0 auto;max-width:28em;color:var(--dim)}
+.badge{width:76px;height:76px;border-radius:50%;display:inline-grid;place-items:center;border:2px solid #1E1E1E;color:#1E1E1E;background:var(--c5);font:800 30px var(--font)}
+.badge.warn{background:var(--c2)}
+.link{all:unset;cursor:pointer;display:inline-block;margin-top:18px;font:700 15px var(--font);color:var(--text);text-decoration:underline;text-underline-offset:3px}
+.link:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.load{color:var(--dim);text-align:center;padding:60px 0}
+.foot{text-align:center;color:var(--dim);font:500 13px var(--font);margin-top:28px}
+@media (max-width:380px){h1{font-size:28px}}
 </style>
 </head>
 <body>
-<main>
-  <div class="eyebrow">Evaluation form for teaching and presentations</div>
-  <h1>Session<span>feedback</span></h1>
-  <div id="content"><p class="note" style="margin-top:32px">Loading…</p></div>
-</main>
-<script>
-const DB='https://gimtrack-dfecb-default-rtdb.europe-west1.firebasedatabase.app';
-const QUESTIONS=[
-  ['setting','Session setting, facilities etc'],
-  ['objectives','Were the objectives of the session identified and were these met?'],
-  ['delivery','Was the delivery effective and clear? If handouts were used, were these useful?'],
-  ['useful','What aspects of the session were useful i.e. were there learning and change of practice points?'],
-  ['other','Any other comments?']
+<div class="wrap">
+  <div class="top"><span class="brand">Outcome1</span><span class="pill">Teaching feedback</span></div>
+  <main id="main" aria-live="polite"><div class="load">Loading the form…</div></main>
+  <div class="foot">Anonymous · no sign-in needed</div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, push, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyB3sTHvcD-U_c5Jt5Uveg3xJ1MUxj4vfTQ",
+  authDomain:        "gimtrack-dfecb.firebaseapp.com",
+  databaseURL:       "https://gimtrack-dfecb-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "gimtrack-dfecb",
+  storageBucket:     "gimtrack-dfecb.firebasestorage.app",
+  messagingSenderId: "275166300125",
+  appId:             "1:275166300125:web:d17b25586221f913ced834",
+};
+// The JRCPTB "Evaluation form for teaching and presentations" questions, same keys the app reads
+const QUESTIONS = [
+  { k:'setting',    q:'Session setting, facilities etc' },
+  { k:'objectives', q:'Were the objectives of the session identified and were these met?' },
+  { k:'delivery',   q:'Was the delivery effective and clear? If handouts were used, were these useful?' },
+  { k:'useful',     q:'What aspects of the session were useful i.e. were there learning and change of practice points?' },
+  { k:'other',      q:'Any other comments?' }
 ];
-const sid=new URLSearchParams(location.search).get('s')||'';
-const box=document.getElementById('content');
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const fmt=d=>{ if(!d) return ''; const p=String(d).split('-'); return p.length===3?new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):d; };
-function message(title,text){ box.innerHTML=`<div class="msg"><h2>${esc(title)}</h2><p>${esc(text)}</p></div>`; }
-async function start(){
-  if(!/^[a-z0-9]{8,40}$/i.test(sid)) return message('Link not recognised','Please check the link or QR code you were given.');
-  let meta=null;
-  try{ const r=await fetch(`${DB}/arcpFeedback/${sid}/meta.json`); meta=r.ok?await r.json():null; }catch(e){}
-  if(!meta) return message('Feedback not available','This feedback link has expired or could not be loaded. Please try again later.');
-  if(meta.open===false) return message('Feedback closed','The presenter is no longer collecting feedback for this session. Thank you anyway.');
-  let done=false; try{ done=localStorage.getItem('fb_done_'+sid)==='1'; }catch(e){}
-  if(done) return message('Thank you','You have already sent feedback for this session from this device.');
-  box.innerHTML=`
-    <div class="session"><dl>
-      <div><dt>Presenter / teacher</dt><dd>${esc(meta.presenter||'')}</dd></div>
-      <div><dt>Session topic or title</dt><dd>${esc(meta.topic||'')}</dd></div>
-      <div><dt>Date</dt><dd>${esc(fmt(meta.date))}</dd></div>
-    </dl></div>
-    <p class="guide">Please take the time to give constructive feedback. It helps the presenter and the teaching organisation improve future events. Your answers are anonymous.</p>
-    <form id="f" novalidate>
-      ${QUESTIONS.map(([k,q],i)=>`<label class="q" for="q-${k}"><b>${i+1}</b>${esc(q)}</label><textarea id="q-${k}" name="${k}" maxlength="3000"></textarea>`).join('')}
-      <button type="submit" id="send">Send feedback</button>
-      <div id="err" class="err" role="alert"></div>
-      <p class="note">Anonymous · only the presenter can read responses</p>
-    </form>`;
-  document.getElementById('f').addEventListener('submit', submit);
+const COLOURS = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)'];
+const MAX = 2000;
+
+const db = getDatabase(initializeApp(firebaseConfig));
+const sid = (new URLSearchParams(location.search).get('s') || '').trim();
+const main = document.getElementById('main');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const when = d => { const x = new Date(d + 'T00:00:00'); return isNaN(x) ? '' : x.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }); };
+const doneKey = 'o1fb_sent_' + sid;
+const store = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} } };
+
+function state(badge, title, text, extra){
+  main.innerHTML = `<div class="state"><span class="badge ${badge==='!'?'warn':''}" aria-hidden="true">${badge}</span><h2>${title}</h2><p>${text}</p>${extra||''}</div>`;
+  document.title = title + ' · Outcome1';
 }
-async function submit(ev){
-  ev.preventDefault();
-  const btn=document.getElementById('send'), err=document.getElementById('err');
-  const body={ts:Date.now()}; let any=false;
-  QUESTIONS.forEach(([k])=>{ const v=document.getElementById('q-'+k).value.trim(); if(v){ body[k]=v.slice(0,3000); any=true; } });
-  if(!any){ err.textContent='Please answer at least one question.'; return; }
-  btn.disabled=true; btn.textContent='Sending…'; err.textContent='';
+const invalid = () => state('!', 'This link isn’t working', 'The feedback form couldn’t be found. Check you scanned the right QR code, or ask the presenter for the link again.');
+const who = m => esc(m.presenter || 'the presenter');
+
+function hero(m){
+  const bits = [m.presenter, when(m.date), m.audience].filter(Boolean).map(esc).join(' · ');
+  return `<section class="hero"><div class="kick">${esc(m.type || 'Teaching session')}</div><h1>${esc(m.topic || 'Teaching session')}</h1>${bits?`<div class="meta">${bits}</div>`:''}</section>`;
+}
+
+function showForm(m){
+  document.title = 'Feedback: ' + (m.topic || 'teaching session') + ' · Outcome1';
+  main.innerHTML = hero(m) +
+    `<p class="note">About two minutes. Your name isn’t recorded, and only ${who(m)} can read the answers. Answer as many questions as you like.</p>
+     <form id="fb" novalidate>
+       ${QUESTIONS.map((q,i)=>`<div class="q"><label for="q-${q.k}"><span class="n" style="--c:${COLOURS[i]}">${i+1}</span><span>${esc(q.q)}</span></label><textarea id="q-${q.k}" name="${q.k}" maxlength="${MAX}" rows="3"></textarea></div>`).join('')}
+       <p class="err" id="err" role="alert"></p>
+       <button class="go" id="send" type="submit">Send feedback</button>
+     </form>`;
+  const form = document.getElementById('fb'), err = document.getElementById('err'), btn = document.getElementById('send');
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const answers = {};
+    QUESTIONS.forEach(q => { const v = form.elements[q.k].value.trim().slice(0, MAX); if(v) answers[q.k] = v; });
+    if(!Object.keys(answers).length){ err.textContent = 'Please answer at least one question before sending.'; form.elements[QUESTIONS[0].k].focus(); return; }
+    err.textContent = ''; btn.disabled = true; btn.textContent = 'Sending…';
+    const slow = setTimeout(() => { err.textContent = 'Taking longer than usual. Keep this page open and it will send when your connection is back.'; }, 10000);
+    try{
+      await set(push(ref(db, 'arcpFeedback/' + sid + '/responses')), { ...answers, ts: Date.now() });
+      clearTimeout(slow); store.set(doneKey, String(Date.now())); thanks(m);
+    }catch(e){
+      clearTimeout(slow); btn.disabled = false; btn.textContent = 'Send feedback';
+      err.textContent = /permission/i.test(String(e && e.message || e))
+        ? 'This form isn’t accepting responses at the moment. Please let the presenter know.'
+        : 'Couldn’t send your feedback. Check your connection and try again.';
+    }
+  });
+}
+function thanks(m){
+  state('✓', 'Thank you', `Your feedback has been sent to ${who(m)}. You can close this page.`);
+}
+function already(m){
+  state('✓', 'Feedback sent', `You’ve already sent feedback on this session from this device. Thank you.`, `<button class="link" id="again">Send another response</button>`);
+  document.getElementById('again').addEventListener('click', () => showForm(m));
+}
+
+(async function start(){
+  if(!/^[a-z0-9]{6,40}$/i.test(sid)) return invalid();
+  let meta = null;
   try{
-    const r=await fetch(`${DB}/arcpFeedback/${sid}/responses.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!r.ok) throw new Error(r.status===401||r.status===403?'closed':'http '+r.status);
-    try{ localStorage.setItem('fb_done_'+sid,'1'); }catch(e){}
-    message('Thank you','Your feedback has been sent.');
-    window.scrollTo({top:0,behavior:'smooth'});
+    const snap = await get(ref(db, 'arcpFeedback/' + sid + '/meta'));
+    meta = snap.exists() ? snap.val() : null;
   }catch(e){
-    btn.disabled=false; btn.textContent='Send feedback';
-    err.textContent = e.message==='closed' ? 'Feedback for this session has closed.' : 'Could not send. Check your connection and try again.';
+    return state('!', 'Couldn’t load the form', 'Check your connection, then reload this page.', `<button class="link" onclick="location.reload()">Reload</button>`);
   }
-}
-start();
+  if(!meta) return invalid();
+  if(meta.open === false) return state('!', 'Feedback has closed', `${who(meta)} has stopped collecting feedback on “${esc(meta.topic || 'this session')}”. Thank you for wanting to help.`);
+  if(store.get(doneKey)) return already(meta);
+  showForm(meta);
+})();
 </script>
 </body>
 </html>
