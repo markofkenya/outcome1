@@ -7796,7 +7796,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   };
   // Logbook list rows open their entry
   function tagLogRows(){
-    const all=[]; ['clinics','procedures','cpd','simulation','teaching'].forEach(k=>(state.logbook?.[k]||[]).forEach(e=>all.push({id:e.id,date:e.date,_kind:k})));
+    const all=[]; ['clinics','procedures','cpd','simulation','teaching'].forEach(k=>(state.logbook?.[k]||[]).forEach(e=>all.push({...e,_kind:k})));
     all.sort((a,b)=>(b.date||'').localeCompare(a.date||''));   // same order as the list itself
     const fk=logSubTab||'all', list=(fk==='all'?all:all.filter(e=>e._kind===fk)).slice(0,80);
     main().querySelectorAll('.lb-row-data').forEach((row,i)=>{
@@ -7806,8 +7806,22 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       row.setAttribute('onclick',`wEntry('${e._kind}',${JSON.stringify(e.id)})`);
       row.setAttribute('onkeydown',"if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}");
       row.querySelectorAll('button[onclick]').forEach(b=>b.setAttribute('onclick','event.stopPropagation();'+b.getAttribute('onclick')));
+      // what each kind shows: CPD type / title / hours, simulation title / course · hospital / hours, teaching type / topic / audience
+      const cell=c=>row.querySelector('.lb-cell-'+c), set=(c,t)=>{ const el=cell(c); if(el) el.textContent=t||''; };
+      const tag=row.querySelector('.lb-cell-type span'); if(tag && LOG_TAG[e._kind]) tag.textContent=LOG_TAG[e._kind];
+      const hrs=e.hours?`${r1(e.hours)}h`:'';
+      if(e._kind==='cpd'){ set('item', e.type||'CPD'); set('hospital', e.title); set('supervisor', hrs); }
+      else if(e._kind==='simulation'){ set('item', e.title||e.course||'Simulation'); set('hospital', [e.course,e.hospital].filter(Boolean).join(' · ')); set('supervisor', hrs); }
+      else if(e._kind==='teaching'){ const it=cell('item'), btn=it&&it.querySelector('button'); if(it){ it.textContent=e.type||'Teaching'; if(btn){ it.append(' '); it.append(btn); } } set('hospital', e.topic); set('supervisor', e.audience); }
+      else ['hospital','supervisor'].forEach(c=>{ const el=cell(c); if(el && el.textContent.trim()==='—') el.textContent=''; });   // no dashes for missing details
     });
+    // column headings (computer) follow the filter
+    const H=LOG_HEAD[fk]||LOG_HEAD.all, hd=main().querySelector('.lb-row-head');
+    if(hd) [['item',0],['hospital',1],['supervisor',2]].forEach(([c,i])=>{ const el=hd.querySelector('.lb-cell-'+c); if(el) el.textContent=H[i]; });
   }
+  const LOG_TAG={ simulation:'sim', teaching:'teach' };
+  const LOG_HEAD={ all:['Item','Details','With / hours'], clinics:['Clinic','Hospital','Supervisor'], procedures:['Procedure','Hospital','Supervisor'],
+    cpd:['CPD type','Title','Hours'], simulation:['Title','Course · hospital','Hours'], teaching:['Teaching type','Topic','Audience'] };
   window.wShowEntry = function(k,id){
     logSubTab='all'; if(currentTab==='logbook') render(); else setTab('logbook');
     setTimeout(()=>{ const row=main().querySelector(`.lb-row-data[data-id="${CSS.escape(String(id))}"]`); if(!row) return;
