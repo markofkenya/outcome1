@@ -1248,6 +1248,101 @@ body.focus .w-toast .w-i{color:#121212}
 #wrapped-overlay [class*="c-o1-"]:not(.c-o1-intro) .wr-row{border-bottom-color:rgba(30,30,30,.18)}
 #wrapped-overlay .c-o1-oc1 .wr-head,#wrapped-overlay .c-o1-oc2 .wr-head,#wrapped-overlay .c-o1-oc6 .wr-head,#wrapped-overlay .c-o1-oc8 .wr-head{font-size:64px}
 @media (prefers-reduced-motion:reduce){.w-cele-in>*,.w-cele-in>.w-cele-stamp,.w-stamp.new,.w-toast{animation:none}}
+
+/* ═══ Setup guide: checklist card on Home + step sheets ═══ */
+.w-su{background:var(--bg2);color:var(--text);border:2px solid var(--line-ink);border-radius:30px;padding:20px 22px 8px;margin:0 auto 26px;max-width:600px;box-sizing:border-box}
+body.focus .w-su{border-color:var(--line-strong)}
+.w-su-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.w-su-k{font:700 12.5px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
+.w-su-h{font:800 30px/1.05 var(--font);letter-spacing:-.035em;margin:5px 0 0;color:var(--text)}
+.w-su-x{all:unset;box-sizing:border-box;cursor:pointer;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line-strong);display:grid;place-items:center;color:var(--dim);flex:none}
+.w-su-x:hover{color:var(--text);border-color:var(--text)}
+.w-su-bar{height:14px;border:2px solid var(--line-ink);border-radius:99px;background:var(--bg3);margin:16px 0 6px;overflow:hidden;box-sizing:border-box}
+body.focus .w-su-bar{border-color:var(--line-strong)}
+.w-su-bar i{display:block;height:100%;background:var(--c-quick);border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.w-su-row{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line);color:var(--text)}
+.w-su-list .w-su-row:first-child{border-top:0}
+.w-su-ic{width:44px;height:44px;border-radius:14px;background:var(--bg4);display:grid;place-items:center;flex:none;color:var(--text)}
+.w-su-row.is-done .w-su-ic{background:var(--c-quick);color:#1E1E1E}
+.w-su-m{flex:1;min-width:0}
+.w-su-t{display:block;font:700 17px/1.2 var(--font);letter-spacing:-.01em}
+.w-su-s{display:block;font:500 14px/1.3 var(--font);color:var(--dim);margin-top:3px}
+.w-su-row.is-done .w-su-t{color:var(--dim)}
+.w-su-row>svg{color:var(--dim);flex:none}
+.w-su-row:hover .w-su-ic{background:var(--c-spec);color:#1E1E1E}
+.w-su-row.is-done:hover .w-su-ic{background:var(--c-quick)}
+.w-su-more{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;padding:13px 0 12px;border-top:1px solid var(--line);font:700 15px var(--font);color:var(--text)}
+.w-su-row:focus-visible,.w-su-x:focus-visible,.w-su-more:focus-visible{outline:3px solid var(--text);outline-offset:3px;border-radius:14px}
+.w-su-sheet .w-ask-card{max-height:calc(100dvh - 24px);overflow:auto;outline:none}
+.w-sus-body{margin-top:16px}
+.w-sus-l{display:block;font:700 12.5px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 0 7px}
+.w-sus-in{width:100%;box-sizing:border-box}
+.w-sus-note{font:500 14px/1.4 var(--font);color:var(--dim);margin-top:9px;min-height:1.4em}
+.w-sus-acts{display:grid;gap:10px;margin-top:20px}
+.w-sus-go,.w-sus-alt{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;border-radius:999px;font:700 17px var(--font);letter-spacing:-.01em}
+.w-sus-go{padding:17px;background:var(--ink);color:var(--ink-fg)}
+.w-sus-alt{padding:15px;border:2px solid var(--line-strong);color:var(--text)}
+.w-sus-alt:hover{border-color:var(--text)}
+.w-sus-go:focus-visible,.w-sus-alt:focus-visible,.w-sus-link:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.w-sus-scroll{max-height:min(44vh,360px);overflow:auto;border:1px solid var(--line);border-radius:18px;padding:2px 14px;background:var(--bg3);overscroll-behavior:contain}
+.w-sus-chk{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font:600 16px/1.25 var(--font);color:var(--text);cursor:pointer}
+.w-sus-scroll .w-sus-chk:last-child{border-bottom:0}
+.w-sus-chk input{width:22px;height:22px;margin:0;accent-color:var(--ink);flex:none}
+.w-sus-chk span{flex:1;min-width:0}
+.w-sus-chk em{font:700 12px var(--font);font-style:normal;color:var(--dim);background:var(--bg4);padding:4px 9px;border-radius:99px;flex:none;white-space:nowrap}
+.w-sus-g{font:700 12px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--dim);padding:14px 0 2px}
+.w-sus-tools{display:flex;gap:16px;justify-content:flex-end;margin-bottom:8px}
+.w-sus-link{all:unset;cursor:pointer;font:700 14px var(--font);color:var(--text);text-decoration:underline;text-underline-offset:3px}
+.w-sus-add{display:flex;gap:8px;margin-top:10px}
+.w-sus-add .input{flex:1;min-width:0}
+
+/* ═══ Welcome cards ═══ */
+.w-wel{position:fixed;inset:0;z-index:2600;background:var(--bg);color:var(--text);display:flex;flex-direction:column;padding:max(18px,env(safe-area-inset-top)) 20px max(22px,env(safe-area-inset-bottom));box-sizing:border-box;overflow:hidden;animation:wAskIn .2s ease}
+.w-wel-top,.w-wel-view,.w-wel-foot{max-width:520px;width:100%;margin:0 auto}
+.w-wel-top{display:flex;justify-content:space-between;align-items:center}
+.w-wel-brand{font:800 22px var(--font);letter-spacing:-.045em}
+.w-wel-skip{all:unset;cursor:pointer;font:700 16px var(--font);color:var(--dim);padding:10px 4px}
+.w-wel-skip:hover{color:var(--text)}
+.w-wel-view{flex:1;overflow:hidden;display:flex;touch-action:pan-y}
+.w-wel-track{display:flex;width:100%;transition:transform .38s cubic-bezier(.2,.8,.2,1)}
+.w-wel-slide{flex:0 0 100%;display:flex;flex-direction:column;justify-content:center;padding:8px 2px;box-sizing:border-box;min-width:0}
+.w-wel-vis{height:min(38vh,300px);display:grid;place-items:center;margin-bottom:30px}
+.w-wel-slide h2{font:800 36px/1.03 var(--font);letter-spacing:-.045em;margin:0 0 12px;color:var(--text)}
+.w-wel-slide p{font:500 18px/1.45 var(--font);color:var(--dim);margin:0;max-width:30em}
+.w-wel-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px}
+.w-wel-dots{display:flex;gap:8px}
+.w-wel-dots i{width:10px;height:10px;border-radius:99px;background:var(--line-strong);transition:width .25s,background .25s}
+.w-wel-dots i.on{width:30px;background:var(--text)}
+.w-wel-next{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:6px;background:var(--ink);color:var(--ink-fg);border-radius:999px;padding:17px 22px 17px 30px;font:700 18px var(--font)}
+.w-wel-next:focus-visible,.w-wel-skip:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.w-wv-stack{width:min(300px,76vw);display:flex;flex-direction:column}
+.w-wv-card{display:block;background:var(--c);color:#1E1E1E;border:2px solid #1E1E1E;border-radius:24px;padding:14px 20px 32px;margin-top:-24px;font:800 23px/1 var(--font);letter-spacing:-.035em;box-shadow:0 -8px 18px -12px rgba(0,0,0,.4)}
+.w-wv-card:first-child{margin-top:0}
+.w-wv-card.dk{color:#F4F3EE}
+.w-wv-quick,.w-wv-arcp{width:min(300px,76vw);border:2px solid #1E1E1E;border-radius:28px;padding:22px;box-sizing:border-box;display:flex;flex-direction:column}
+.w-wv-quick{background:var(--c-quick);color:#1E1E1E}
+.w-wv-qt,.w-wv-k{font:800 27px/1 var(--font);letter-spacing:-.04em}
+.w-wv-qrow{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.w-wv-sel{border:2px solid #1E1E1E;border-radius:99px;padding:10px 18px;font:700 17px var(--font);background:#F4F3EE}
+.w-wv-qrow b{font:800 44px/1 var(--font);letter-spacing:-.05em}
+.w-wv-btn{display:block;text-align:center;background:#1E1E1E;color:#F4F3EE;border-radius:99px;padding:14px;margin-top:20px;font:700 16px var(--font)}
+.w-wv-arcp{background:#1E1E1E;color:#F4F3EE}
+.w-wv-arcp b{font:800 46px/1 var(--font);letter-spacing:-.05em;margin-top:14px}
+.w-wv-lock{display:flex;gap:6px;align-items:center;font:600 14px var(--font);opacity:.85;margin-top:8px}
+.w-wv-docs{display:flex;gap:7px;margin-top:20px;flex-wrap:wrap}
+.w-wv-docs i{font:700 13px var(--font);font-style:normal;display:flex;gap:5px;align-items:center;color:#1E1E1E;background:var(--c-spec);border-radius:99px;padding:7px 11px}
+.w-wv-docs i:nth-child(2){background:var(--c-cpd)}.w-wv-docs i:nth-child(3){background:var(--c-quick)}
+.w-wel-slide.on .w-wv-card{animation:wvUp .5s cubic-bezier(.2,.8,.2,1) both}
+.w-wel-slide.on .w-wv-card:nth-child(2){animation-delay:.06s}.w-wel-slide.on .w-wv-card:nth-child(3){animation-delay:.12s}
+.w-wel-slide.on .w-wv-card:nth-child(4){animation-delay:.18s}.w-wel-slide.on .w-wv-card:nth-child(5){animation-delay:.24s}
+.w-wel-slide.on .w-wv-qrow b{animation:wvPop .6s .25s cubic-bezier(.3,1.6,.5,1) both}
+.w-wel-slide.on .w-wv-docs i{animation:wvUp .45s cubic-bezier(.2,.8,.2,1) both}
+.w-wel-slide.on .w-wv-docs i:nth-child(2){animation-delay:.08s}.w-wel-slide.on .w-wv-docs i:nth-child(3){animation-delay:.16s}
+@keyframes wvUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes wvPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+@media (max-width:420px){.w-wel-slide h2{font-size:31px}.w-wel-slide p{font-size:17px}.w-wel-vis{margin-bottom:24px}.w-su{padding:18px 18px 6px;border-radius:28px}.w-su-h{font-size:27px}}
+@media (max-height:640px){.w-wel-vis{height:30vh;margin-bottom:18px}.w-wel-slide h2{font-size:28px}}
+@media (prefers-reduced-motion:reduce){.w-wel-track{transition:none}.w-wel-slide.on .w-wv-card,.w-wel-slide.on .w-wv-qrow b,.w-wel-slide.on .w-wv-docs i,.w-su-bar i{animation:none;transition:none}}
 </style>
 
 </head>
@@ -1401,7 +1496,7 @@ const SPECIALTIES = {
       spec_teaching:{label:"Evidence of teaching involvement",type:"checkbox",deadline:"annual",note:"Annual evidence"},
       spec_es:{label:"Educational Supervisor Report",type:"checkbox",deadline:"annual",note:"One per year"},
       spec_lines:{label:"Temporary line competency",type:"checkbox",deadline:"ST4",note:"Competent by end of ST4"},
-      spec_sce:{label:"ESENeph / SCE",type:"checkbox",deadline:"ST6",note:"Pass before CCT"},
+      spec_sce:{label:"SCE exam",type:"checkbox",deadline:"ST6",note:"Pass before CCT"},
       spec_qip:{label:"QIP + QIPAT",type:"checkbox",deadline:"ST6",note:"One-off milestone"},
       spec_survey_st5:{label:"Patient Survey (ST5)",type:"checkbox",deadline:"ST5",note:"Counts as the GIM Patient Survey — completing this completes GIM too",sharesTo:"gim_survey"},
       spec_survey_st7:{label:"Patient Survey (ST7)",type:"checkbox",deadline:"ST7",note:"Required again in ST7 for the Renal curriculum"},
@@ -6653,7 +6748,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         </div>
       </div>
       <div class="w-homegrid">
-        <div><div class="w-stack">${stack}</div><div class="w-foot"><b>● ${safe(sync)}</b> · ${safe(sp.label)} + GIM · ${safe(state.profile?.deanery||'')}</div></div>
+        <div>${setupCardHTML()}<div class="w-stack">${stack}</div><div class="w-foot"><b>● ${safe(sync)}</b> · ${safe(sp.label)} + GIM · ${safe(state.profile?.deanery||'')}</div></div>
         <aside class="w-side">
           <div class="w-h2">Still to close <small>${yearLocked()?(outcome()?`${currentYear} · Outcome ${outcome()}`:`${currentYear} locked`):`${open.length} open in ${currentYear}`}</small></div>
           <div class="w-list">${openRows}</div>
@@ -7041,7 +7136,12 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
 
   window.wStartNext = function(from){
     from=from||currentYear; const next=nextYearOf(from); if(!next) return;
-    if(state.profile && YEARS.indexOf(state.profile.trainingYear)<YEARS.indexOf(next)){ state.profile.trainingYear=next; saveState(); }
+    if(state.profile && YEARS.indexOf(state.profile.trainingYear)<YEARS.indexOf(next)){
+      // the new year starts a year on from the last, so "Training year started" moves with it
+      const i0=YEARS.indexOf(state.profile.trainingYear), ys=state.profile.yearStart;
+      if(i0>=0 && ys?.year) state.profile.yearStart={...ys, year:Number(ys.year)+(YEARS.indexOf(next)-i0)};
+      state.profile.trainingYear=next; saveState();
+    }
     currentTab='home'; try{ localStorage.setItem('arcp_v2_tab','home'); }catch(e){}
     setYear(next);
     try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
@@ -7076,7 +7176,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     if(needs.length) items.push(['flag',`${needs.length} development need${needs.length===1?'':'s'} from your ${y} panel`]);
     if(state.als){ const d=new Date(state.als); if(!isNaN(d)) items.push(['check',`ALS valid to ${d.toLocaleDateString('en-GB',{month:'short',year:'numeric'})}`]); }
     const sce=specReqs().spec_sce;
-    if(sce && !getReqVal('spec_sce',sce) && state.sceDate){ const d=new Date(state.sceDate); if(!isNaN(d)) items.push(['book',`ESENeph / SCE planned ${d.toLocaleDateString('en-GB',{month:'short',year:'numeric'})}`]); }
+    if(sce && !getReqVal('spec_sce',sce) && state.sceDate){ const d=new Date(state.sceDate); if(!isNaN(d)) items.push(['book',`SCE exam planned ${d.toLocaleDateString('en-GB',{month:'short',year:'numeric'})}`]); }
     const np=new Date(state.arcpDates?.[next]||ARCP_DEFAULTS[next]);
     if(!isNaN(np)) items.push(['flag',`${next} ARCP · ${np.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`]);
     items.push(['list','Logbook totals keep counting towards CCT']);
@@ -7280,6 +7380,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       ${row('moon','Appearance',dark?'Dark mode':'Light mode','toggleFocus();render()',dark?'Use light':'Use dark')}
       ${isStandalone()?'':row('dl','Install on this phone', installPrompt?'Add Outcome1 as an app':'Home-screen app that works offline','wInstall()','Install')}
       ${row('sliders','Profile and specialty',`${safe(sp.label)} · ${safe(currentYear)}`,'openSettings()','Edit')}
+      ${row('compass','Setup guide','Welcome tour and getting-started checklist','wSetupOpen()','Open')}
       ${row('reset',`Reset ${safe(currentYear)}`,'Clears this year’s requirement values; logbook kept','resetYearData()','Reset',true)}
       ${row('user','New test profile','Starts a blank profile on this browser','startFreshProfile()','Start',true)}
     </div></section>`);
@@ -7382,6 +7483,306 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const f=document.querySelector('.w-foot b'); if(f){ f.textContent=txt; f.classList.toggle('w-wait',!live); }
   };
   ['firebase-signed-in','firebase-signed-out'].forEach(ev=>window.addEventListener(ev, ()=>setTimeout(()=>window.forceLiveStatus(),0)));
+
+  // ARCP date follows when the training year starts: about ten months in, so February starters
+  // have their ARCP in December and August starters in June. Only dates the trainee hasn't typed are filled.
+  const LEGACY_ARCP={...ARCP_DEFAULTS};
+  const isoMid=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-15';   // mid-month: panels rarely sit on the 1st
+  window.arcpDefaultFor = function(y, prof){
+    prof=prof||state.profile; const ys=prof?.yearStart, i=YEARS.indexOf(y), i0=YEARS.indexOf(prof?.trainingYear);
+    if(!ys || !ys.year || i<0 || i0<0) return LEGACY_ARCP[y]||'';
+    return isoMid(new Date(Number(ys.year)+(i-i0), (Number(ys.month)||8)-1+10, 1));
+  };
+  const arcpIsAuto=y=>{ const v=state.arcpDates?.[y]; return !v || v===LEGACY_ARCP[y] || v===state.arcpAuto?.[y]; };
+  function applyArcpDefaults(){
+    if(!state.profile?.yearStart) return;
+    state.arcpDates=state.arcpDates||{}; state.arcpAuto=state.arcpAuto||{};
+    YEARS.forEach(y=>{ const d=arcpDefaultFor(y); if(d && arcpIsAuto(y)){ state.arcpDates[y]=d; state.arcpAuto[y]=d; } });
+  }
+  function arcpHint(){
+    const m=document.getElementById('on-year-start-month'), yy=document.getElementById('on-year-start-year'), ty=document.getElementById('on-year');
+    if(!m || !yy || !ty) return;
+    let h=document.getElementById('on-arcp-hint');
+    if(!h){
+      h=document.createElement('div'); h.id='on-arcp-hint'; h.className='hint'; h.style.marginTop='6px';
+      (m.closest('.field')||m.parentNode).appendChild(h);
+      [m,yy,ty].forEach(el=>el.addEventListener('change', arcpHint));
+    }
+    const yr=ty.value, longDate=v=>new Date(v).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    if(state.profile && state.arcpDates?.[yr] && !arcpIsAuto(yr)){
+      h.textContent=`Your ${yr} ARCP stays on ${new Date(state.arcpDates[yr]).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}, the date you set.`;
+      return;
+    }
+    const d=arcpDefaultFor(yr,{trainingYear:yr, yearStart:{month:+m.value, year:+yy.value}});
+    h.textContent = d ? `Your ${yr} ARCP will be pencilled in for ${longDate(d)}. You can change it once you know the panel date.` : '';
+  }
+  const __initOnb=window.initOnboarding;
+  window.initOnboarding=function(){ const r=__initOnb.apply(this,arguments); try{ arcpHint(); }catch(e){} return r; };
+  const __saveOnb=window.saveOnboarding;
+  window.saveOnboarding=function(){
+    const before=state.profile; const r=__saveOnb.apply(this,arguments);
+    if(state.profile && state.profile!==before){
+      applyArcpDefaults();
+      if(!before && !state.setup) state.setup={v:1, startedAt:Date.now()};   // new account: welcome cards + setup checklist
+      saveState(); render();
+    }
+    return r;
+  };
+
+  // ═══ First run: three welcome cards, then a "Get set up" checklist at the top of Home ═══
+  // Only new accounts get it automatically (state.setup is created at sign-up); anyone can open it from Account.
+  Object.assign(IC, {
+    pin:'<path d="M12 21s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+    phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+    compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>'
+  });
+  const suState = () => { const s=state.setup; s.done=s.done||{}; s.skipped=s.skipped||{}; return s; };
+  const suDate = v => { const d=new Date(v); return isNaN(d)?'':d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
+  const suLockDate = v => { const d=new Date(v); if(isNaN(d)) return ''; d.setDate(d.getDate()-14); return suDate(d); };
+  const suAnyEntry = () => KINDS.some(k=>(entries(k)||[]).length);
+
+  function suSteps(){
+    const s=suState(), cy=currentYear, sce=specReqs().spec_sce;
+    const arcpV=state.arcpDates?.[cy]||ARCP_DEFAULTS[cy], arcpAuto=arcpIsAuto(cy);
+    const scePassed=!!(sce && getReqVal('spec_sce',sce));
+    const steps=[
+      { k:'arcp', icon:'flag', t:`Your ${cy} ARCP date`, done:!!s.done.arcp || !arcpAuto,
+        sub: arcpAuto?`Pencilled in for ${suDate(arcpV)}`:`Set for ${suDate(arcpV)}`, open:suArcp },
+      { k:'als', icon:'pulse', t:'ALS expiry', done:!!state.als,
+        sub: state.als?`Valid to ${suDate(state.als)}`:'Shown on your ARCP card', open:suAls },
+      { k:'hosp', icon:'pin', t:'Hospitals you rotate through', done:!!s.done.hosp,
+        sub: s.done.hosp?`${hospitalOptions().length} in your list`:'Trim the list to your sites', open:suHosp },
+      sce && { k:'sce', icon:'book', t:'SCE exam', done:!!s.done.sce || !!state.sceDate || scePassed,
+        sub: scePassed?'Passed':state.sceDate?`Sitting ${suDate(state.sceDate)}`:s.done.sce?'Not booked yet':'Add the date if you have one', open:suSce },
+      { k:'already', icon:'check', t:'Already done', done:!!s.done.already,
+        sub:'Tick off anything finished before today', open:suAlready },
+      { k:'install', icon:'phone', t:'Install on your phone', done:isStandalone() || !!s.done.install,
+        sub: isStandalone()?'Installed':'Opens like an app, works offline', open:suInstall },
+      { k:'first', icon:'plus', t:'Log your first entry', done:suAnyEntry(),
+        sub:'Clinic, procedure, CPD and more', open:suFirst }
+    ].filter(Boolean);
+    steps.forEach(x=>{ x.later=!x.done && !!s.skipped[x.k]; });
+    return steps;
+  }
+  function setupCardHTML(){
+    const s=state.setup;
+    if(!s || s.dismissed || s.completedAt || !state.profile) return '';
+    if(!s.welcomed) setTimeout(()=>{ if(state.setup && !state.setup.welcomed && !document.getElementById('w-welcome')) wWelcome(); },200);
+    const steps=suSteps(), n=steps.length, d=steps.filter(x=>x.done).length;
+    if(d===n){
+      s.completedAt=Date.now(); saveState();
+      setTimeout(()=>{ confetti(document.body,'party'); wToast('You’re all set up'); },250);
+      return '';
+    }
+    const open=steps.filter(x=>!x.done && !x.later), later=steps.filter(x=>x.later), done=steps.filter(x=>x.done);
+    const all=!!window.__wSuAll, list=all?[...open,...later,...done]:[...open,...later].slice(0,3);
+    const rows=list.map(x=>`<button class="w-su-row ${x.done?'is-done':''}" onclick="wSetupStep('${x.k}')">
+        <span class="w-su-ic">${I(x.done?'check':x.icon,20)}</span>
+        <span class="w-su-m"><span class="w-su-t">${safe(x.t)}</span><span class="w-su-s">${x.later?'Later · ':''}${safe(x.sub)}</span></span>${I('chev',18)}</button>`).join('');
+    return `<section class="w-su" aria-labelledby="w-su-t">
+      <div class="w-su-head"><div><div class="w-su-k">${d} of ${n} done</div><h2 class="w-su-h" id="w-su-t">Get set up</h2></div>
+        <button class="w-su-x" onclick="wSetupHide()" aria-label="Hide the setup guide" title="Hide">${I('x',18)}</button></div>
+      <div class="w-su-bar" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${d}"><i style="width:${Math.max(4,Math.round(d/n*100))}%"></i></div>
+      <div class="w-su-list">${rows}</div>
+      ${n>list.length||all?`<button class="w-su-more" onclick="window.__wSuAll=!window.__wSuAll;render()">${all?'Show less':`See all ${n} steps`}</button>`:''}
+    </section>`;
+  }
+  function suMark(k){ const s=suState(); s.done[k]=true; delete s.skipped[k]; saveState(); render(); }
+  function suLater(k){ const s=suState(); s.skipped[k]=true; saveState(); render(); }
+  window.wSetupStep = function(k){ const st=suSteps().find(x=>x.k===k); if(st) st.open(); };
+  window.wSetupHide = function(){
+    if(!state.setup) return; state.setup.dismissed=true; saveState(); render();
+    wToast('Setup guide hidden. Find it in Account');
+  };
+  window.wSetupOpen = function(){
+    const s=Object.assign({v:1, startedAt:Date.now()}, state.setup||{});
+    s.dismissed=false; s.skipped={}; delete s.completedAt; s.welcomed=true;
+    state.setup=s; saveState();
+    currentTab='home'; try{ localStorage.setItem('arcp_v2_tab','home'); }catch(e){}
+    render(); wWelcome();
+  };
+  window.addEventListener('appinstalled', ()=>{ if(state.setup) suMark('install'); });
+
+  // One sheet for every step: a title, a short why, the field, then the actions
+  function suSheet(o){
+    document.getElementById('w-su-sheet')?.remove();
+    const prev=document.activeElement;
+    const wrap=document.createElement('div'); wrap.id='w-su-sheet'; wrap.className='w-ask w-su-sheet';
+    wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-sus-t" tabindex="-1">
+      <div class="w-ask-t" id="w-sus-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
+      ${o.body?`<div class="w-sus-body">${o.body}</div>`:''}
+      <div class="w-sus-acts">${o.actions.map((a,i)=>`<button class="${a.primary?'w-sus-go':'w-sus-alt'}" data-i="${i}">${a.label}</button>`).join('')}</div>
+      <button class="w-ask-x" data-x="1">Close</button></div>`;
+    const close=()=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
+    wrap.addEventListener('click',e=>{
+      if(e.target===wrap||e.target.closest('[data-x]')){ close(); return; }
+      const b=e.target.closest('[data-i]'); if(!b) return;
+      if(o.actions[+b.dataset.i].on(wrap)!==false) close();
+    });
+    document.addEventListener('keydown',onKey,true);
+    document.body.appendChild(wrap);
+    o.onOpen&&o.onOpen(wrap);
+    try{ wrap.querySelector('.w-ask-card').focus({preventScroll:true}); }catch(e){}
+    return wrap;
+  }
+  const dateField=(label,v)=>`<label class="w-sus-l" for="w-sus-date">${label}</label><input class="input w-sus-in" id="w-sus-date" type="date" value="${safe(v||'')}">`;
+  const needDate=w=>{ const i=w.querySelector('#w-sus-date'); if(i.value) return i.value; i.classList.remove('w-flash'); void i.offsetWidth; i.classList.add('w-flash'); try{ i.focus(); }catch(e){} return ''; };
+
+  function suArcp(){
+    const cy=currentYear, v=state.arcpDates?.[cy]||ARCP_DEFAULTS[cy], auto=arcpIsAuto(cy);
+    suSheet({ title:`Your ${cy} ARCP`,
+      sub: auto?`Pencilled in for ${suDate(v)}, based on when your training year started. Put the real date in when you know it.`:`Your panel is set for ${suDate(v)}.`,
+      body: dateField('ARCP date', v)+`<div class="w-sus-note" id="w-sus-lock">Your portfolio locks on ${suLockDate(v)}, two weeks before.</div>`,
+      onOpen:w=>{ const i=w.querySelector('#w-sus-date'), n=w.querySelector('#w-sus-lock');
+        const upd=()=>{ n.textContent=i.value?`Your portfolio locks on ${suLockDate(i.value)}, two weeks before.`:''; };
+        i.addEventListener('input',upd); i.addEventListener('change',upd); },
+      actions:[
+        { label:'Save date', primary:true, on:w=>{ const nv=needDate(w); if(!nv) return false;
+            if(nv!==v){ state.arcpDates[cy]=nv; if(state.arcpAuto) delete state.arcpAuto[cy]; } suMark('arcp'); } },
+        ...(auto?[{ label:'Keep the pencilled date', on:()=>suMark('arcp') }]:[])
+      ]});
+  }
+  function suAls(){
+    suSheet({ title:'ALS expiry', sub:'Outcome1 shows it on your ARCP card and reminds you before it runs out.',
+      body: dateField('Expires on', state.als),
+      actions:[ { label:'Save', primary:true, on:w=>{ const v=needDate(w); if(!v) return false; state.als=v; suMark('als'); } },
+                { label:'Not now', on:()=>suLater('als') } ]});
+  }
+  function suHosp(){
+    const dean=DEANERIES[state.profile?.deanery]||[], base=state.profile?.baseHospital||'';
+    const gone=new Set([...(state.deletedHospitals||[]),...(state.hiddenHospitals||[])]);
+    const others=[...new Set([...dean,...(state.hospitals||[])])].filter(h=>h && h!==base && h!=='Other / not listed').sort((a,b)=>a.localeCompare(b));
+    const item=(h,on,isBase)=>`<label class="w-sus-chk"><input type="checkbox" value="${safe(h)}" ${on?'checked':''} ${isBase?'disabled':''}><span>${safe(h)}</span>${isBase?'<em>Base</em>':''}</label>`;
+    suSheet({ title:'Hospitals you rotate through', sub:'These fill the hospital box on every entry. Untick the ones you won’t work in.',
+      body:`<div class="w-sus-tools"><button type="button" class="w-sus-link" data-all="0">Untick all</button><button type="button" class="w-sus-link" data-all="1">Tick all</button></div>
+        <div class="w-sus-scroll" id="w-sus-hosp">${base?item(base,true,true):''}${others.map(h=>item(h,!gone.has(h),false)).join('')}</div>
+        <div class="w-sus-add"><input class="input" id="w-sus-newh" placeholder="Add another hospital" aria-label="Add another hospital"><button type="button" class="btn small" id="w-sus-addh">Add</button></div>`,
+      onOpen:w=>{
+        const box=w.querySelector('#w-sus-hosp');
+        w.querySelectorAll('[data-all]').forEach(b=>b.addEventListener('click',()=>box.querySelectorAll('input:not([disabled])').forEach(c=>{ c.checked=b.dataset.all==='1'; })));
+        const add=()=>{ const i=w.querySelector('#w-sus-newh'), v=i.value.trim(); if(!v) return;
+          const ex=[...box.querySelectorAll('input')].find(c=>c.value.toLowerCase()===v.toLowerCase());
+          if(ex) ex.checked=true; else box.insertAdjacentHTML('beforeend', item(v,true,false));
+          i.value=''; (ex?ex.closest('label'):box.lastElementChild)?.scrollIntoView({block:'nearest'}); };
+        w.querySelector('#w-sus-addh').addEventListener('click',add);
+        w.querySelector('#w-sus-newh').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } });
+      },
+      actions:[ { label:'Save list', primary:true, on:w=>{
+          const del=new Set(state.deletedHospitals||[]), hid=new Set(state.hiddenHospitals||[]), mine=new Set(state.hospitals||[]);
+          w.querySelectorAll('#w-sus-hosp input').forEach(c=>{ const h=c.value, on=c.checked||c.disabled;
+            if(on){ del.delete(h); hid.delete(h); if(!dean.includes(h)) mine.add(h); }
+            else if(dean.includes(h)){ del.add(h); hid.add(h); }
+            else mine.delete(h);
+          });
+          state.deletedHospitals=[...del]; state.hiddenHospitals=[...hid]; state.hospitals=[...mine];
+          suMark('hosp'); } },
+        { label:'Not now', on:()=>suLater('hosp') } ]});
+  }
+  function suSce(){
+    const req=specReqs().spec_sce; if(!req) return;
+    const named=/^(sce exam|specialty certificate exam)$/i.test(req.label||'')?'':req.label;
+    suSheet({ title:'SCE exam', sub:`${named?`${safe(named)}. `:''}If you’ve booked a sitting, add the date and Outcome1 will count down to it.`,
+      body: dateField('Planned sitting', state.sceDate),
+      actions:[ { label:'Save date', primary:true, on:w=>{ const v=needDate(w); if(!v) return false; state.sceDate=v; suMark('sce'); } },
+                { label:'Already passed', on:()=>{ setReqVal('spec_sce', req, true); suMark('sce'); } },
+                { label:'Not booked yet', on:()=>suMark('sce') } ]});
+  }
+  // One-off milestones someone may have finished before joining (yearly items and the SCE are left out)
+  function suAlreadyItems(){
+    const out=[], seen=new Set(), cyI=YEARS.indexOf(currentYear);
+    const add=(reqs,group)=>Object.entries(reqs||{}).forEach(([id,r])=>{
+      if(r.type!=='checkbox' || r.deadline==='annual' || id==='spec_sce' || r.linkedFrom) return;
+      const m=/\(ST(\d)\)/.exec(r.label||''); if(m && YEARS.indexOf('ST'+m[1])>cyI) return;   // e.g. the ST7 survey for an ST4
+      const key=(r.label||id).trim().toLowerCase(); if(seen.has(key)) return; seen.add(key);
+      out.push({id, r, group, on:getReqVal(id,r)});
+    });
+    add(specReqs(), specCfg().short); add(visibleGimReqs(), 'GIM');
+    return out;
+  }
+  function suAlready(){
+    const items=suAlreadyItems(); if(!items.length){ suMark('already'); return; }
+    const groups=[...new Set(items.map(x=>x.group))];
+    suSheet({ title:'Already done?', sub:'Tick anything you finished before starting Outcome1. Leave the rest and the app will keep track.',
+      body:`<div class="w-sus-scroll">${groups.map(g=>`<div class="w-sus-g">${safe(g)}</div>`+items.map((x,i)=>x.group!==g?'':`<label class="w-sus-chk"><input type="checkbox" data-req="${i}" ${x.on?'checked':''}><span>${safe(x.r.label)}</span><em>by ${safe(x.r.deadline)}</em></label>`).join('')).join('')}</div>`,
+      actions:[ { label:'Save', primary:true, on:w=>{
+          w.querySelectorAll('[data-req]').forEach(c=>{ const x=items[+c.dataset.req]; if(!!c.checked!==!!x.on) setReqVal(x.id, x.r, c.checked); });
+          suMark('already'); } },
+        { label:'Nothing yet', on:()=>suMark('already') } ]});
+  }
+  function suInstall(){
+    if(isStandalone()){ suMark('install'); return; }
+    const ua=navigator.userAgent||'', ios=/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints>1);
+    const phone=ios || /Android|Mobile/i.test(ua), host=location.hostname||'this site';
+    const later={ label:'Not now', on:()=>suLater('install') };
+    let sub, acts;
+    if(installPrompt){ sub='Outcome1 gets its own icon, opens full screen and works without signal.'; acts=[{ label:'Install', primary:true, on:()=>{ wInstall(); } }, later]; }
+    else if(ios){ sub='In Safari, tap the <b>Share</b> button, then <b>Add to Home Screen</b>. Outcome1 then opens full screen with its own icon.'; acts=[{ label:'I’ve added it', primary:true, on:()=>suMark('install') }, later]; }
+    else if(phone){ sub='Open your browser menu, then choose <b>Install app</b> or <b>Add to Home screen</b>.'; acts=[{ label:'I’ve added it', primary:true, on:()=>suMark('install') }, later]; }
+    else { sub=`On your phone, open <b>${safe(host)}</b> and add it to your home screen. It’s the same account, so everything is already there.`; acts=[{ label:'Done', primary:true, on:()=>suMark('install') }, later]; }
+    suSheet({ title:'Install on your phone', sub, actions:acts });
+  }
+  function suFirst(){
+    const sp=specCfg().short;
+    wAsk({ title:'Log your first entry', sub:'Pick what you did. It counts towards your targets straight away.', many:true, options:[
+      { label:`${safe(sp)} clinic`, on:()=>wQuick('clinics','spec') },
+      { label:'GIM clinic', on:()=>wQuick('clinics','gim') },
+      { label:`${safe(sp)} procedure`, on:()=>wQuick('procedures','spec') },
+      { label:'CPD session', sub:'Study day, course or conference', on:()=>wQuick('cpd','spec') },
+      { label:'Not now', sub:'Leave it for later', on:()=>suLater('first') } ]});
+  }
+
+  // Three welcome cards, shown once after sign-up and from Account › Setup guide
+  window.wWelcome = function(){
+    document.getElementById('w-welcome')?.remove();
+    const sp=specCfg().short, cy=currentYear;
+    const slides=[
+      { vis:`<div class="w-wv-stack">${[['ARCP','var(--c-arcp)',1],[sp,'var(--c-spec)'],['GIM','var(--c-gim)'],['CPD','var(--c-cpd)'],['Logbook','var(--c-log)']].map(([l,c,dk])=>`<span class="w-wv-card${dk?' dk':''}" style="--c:${c}">${safe(l)}</span>`).join('')}</div>`,
+        t:'Your training in one stack', p:`Each colour card is one part of your portfolio. Tap a card to open it. The numbers show how close you are for ${safe(cy)}.` },
+      { vis:`<div class="w-wv-quick"><span class="w-wv-qt">Quick log</span><span class="w-wv-qrow"><span class="w-wv-sel">Clinic</span><b>+1</b></span><span class="w-wv-btn">Log entry</span></div>`,
+        t:'Log it in seconds', p:'Quick log sits at the bottom of Home. Every entry counts towards your targets and reports automatically.' },
+      { vis:`<div class="w-wv-arcp"><span class="w-wv-k">ARCP</span><b>21 days</b><span class="w-wv-lock">${I('lock',15)}Portfolio locks in 7 days</span><span class="w-wv-docs"><i>${I('print',15)}Report</i><i>${I('book',15)}CPD diary</i><i>${I('spark',15)}Wrapped</i></span></div>`,
+        t:'Ready for the panel', p:'Outcome1 counts down to your ARCP and the portfolio lock two weeks before. When it comes round, your reports and CPD diary print in a tap.' }
+    ];
+    const el=document.createElement('div'); el.id='w-welcome'; el.className='w-wel';
+    el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Welcome to Outcome1');
+    el.innerHTML=`<div class="w-wel-top"><span class="w-wel-brand">Outcome1</span><button class="w-wel-skip" data-skip="1">Skip</button></div>
+      <div class="w-wel-view"><div class="w-wel-track">${slides.map((s,i)=>`<section class="w-wel-slide" aria-hidden="${i?'true':'false'}"><div class="w-wel-vis">${s.vis}</div><h2>${s.t}</h2><p>${s.p}</p></section>`).join('')}</div></div>
+      <div class="w-wel-foot"><div class="w-wel-dots" aria-hidden="true">${slides.map(()=>'<i></i>').join('')}</div><button class="w-wel-next" data-next="1"></button></div>`;
+    let i=0;
+    const track=el.querySelector('.w-wel-track'), next=el.querySelector('.w-wel-next'), skip=el.querySelector('.w-wel-skip');
+    const show=n=>{
+      i=Math.max(0,Math.min(slides.length-1,n));
+      track.style.transform=`translateX(${-i*100}%)`;
+      el.querySelectorAll('.w-wel-slide').forEach((s,k)=>{ s.classList.toggle('on',k===i); s.setAttribute('aria-hidden',k===i?'false':'true'); });
+      el.querySelectorAll('.w-wel-dots i').forEach((d,k)=>d.classList.toggle('on',k===i));
+      const last=i===slides.length-1;
+      next.innerHTML=last?`Get set up${I('chev',20)}`:`Next${I('chev',20)}`; skip.style.visibility=last?'hidden':'visible';
+    };
+    const finish=()=>{
+      el.remove(); document.removeEventListener('keydown',onKey,true);
+      if(state.setup && !state.setup.welcomed){ state.setup.welcomed=true; saveState(); }
+      if(currentTab!=='home') setTab('home'); else render();
+      setTimeout(()=>{ const c=document.querySelector('.w-su'); if(c) c.scrollIntoView({behavior:'smooth',block:'start'}); },60);
+    };
+    const onKey=e=>{
+      if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); finish(); }
+      else if(e.key==='ArrowRight'){ e.preventDefault(); show(i+1); }
+      else if(e.key==='ArrowLeft'){ e.preventDefault(); show(i-1); }
+      else if(e.key==='Tab'){ e.preventDefault(); const f=[skip,next].filter(b=>b.style.visibility!=='hidden'); const k=f.indexOf(document.activeElement); f[(k+(e.shiftKey?-1:1)+f.length)%f.length].focus(); }
+    };
+    el.addEventListener('click',e=>{
+      if(e.target.closest('[data-skip]')) finish();
+      else if(e.target.closest('[data-next]')){ if(i>=slides.length-1) finish(); else show(i+1); }
+    });
+    let x0=null;   // swipe between cards
+    el.querySelector('.w-wel-view').addEventListener('pointerdown',e=>{ x0=e.clientX; });
+    el.querySelector('.w-wel-view').addEventListener('pointerup',e=>{ if(x0===null) return; const dx=e.clientX-x0; x0=null; if(Math.abs(dx)>40) show(i+(dx<0?1:-1)); });
+    document.addEventListener('keydown',onKey,true);
+    el.tabIndex=-1; el.style.outline='none';
+    document.body.appendChild(el); show(0);
+    try{ el.focus({preventScroll:true}); }catch(e){}   // the dialog takes focus, so no ring shows after a tap
+  };
 
   currentTab=normTab(currentTab);
   try{ render(); }catch(e){ console.error('[Outcome1] wallet render failed', e); }
