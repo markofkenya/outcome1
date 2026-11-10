@@ -8186,8 +8186,9 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
 
   // ═══ Card ↔ section transition ═══
   // Opening: the tapped card's colour grows into the section header while the other cards drop away; then the
-  // summary card slides down out of the pocket to reveal the "Add…" card. Closing plays it backwards.
-  // The screen itself switches straight away underneath; the movement is drawn on top. ~0.6s; off with Reduce Motion.
+  // summary card slides down out of the pocket (slowly enough to notice) to reveal the "Add…" card.
+  // Closing is quieter: Home is already in place and the header simply shrinks back into its card in the stack.
+  // The screen itself switches straight away underneath; the movement is drawn on top. Off with Reduce Motion.
   const ANIM_TABS=['arcp','specialty','gim','cpd','logbook','admin'];
   const EASE='cubic-bezier(.2,.8,.2,1)';
   let animBusy=false;
@@ -8228,11 +8229,13 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       grow.onfinish=()=>{
         head.style.visibility=''; layer.remove(); done=true;
         const pk=pocket(head);
-        if(pk && pk.tab && pk.dy>0){ const a=pk.bal.animate([{transform:`translateY(${-pk.dy}px)`},{transform:'translateY(0)'}],{duration:240,easing:EASE}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
-        else if(pk){ const a=pk.bal.animate([{transform:'translateY(-10px)',opacity:.4},{transform:'none',opacity:1}],{duration:220,easing:EASE}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
+        // a short beat with the cards stacked, then a slower slide down to reveal the "Add…" card
+        if(pk && pk.tab && pk.dy>0){ const a=pk.bal.animate([{transform:`translateY(${-pk.dy}px)`},{transform:'translateY(0)'}],{duration:520,delay:90,easing:'cubic-bezier(.3,.7,.25,1)',fill:'backwards'}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
+        else if(pk){ const a=pk.bal.animate([{transform:'translateY(-10px)',opacity:.4},{transform:'none',opacity:1}],{duration:380,easing:EASE}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
         else animBusy=false;
       };
       setTimeout(finish,1500);   // never leave the screen covered
+      setTimeout(()=>{ animBusy=false; },2000);
     }catch(err){ console.warn('[Outcome1] open transition skipped', err); finish(); }
   };
   const __wHomeAnim=window.wHome;
@@ -8240,29 +8243,24 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const fromTab=currentTab, head=main().querySelector('.w-head');
     if(animBusy || reduceMotion() || !ANIM_TABS.includes(fromTab) || !head || typeof Element.prototype.animate!=='function') return __wHomeAnim.apply(this,arguments);
     animBusy=true;
-    const hs=shape(head), layer=animLayer(1);   // sits under the home cards so they rise back over it
+    const hs=shape(head), layer=animLayer(1500);
+    // the header as it looks now, drawn on top; its contents fade straight away so only the colour moves
     const hc=head.cloneNode(true); hc.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id')); hc.classList.add('w-ghost');
     hc.style.borderColor=hs.bc; Object.assign(hc.style, frame(hs,{borderRadius:'0px', margin:'0', padding:getComputedStyle(head).padding}));
     layer.appendChild(hc);
-    let cards=[], card=null, done=false;
-    const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; cards.forEach(c=>c.style.zIndex=''); layer.remove(); animBusy=false; };
+    let card=null, done=false;
+    const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; layer.remove(); animBusy=false; };
     try{
       __wHomeAnim.apply(this,arguments); window.scrollTo(0,0);
       card=homeSource(fromTab); if(!card){ finish(); return; }
       card.style.visibility='hidden';
-      const to=shape(card), vh=innerHeight;
-      cards=[...main().querySelectorAll('.w-stack > .w-card')].filter(c=>c!==card);
-      if(fromTab==='admin') cards=cards.concat([]);
-      cards.forEach((c,i)=>{ c.style.zIndex='2'; const below=c.getBoundingClientRect().top>to.r.top;
-        c.animate([{transform:`translateY(${below?vh*.6:-vh*.35}px)`,opacity:0},{transform:'none',opacity:1}],{duration:300,delay:200+i*18,easing:EASE,fill:'backwards'}); });
-      const pk=pocket(hc);
-      const shrink=()=>{
-        [...hc.children].forEach(ch=>ch.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'}));
-        const a=hc.animate([frame(hs,{borderRadius:'0px'}),frame(to)],{duration:360,easing:EASE,fill:'forwards'});
-        a.onfinish=finish;
+      const to=shape(card);
+      [...hc.children].forEach(ch=>ch.animate([{opacity:1},{opacity:0}],{duration:110,fill:'forwards'}));
+      const a=hc.animate([frame(hs,{borderRadius:'0px'}),frame(to)],{duration:440,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+      a.onfinish=()=>{   // the card takes its place underneath, and the colour block fades off it
+        if(card) card.style.visibility='';
+        const f=hc.animate([{opacity:1},{opacity:0}],{duration:130,fill:'forwards'}); f.onfinish=f.oncancel=finish;
       };
-      if(pk && pk.tab && pk.dy>0){ const a=pk.bal.animate([{transform:'translateY(0)'},{transform:`translateY(${-pk.dy}px)`}],{duration:200,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'}); a.onfinish=shrink; }
-      else shrink();
       setTimeout(finish,1500);
     }catch(err){ console.warn('[Outcome1] close transition skipped', err); finish(); }
   };
