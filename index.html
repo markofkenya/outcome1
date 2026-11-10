@@ -1343,6 +1343,96 @@ body.focus .w-su-bar{border-color:var(--line-strong)}
 @media (max-width:420px){.w-wel-slide h2{font-size:31px}.w-wel-slide p{font-size:17px}.w-wel-vis{margin-bottom:24px}.w-su{padding:18px 18px 6px;border-radius:28px}.w-su-h{font-size:27px}}
 @media (max-height:640px){.w-wel-vis{height:30vh;margin-bottom:18px}.w-wel-slide h2{font-size:28px}}
 @media (prefers-reduced-motion:reduce){.w-wel-track{transition:none}.w-wel-slide.on .w-wv-card,.w-wel-slide.on .w-wv-qrow b,.w-wel-slide.on .w-wv-docs i,.w-su-bar i{animation:none;transition:none}}
+
+/* ═══ Entry sheet: details, edit and delete ═══ */
+.w-acts.five{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+@media (max-width:600px){.w-acts.five .w-act i{width:54px;height:54px}.w-acts.five .w-act{font-size:13px}}
+.w-ent{border:1px solid var(--line);border-radius:18px;background:var(--bg3);padding:2px 14px}
+.w-ent-r{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font:500 15px/1.35 var(--font)}
+.w-ent-r:last-child{border-bottom:0}
+.w-ent-r span{color:var(--dim);flex:none}
+.w-ent-r b{font-weight:700;text-align:right;min-width:0;overflow-wrap:anywhere}
+.w-ee{display:grid;gap:14px}
+.w-ee textarea.input{min-height:84px;resize:vertical}
+.w-sus-del{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.w-sus-del:hover{border-color:var(--red)}
+.w-sus-go.w-sus-dz{background:var(--red);color:#fff}
+body.focus .w-sus-go.w-sus-dz{color:#121212}
+.lb-row-data[role=button]{cursor:pointer;transition:background .15s}
+.lb-row-data[role=button]:hover{background:var(--bg3)}
+.lb-row-data[role=button]:focus-visible{outline:3px solid var(--text);outline-offset:-3px}
+.w-toast.w-tip{white-space:normal;width:max-content;max-width:calc(100vw - 32px);box-sizing:border-box;border-radius:26px;line-height:1.3}
+.w-toast.w-tip span{flex:1;min-width:0}
+.w-toast.w-tip button{flex:none;white-space:nowrap}
+
+/* ═══ Importer ═══ */
+.w-imp{position:fixed;inset:0;z-index:2500;background:var(--bg);color:var(--text);display:flex;flex-direction:column;animation:wAskIn .18s ease}
+.w-imp-top{display:flex;align-items:center;gap:12px;padding:max(12px,env(safe-area-inset-top)) 16px 12px;background:var(--c-log);color:#1E1E1E;border-bottom:2px solid #1E1E1E}
+.w-imp-top h2{flex:1;margin:0;text-align:center;font:800 24px/1 var(--font);letter-spacing:-.035em;color:#1E1E1E}
+.w-imp-x{all:unset;box-sizing:border-box;cursor:pointer;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.5);color:#1E1E1E;flex:none}
+.w-imp-x:focus-visible{outline:3px solid #1E1E1E;outline-offset:2px}
+.w-imp-sp{width:46px;flex:none}
+.w-imp-body{flex:1;overflow:auto;padding:22px 16px 32px;overscroll-behavior:contain}
+.w-imp-in{max-width:640px;margin:0 auto}
+.w-imp-lead{font:500 17px/1.45 var(--font);color:var(--dim);margin:0 0 20px}
+.w-imp-lead b{color:var(--text);overflow-wrap:anywhere}
+.w-imp-step{border:2px solid #1E1E1E;border-radius:26px;padding:18px;margin-bottom:14px;background:var(--c);color:#1E1E1E}
+.w-imp-step h3{margin:0 0 6px;font:800 21px/1.15 var(--font);letter-spacing:-.025em;color:#1E1E1E}
+.w-imp-step p{margin:0;font:500 15px/1.45 var(--font);color:#3A3836}
+.w-imp-btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:13px 20px;border-radius:999px;background:#1E1E1E;color:#F4F3EE;font:700 16px var(--font)}
+.w-imp-btn:hover{background:#000}
+.w-imp-btn:focus-visible,.w-imp-file:focus-visible+*{outline:3px solid #1E1E1E;outline-offset:3px}
+.w-imp-file{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.w-imp-status{font:600 15px/1.4 var(--font);color:var(--dim);margin:12px 2px 0}
+.w-imp-status.err{color:var(--red)}
+.w-imp-foot{border-top:1px solid var(--line);background:var(--bg2);padding:12px 16px max(12px,env(safe-area-inset-bottom))}
+.w-imp-fin{max-width:640px;margin:0 auto;display:flex;gap:10px}
+.w-imp-go,.w-imp-alt{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;border-radius:999px;font:700 17px var(--font);padding:16px 18px}
+.w-imp-go{flex:1;background:var(--ink);color:var(--ink-fg)}
+.w-imp-go[disabled]{opacity:.4;cursor:not-allowed}
+.w-imp-alt{border:2px solid var(--line-strong);color:var(--text);flex:none;padding:14px 18px}
+.w-imp-fin .w-imp-alt:only-child{flex:1}
+.w-imp-go:focus-visible,.w-imp-alt:focus-visible,.w-imp-link:focus-visible,.w-imp-colsbtn:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.w-imp-sh{background:var(--bg2);border:1px solid var(--line);border-radius:26px;padding:18px;margin-bottom:16px}
+.w-imp-sh.is-skip{opacity:.7}
+.w-imp-shh{display:grid;gap:12px}
+.w-imp-shn{display:flex;align-items:center;gap:8px;font:700 15px var(--font);color:var(--text);min-width:0}
+.w-imp-shn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.w-imp-shn small{margin-left:auto;font:500 14px var(--font);color:var(--dim);flex:none}
+.w-imp-sel{width:100%;max-width:none;box-sizing:border-box;font-size:16px;padding:11px 40px 11px 16px;color:#1E1E1E;text-overflow:ellipsis}
+.w-imp-muted{font:500 14px/1.45 var(--font);color:var(--dim);margin:12px 0 0}
+.w-imp-cols{margin-top:14px;border-top:1px solid var(--line)}
+.w-imp-colsbtn{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;font:700 15px var(--font);color:var(--text)}
+.w-imp-colsbtn svg{transition:transform .2s;flex:none;color:var(--dim)}
+.w-imp-colsbtn[aria-expanded=true] svg{transform:rotate(90deg)}
+.w-imp-colist{padding-bottom:6px}
+.w-imp-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.w-imp-col b{display:block;font:700 15px/1.25 var(--font);overflow-wrap:anywhere}
+.w-imp-col small{display:block;font:500 13px var(--font);color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.w-imp-col .w-imp-sel{font-size:15px;padding:9px 34px 9px 13px;background-position:right 11px center}
+.w-imp-scope{display:grid;gap:8px;margin-top:12px;font:600 14px var(--font);color:var(--dim)}
+.w-imp-res{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:9px}
+.w-imp-res li{display:flex;align-items:center;gap:10px;font:500 15px/1.35 var(--font)}
+.w-imp-res li>span:nth-child(2){flex:1}
+.w-imp-res .dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--bg4);color:var(--text);font:800 15px var(--font)}
+.w-imp-res .ok .dot{background:var(--c-quick);color:#1E1E1E}
+.w-imp-res .bad .dot{background:var(--c-log);color:#1E1E1E}
+.w-imp-link{all:unset;cursor:pointer;font:700 14px var(--font);color:var(--text);text-decoration:underline;text-underline-offset:3px;flex:none}
+.w-imp-why{margin:10px 0 0;padding:10px 14px;list-style:none;background:var(--bg3);border-radius:14px;font:500 13.5px/1.5 var(--font);color:var(--dim);max-height:180px;overflow:auto}
+.w-imp-years{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.w-imp-years span{font:700 13px var(--font);background:var(--bg4);color:var(--text);padding:5px 11px;border-radius:99px}
+.w-imp-pvs{margin-top:14px;border-top:1px solid var(--line)}
+.w-imp-pv{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
+.w-imp-pv:last-child{border-bottom:0}
+.w-imp-pv b{font:700 15px var(--font)}
+.w-imp-pv span{font:500 13.5px var(--font);color:var(--dim)}
+.w-imp-done{text-align:center;padding:24px 4px}
+.w-imp-tick{width:76px;height:76px;border-radius:50%;background:var(--c-quick);color:#1E1E1E;border:2px solid #1E1E1E;display:inline-grid;place-items:center}
+.w-imp-done h3{font:800 30px/1.1 var(--font);letter-spacing:-.035em;margin:16px 0 14px}
+.w-imp-sum{list-style:none;margin:0 auto 14px;padding:4px 16px;max-width:360px;background:var(--bg2);border-radius:20px;text-align:left}
+.w-imp-sum li{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font:600 16px var(--font)}
+.w-imp-sum li:last-child{border-bottom:0}
+.w-imp-done .w-imp-muted{max-width:420px;margin:0 auto 16px}
 </style>
 
 </head>
@@ -1495,7 +1585,7 @@ const SPECIALTIES = {
       spec_sles:{label:"Specialty SLEs",type:"number",target:15,unit:"SLEs",deadline:"annual",note:"ACAT / CbD / mini-CEX"},
       spec_teaching:{label:"Evidence of teaching involvement",type:"checkbox",deadline:"annual",note:"Annual evidence"},
       spec_es:{label:"Educational Supervisor Report",type:"checkbox",deadline:"annual",note:"One per year"},
-      spec_lines:{label:"Temporary line competency",type:"checkbox",deadline:"ST4",note:"Competent by end of ST4"},
+      spec_lines:{label:"Temporary line competency (2 × DOPS)",type:"checkbox",deadline:"ST4",note:"Competent by end of ST4"},
       spec_sce:{label:"SCE exam",type:"checkbox",deadline:"ST6",note:"Pass before CCT"},
       spec_qip:{label:"QIP + QIPAT",type:"checkbox",deadline:"ST6",note:"One-off milestone"},
       spec_survey_st5:{label:"Patient Survey (ST5)",type:"checkbox",deadline:"ST5",note:"Counts as the GIM Patient Survey — completing this completes GIM too",sharesTo:"gim_survey"},
@@ -1566,7 +1656,7 @@ const GIM_REQS = {
   gim_msf:{label:"GIM MSF raters",type:"number",target:4,unit:"raters",deadline:"annual",note:"Part of overall MSF"},
   gim_es:{label:"GIM Educational Supervisor Report",type:"checkbox",deadline:"annual",note:"One per year"},
   gim_clinics:{label:"GIM Clinics",type:"number",target:20,unit:"clinics",deadline:"ST7",cumulative:true,note:"Cumulative"},
-  gim_cpd:{label:"External GIM CPD hours",type:"number",target:100,unit:"hours",deadline:"ST7",cumulative:true,note:"Only Regional training days, RCP/RSM/BMA courses, and other external CPD count. Grand rounds and departmental teaching don't."},
+  gim_cpd:{label:"External GIM CPD hours",type:"number",target:100,unit:"hours",deadline:"ST7",cumulative:true,note:"External GIM CPD counts, with online or e-learning up to 15 hours. Grand rounds, journal clubs and departmental teaching are internal and don't count."},
   gim_cpd_st7:{label:"Final-year IM CPD hours",type:"number",target:20,unit:"hours",deadline:"ST7",cumulative:true,note:"At least 20h must be completed in ST7"},
   gim_sim:{label:"Simulation hours",type:"number",target:12,unit:"hours",deadline:"ST7",cumulative:true,note:"Cumulative across training"},
   gim_sim_st7:{label:"Final-year simulation hours",type:"number",target:4,unit:"hours",deadline:"ST7",cumulative:true,note:"At least 4h must be completed in ST7"},
@@ -3403,11 +3493,11 @@ function inCurrentYear(e){
   return true; // no year/date info → always show
 }
 function tableFiltered(k, filterFn, cols, mapper){ const arr=entries(k).filter(filterFn).filter(inCurrentYear).slice().sort((a,b)=>(b.date||b.start||'').localeCompare(a.date||a.start||'')); return tableFromArray(k, arr, cols, mapper); }
-function canEditEntry(e){ return Date.now() - Number(e.createdAt || e.id || 0) <= 7776000000; }
-function tableFromArray(k, arr, cols, mapper){ if(!arr.length) return `<div class="hint">// no entries yet</div>`; return `<div class="table-wrap"><table class="table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead><tbody>${arr.map(e=>`<tr>${mapper(e).map(x=>`<td>${safe(x)}</td>`).join('')}<td><div class="row" style="gap:4px;justify-content:flex-end">${k==='teaching'?`<button class="btn tiny action" onclick="openFeedback(${e.id})">Feedback${e.feedbackCount?' \u00b7 '+e.feedbackCount:''}</button>`:''}${canEditEntry(e)?`<button class="btn tiny" title="Edit available for 24h after adding" onclick="editEntry('${k}',${e.id})">Edit</button>`:`<span class="hint" title="Editing window has passed">locked</span>`}<button class="btn tiny danger" onclick="deleteEntry('${k}',${e.id})">✕</button></div></td></tr>`).join('')}</tbody></table></div>`; }
+function canEditEntry(e){ return Date.now() - Number(e.createdAt || e.id || 0) <= 7*86400000; }
+function tableFromArray(k, arr, cols, mapper){ if(!arr.length) return `<div class="hint">// no entries yet</div>`; return `<div class="table-wrap"><table class="table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead><tbody>${arr.map(e=>`<tr>${mapper(e).map(x=>`<td>${safe(x)}</td>`).join('')}<td><div class="row" style="gap:4px;justify-content:flex-end">${k==='teaching'?`<button class="btn tiny action" onclick="openFeedback(${e.id})">Feedback${e.feedbackCount?' \u00b7 '+e.feedbackCount:''}</button>`:''}${canEditEntry(e)?`<button class="btn tiny" title="Edit available for 7 days after adding" onclick="editEntry('${k}',${e.id})">Edit</button>`:`<span class="hint" title="Editing window has passed">locked</span>`}<button class="btn tiny danger" onclick="deleteEntry('${k}',${e.id})">✕</button></div></td></tr>`).join('')}</tbody></table></div>`; }
 function addEntry(k, data){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); const now=Date.now(); const arr=entries(k); arr.push({...data,id:now,createdAt:now,updatedAt:now,year:data.year||currentYear}); saveEntries(k,arr); render(); }
 function deleteEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); if(!confirm('Delete this entry?')) return; state.tombstones=state.tombstones||{}; state.tombstones[k]=state.tombstones[k]||{}; state.tombstones[k][String(id)]=Date.now(); saveEntries(k, entries(k).filter(e=>e.id!==id)); render(); }
-function editEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); const arr=entries(k); const idx=arr.findIndex(e=>e.id===id); if(idx<0) return; const e=arr[idx]; if(!canEditEntry(e)) return alert('Editing is only available for 24 hours after adding an item.'); const editable=Object.keys(e).filter(x=>!['id','createdAt','updatedAt'].includes(x)); for(const field of editable){ const current=e[field]??''; const next=prompt(`Edit ${field}`, current); if(next===null) return; e[field]=next; } e.updatedAt=Date.now(); arr[idx]=e; saveEntries(k,arr); render(); }
+function editEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); const arr=entries(k); const idx=arr.findIndex(e=>e.id===id); if(idx<0) return; const e=arr[idx]; if(!canEditEntry(e)) return alert('Editing closes 7 days after an entry is added. You can still delete it.'); const editable=Object.keys(e).filter(x=>!['id','createdAt','updatedAt'].includes(x)); for(const field of editable){ const current=e[field]??''; const next=prompt(`Edit ${field}`, current); if(next===null) return; e[field]=next; } e.updatedAt=Date.now(); arr[idx]=e; saveEntries(k,arr); render(); }
 function logSummaryCards(items){ return `<div class="summary-grid" style="margin-bottom:16px;">${items.map(it=>`<div class="summary"><div class="big ${it.cls||'primary'}">${it.value}</div><div class="hint">${it.label}</div></div>`).join('')}</div>`; }
 function otherClinicControl(id, list){ return `<select class="input" id="${id}" onchange="document.getElementById('${id}-other-wrap').style.display=this.value==='Other'?'flex':'none'">${optionsHtml(list)}</select><div class="field" id="${id}-other-wrap" style="display:none;margin-top:6px"><label>Specify clinic type</label><input class="input" id="${id}-other" placeholder="Type clinic name"></div>`; }
 function clinicTypeValue(id){ const v=val(id); return v==='Other' ? val(id+'-other') : v; }
@@ -3486,7 +3576,7 @@ function renderLogCPD(){
           ${e.cert&&e.cert.url?`<a href="${e.cert.url}" target="_blank" rel="noopener" style="font-size:10px;margin-top:7px;display:inline-block;color:var(--gim);text-decoration:none">📎 ${e.cert.name||'Certificate'}</a>`:''}
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
-          <button class="btn tiny" onclick="editCpdEntry(${e.id})">Edit</button>
+          ${canEditEntry(e)?`<button class="btn tiny" onclick="editCpdEntry(${e.id})">Edit</button>`:""}
           <button class="btn tiny danger" onclick="deleteEntry('cpd',${e.id})">✕</button>
         </div>
       </div>
@@ -3814,12 +3904,10 @@ function addHospitalIfNew(h){ if(!h) return; state.hospitals=Array.from(new Set(
 // Internal types like Grand round / Journal club / Departmental teaching don't count.
 const EXTERNAL_GIM_CPD_TYPES = new Set(['Regional GIM training day','RCP / RSM / BMA approved course','Other external CPD']);
   function gimExternalCpdHours(filter=()=>true){
-  return Math.round(
-    entries('cpd')
-      .filter(e => e.scope==='gim' && cpdIsExternal(e))
-      .filter(filter)
-      .reduce((a,e)=>a+Number(e.hours||0),0)*10
-  )/10;
+  const gim=entries('cpd').filter(e => e.scope==='gim').filter(filter);
+  const online=e=>e.type==='E-learning / online module' || e.type==='Online CPD';
+  const hrs=a=>a.reduce((s,e)=>s+Number(e.hours||0),0);
+  return Math.round((hrs(gim.filter(e=>cpdIsExternal(e) && !online(e))) + Math.min(15, hrs(gim.filter(online))))*10)/10;
 }
 // External = explicit category if set, else derive from type (covers legacy + new entries)
 function cpdIsExternal(e){
@@ -3829,7 +3917,7 @@ function cpdIsExternal(e){
   return cpdCategoryFor(e.type) === 'External';              // new diary types
 }
 
-function syncLogbookTargets(){ const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=Math.round(externalGimCpd.reduce((a,e)=>a+Number(e.hours||0),0)); state.req['cum.gim_cpd_st7']=Math.round(externalGimCpd.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.hours||0),0)); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+Number(e.hours||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.hours||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
+function syncLogbookTargets(){ const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=gimExternalCpdHours(); state.req['cum.gim_cpd_st7']=gimExternalCpdHours(e=>e.year==='ST7'); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+Number(e.hours||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.hours||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
 function renderAdmin(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const hosp=hospitalOptions(); document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${safe(h)}')">Delete from list</button></div>`).join('')}</div></section>`; }
 function addAdminHospital(){ const h=val('new-hospital'); if(!h)return; addHospitalIfNew(h); renderAdmin(); }
 function removeHospital(h){ state.hospitals=(state.hospitals||[]).filter(x=>x!==h); saveState(); renderAdmin(); }
@@ -6608,7 +6696,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     else { t=e.topic||e.type||'Teaching'; s2=e.feedbackCount?`${e.feedbackCount} feedback`:(e.audience||'Teaching'); }
     const scope=e.scope==='gim'?'GIM':(e.scope==='spec'?sp.short:'');
     const sub=[wDate(e.date||e.start), scope, e.hospital||e.provider||''].filter(Boolean).join(' · ');
-    const click=k==='teaching'?`openFeedback(${Number(e.id)})`:`wGoLog('${k}')`;
+    const click=isFinite(Number(e.id))?`wEntry('${k}',${Number(e.id)})`:`wGoLog('${k}')`;
     return `<button class="w-row" onclick="${click}"><span class="w-tile">${I(icon,22)}</span><span class="w-row-m"><span class="w-row-t">${safe(t)}</span><span class="w-row-s">${safe(sub)}</span></span><span class="w-row-r"><span class="w-row-v pos">${safe(v)}</span><span class="w-row-s">${safe(s2)}</span></span></button>`;
   }
   function feedSection(title, list, note, max){
@@ -6661,7 +6749,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const acts=(o.acts||[]).map(([ic,l,on])=>`<button class="w-act" onclick="${on}"><i>${I(ic,26)}</i><span>${l}</span></button>`).join('');
     const right=o.right?`<button class="w-hbtn" onclick="${o.right.on}" aria-label="${o.right.label}" title="${o.right.label}">${I(o.right.icon,22)}</button>`:'<span></span>';
     const tab=o.tab?`<button class="w-tab" onclick="${o.tab.on}"><span class="w-plus">${I(o.tab.icon||'plus',18)}</span><span>${safe(o.tab.label)}</span><span class="w-tab-r">${safe(o.tab.right||'')}</span></button>`:'';
-    const pocket=o.compact?'':`<div class="w-pocket">${tab}<div class="w-bal ${tab?'':'solo'}"><div class="w-kick"><span class="w-dot"></span><span>${safe(o.kicker||'')}</span></div><div class="w-big ${o.bigText?'txt':''}"><b>${safe(o.big)}</b><span class="${/^\s/.test(o.unit||'')?'gap':''}">${safe(String(o.unit||'').trim())}</span></div><div class="w-bsub">${o.sub||''}</div></div></div><div class="w-acts">${acts}</div>`;
+    const pocket=o.compact?'':`<div class="w-pocket">${tab}<div class="w-bal ${tab?'':'solo'}"><div class="w-kick"><span class="w-dot"></span><span>${safe(o.kicker||'')}</span></div><div class="w-big ${o.bigText?'txt':''}"><b>${safe(o.big)}</b><span class="${/^\s/.test(o.unit||'')?'gap':''}">${safe(String(o.unit||'').trim())}</span></div><div class="w-bsub">${o.sub||''}</div></div></div><div class="w-acts${(o.acts||[]).length===5?' five':''}">${acts}</div>`;
     return `<section class="w-head ${o.dark?'dark':''} ${o.compact?'compact':''}" style="--c:${o.color}"><div class="w-head-in"><div class="w-top"><button class="w-hbtn" onclick="${o.back||'wHome()'}" aria-label="${o.backLabel||'Close'}" title="${o.backLabel||'Close'}">${I('x',24)}</button><h1>${safe(o.title)}</h1>${right}</div>${pocket}</div></section>`;
   }
   const prepend = html => main().insertAdjacentHTML('afterbegin', html);
@@ -7267,7 +7355,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       options:[{label:'Got it', sub:'', on:()=>{}}] });
   };
   function wUpdateBanner(){
-    if(document.querySelector('.w-toast.w-upd')) return;
+    if(document.querySelector('.w-toast.w-upd:not(.w-tip)')) return;
     document.querySelector('.w-toast')?.remove();
     const t=document.createElement('div'); t.className='w-toast w-upd'; t.setAttribute('role','status');
     t.innerHTML=`${I('spark',18)}<span>New version ready</span><button type="button">Refresh</button>`;
@@ -7280,6 +7368,14 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     navigator.serviceWorker.ready.then(r=>{ const w=navigator.serviceWorker.controller||r.active; if(w) w.postMessage({type:'o1-hello'}); }).catch(()=>{});
     const reg=()=>navigator.serviceWorker.register('sw.js').catch(err=>console.warn('[Outcome1] offline copy not available:', err && err.message));
     if(document.readyState==='complete') reg(); else window.addEventListener('load', reg);
+    // Phones usually resume the app rather than reopen it, so check for a new version each time it comes back on screen
+    let lastCheck=Date.now();
+    window.wCheckUpdate = function(force){
+      if(!force && Date.now()-lastCheck<60000) return; lastCheck=Date.now();
+      navigator.serviceWorker.ready.then(r=>{ const w=navigator.serviceWorker.controller||r.active;
+        if(w) w.postMessage({type:'o1-check', url:location.href}); try{ r.update(); }catch(e){} }).catch(()=>{});
+    };
+    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') wCheckUpdate(); });
   }
 
   // ── MODULE SCREENS ──
@@ -7321,8 +7417,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const hd=head({ title:'Logbook', color:'var(--c-log)', kicker:`${currentYear} · All entries`, big:String(n), unit:'',
       sub:`${c} clinic${c===1?'':'s'} · ${p} procedure${p===1?'':'s'} · ${t} teaching`,
       tab:{label:'New entry', right:'5 types', on:"openLogbookForm(logSubTab&&logSubTab!=='all'?logSubTab:'clinics')"},
-      acts:[['plus','Add',"openLogbookForm(logSubTab&&logSubTab!=='all'?logSubTab:'clinics')"],['print','Report','showPrintStylePicker()'],['chart','Insights',"wScroll('w-insights')"],['dl','Excel','exportLogbook()']] });
-    O.lbv2();
+      acts:[['plus','Add',"openLogbookForm(logSubTab&&logSubTab!=='all'?logSubTab:'clinics')"],['print','Report','showPrintStylePicker()'],['chart','Insights',"wScroll('w-insights')"],['ul','Import','wImport()'],['dl','Excel','exportLogbook()']] });
+    O.lbv2(); tagLogRows();
     const first=main().firstElementChild; if(first && first.querySelector('button[onclick="exportLogbook()"]')) first.remove();
     const list=main().innerHTML;
     if(yearLocked()){   // the old Insights screen is blank for a locked year, so offer the Wrapped instead
@@ -7381,6 +7477,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       ${isStandalone()?'':row('dl','Install on this phone', installPrompt?'Add Outcome1 as an app':'Home-screen app that works offline','wInstall()','Install')}
       ${row('sliders','Profile and specialty',`${safe(sp.label)} · ${safe(currentYear)}`,'openSettings()','Edit')}
       ${row('compass','Setup guide','Welcome tour and getting-started checklist','wSetupOpen()','Open')}
+      ${row('ul','Import a logbook','From Excel or CSV, with a preview first','wImport()','Import')}
       ${row('reset',`Reset ${safe(currentYear)}`,'Clears this year’s requirement values; logbook kept','resetYearData()','Reset',true)}
       ${row('user','New test profile','Starts a blank profile on this browser','startFreshProfile()','Start',true)}
     </div></section>`);
@@ -7529,6 +7626,459 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     return r;
   };
 
+  // ═══ Entries: tap any entry to see it, edit it or delete it ═══
+  const ENTRY_FIELDS = {
+    clinics:['date','scope','type','hospital','supervisor','patients','year','notes'],
+    procedures:['date','scope','type','hospital','supervisor','dops','year','notes'],
+    cpd:['date','scope','type','category','title','provider','hours','year','learning','reflection','notes'],
+    simulation:['date','course','title','hours','hospital','year','notes'],
+    teaching:['date','type','topic','audience','supervisor','signoff','year','notes'],
+    acute:['hospital','start','end','months','takes','patients','estimated','year','supervisor'],
+    ward:['hospital','start','end','months','year','supervisor']
+  };
+  const TEACH_TYPES=['Bedside teaching','Tutorial / seminar','Grand round presentation','Journal club','Simulation facilitation','Medical student supervision','Other'];
+  const KIND_NAME={clinics:'clinic',procedures:'procedure',cpd:'CPD entry',simulation:'simulation session',teaching:'teaching session',acute:'acute take placement',ward:'ward cover placement'};
+  const KIND_TITLE={clinics:'Clinics',procedures:'Procedures',cpd:'CPD',simulation:'Simulation',teaching:'Teaching',acute:'Acute take',ward:'Ward cover'};
+  const EDIT_DAYS=7;   // matches canEditEntry()
+  function fieldLabel(f,k){
+    const sp=specCfg().short;
+    return ({date:'Date', scope:`${sp} or GIM`, type:k==='clinics'?'Clinic type':k==='procedures'?'Procedure':k==='cpd'?'CPD type':'Type',
+      hospital:'Hospital', supervisor:k==='teaching'?'Observed by':'Supervisor', patients:k==='acute'?'Patients per take':'Patients',
+      dops:'DOPS signed', category:'Internal or external', title:'Title', provider:'Provider', hours:'Hours', year:'Training year',
+      learning:'Learning', reflection:'Reflection', notes:'Notes', course:'Course', topic:'Topic', audience:'Audience', signoff:'Sign-off',
+      start:'Start date', end:'End date', months:'Months', takes:'Takes per month', estimated:'Estimated patients'})[f]||f;
+  }
+  function typeOptions(k,scope){
+    const L=specCfg().logbook||{};
+    if(k==='clinics'||k==='procedures') return ((scope==='gim'?GIM_LOGBOOK[k]:L[k])||[]).slice();
+    if(k==='cpd') return CPD_DIARY_TYPES.slice();
+    if(k==='teaching') return TEACH_TYPES.slice();
+    return [];
+  }
+  function entryTitle(k,e){
+    if(k==='procedures') return normProcName(e.type)||'Procedure';
+    if(k==='cpd') return e.title||e.type||'CPD';
+    if(k==='simulation') return e.title||e.course||'Simulation';
+    if(k==='teaching') return e.topic||e.type||'Teaching';
+    if(k==='acute'||k==='ward') return e.hospital||KIND_TITLE[k];
+    return e.type||'Clinic';
+  }
+  function entrySub(k,e){
+    const scope=e.scope==='gim'?'GIM':(e.scope==='spec'?specCfg().short:'');
+    return [suDate(e.date||e.start), scope, e.hospital||e.provider||''].filter(Boolean).join(' · ');
+  }
+  function uniqueIdFrom(n){ const all=new Set(Object.values(state.logbook||{}).flat().map(e=>Number(e?.id))); let id=Math.max(Date.now(), n||0); while(all.has(id)) id++; return id; }
+  function removeEntries(k, ids){
+    const set=new Set(ids.map(String)), now=Date.now();
+    state.tombstones=state.tombstones||{}; state.tombstones[k]=state.tombstones[k]||{};
+    set.forEach(i=>{ state.tombstones[k][i]=now; });   // so the deletion syncs to other devices
+    saveEntries(k, entries(k).filter(e=>!set.has(String(e.id))));
+  }
+  window.wToastAct = function(msg, label, fn, ms){
+    document.querySelector('.w-toast')?.remove(); ms=ms||6000;
+    const t=document.createElement('div'); t.className='w-toast w-upd w-tip'; t.setAttribute('role','status');
+    t.innerHTML=`${I('spark',18)}<span>${safe(msg)}</span><button type="button">${safe(label)}</button>`;
+    t.querySelector('button').addEventListener('click',()=>{ t.remove(); fn(); });
+    document.body.appendChild(t); setTimeout(()=>t.classList.add('out'),ms); setTimeout(()=>t.remove(),ms+500);
+  };
+  window.wEntry = function(k,id){
+    const e=entries(k).find(x=>String(x.id)===String(id)); if(!e) return;
+    const locked=yearLocked(e.year||currentYear), editable=!locked && canEditEntry(e);
+    const rows=(ENTRY_FIELDS[k]||[]).map(f=>{
+      let v=e[f]; if(v===undefined||v===null||v==='') return '';
+      if(f==='scope') v=v==='gim'?'GIM':specCfg().short; else if(['date','start','end'].includes(f)) v=suDate(v)||v;
+      return `<div class="w-ent-r"><span>${safe(fieldLabel(f,k))}</span><b>${safe(v)}</b></div>`;
+    }).join('');
+    const acts=[];
+    if(editable) acts.push({ label:'Edit', primary:true, on:()=>{ setTimeout(()=> k==='cpd' && typeof editCpdEntry==='function' ? editCpdEntry(e.id) : wEntryEdit(k,e.id), 0); } });
+    if(k==='teaching' && typeof openFeedback==='function') acts.push({ label:e.feedbackCount?`Feedback · ${e.feedbackCount}`:'Collect feedback', on:()=>{ setTimeout(()=>openFeedback(e.id),0); } });
+    if(!locked) acts.push({ label:'Delete', cls:'w-sus-alt w-sus-del', on:()=>{ setTimeout(()=>wEntryDelete(k,e.id),0); } });
+    const note = locked ? `${safe(e.year||currentYear)} is signed off, so its entries are locked.`
+      : !editable ? `Editing has closed for this entry. Entries can be changed for ${EDIT_DAYS} days after they’re added, then only deleted.` : '';
+    suSheet({ title:safe(entryTitle(k,e)), sub:safe(entrySub(k,e)), body:`<div class="w-ent">${rows}</div>${note?`<div class="w-sus-note">${note}</div>`:''}`, actions:acts });
+  };
+  // CPD has its own editor: the same 7-day rule applies
+  const __editCpd=window.editCpdEntry;
+  if(typeof __editCpd==='function') window.editCpdEntry=function(id){
+    const e=entries('cpd').find(x=>String(x.id)===String(id));
+    if(e && !canEditEntry(e)){ wToast(`Editing closes ${EDIT_DAYS} days after adding. You can still delete it`); return; }
+    return __editCpd.apply(this,arguments);
+  };
+  window.wEntryEdit = function(k,id){
+    const arr=entries(k), e=arr.find(x=>String(x.id)===String(id)); if(!e) return;
+    const dl=(idd,opts)=>opts.length?`<datalist id="${idd}">${opts.map(o=>`<option value="${safe(o)}">`).join('')}</datalist>`:'';
+    const inp=f=>{
+      const v=e[f]??'', idd='w-ee-'+f, lab=`<label class="w-sus-l" for="${idd}">${safe(fieldLabel(f,k))}</label>`, at=`class="input w-sus-in" id="${idd}" data-f="${f}"`;
+      if(['date','start','end'].includes(f)) return lab+`<input ${at} type="date" value="${safe(v)}">`;
+      if(['patients','hours','months','takes','estimated'].includes(f)) return lab+`<input ${at} type="number" inputmode="decimal" step="any" min="0" value="${safe(v)}">`;
+      if(f==='scope') return lab+`<select ${at}><option value="spec" ${v!=='gim'?'selected':''}>${safe(specCfg().short)}</option><option value="gim" ${v==='gim'?'selected':''}>GIM</option></select>`;
+      if(f==='dops') return lab+`<select ${at}><option ${v!=='Yes'?'selected':''}>No</option><option ${v==='Yes'?'selected':''}>Yes</option></select>`;
+      if(f==='category') return lab+`<select ${at}><option value="" ${!v?'selected':''}>Work it out from the type</option><option ${v==='Internal'?'selected':''}>Internal</option><option ${v==='External'?'selected':''}>External</option></select>`;
+      if(f==='year'){ const ys=[...new Set([...YEARS, v].filter(Boolean))]; return lab+`<select ${at}>${ys.map(y=>`<option ${y===v?'selected':''}>${safe(y)}</option>`).join('')}</select>`; }
+      if(['notes','learning','reflection'].includes(f)) return lab+`<textarea ${at} rows="3">${safe(v)}</textarea>`;
+      if(f==='type') return lab+`<input ${at} list="w-ee-types" value="${safe(v)}">`+dl('w-ee-types', typeOptions(k,e.scope));
+      if(f==='hospital') return lab+`<input ${at} list="w-ee-hosp" value="${safe(v)}">`+dl('w-ee-hosp', hospitalOptions());
+      return lab+`<input ${at} value="${safe(v)}">`;
+    };
+    suSheet({ title:`Edit ${KIND_NAME[k]||'entry'}`, body:`<div class="w-ee">${(ENTRY_FIELDS[k]||[]).map(f=>`<div class="w-ee-f">${inp(f)}</div>`).join('')}</div>`,
+      actions:[
+        { label:'Save changes', primary:true, on:w=>{
+            const need=w.querySelector('[data-f="date"],[data-f="start"]');
+            if(need && !need.value){ need.classList.remove('w-flash'); void need.offsetWidth; need.classList.add('w-flash'); need.focus(); return false; }
+            w.querySelectorAll('[data-f]').forEach(el=>{ e[el.dataset.f]=String(el.value).trim(); });
+            if(k==='cpd' && !e.category) delete e.category;
+            if(k==='acute'||k==='ward'){ e.months=e.months||monthsBetween(e.start,e.end); if(k==='acute' && !e.estimated) e.estimated=String(Math.round(Number(e.months||0)*Number(e.takes||0)*Number(e.patients||0))||''); }
+            e.updatedAt=Date.now(); saveEntries(k, arr); if(e.hospital) addHospitalIfNew(e.hospital);
+            render(); wToast('Entry updated'); } },
+        { label:'Cancel', on:()=>{ setTimeout(()=>wEntry(k,id),0); } } ]});
+  };
+  window.wEntryDelete = function(k,id){
+    const e=entries(k).find(x=>String(x.id)===String(id)); if(!e) return;
+    suSheet({ title:`Delete this ${KIND_NAME[k]||'entry'}?`, sub:`${safe(entryTitle(k,e))}${e.date||e.start?' · '+safe(suDate(e.date||e.start)):''}. It comes out of your logbook, targets and reports.`,
+      actions:[
+        { label:'Delete', cls:'w-sus-go w-sus-dz', on:()=>{
+            removeEntries(k,[e.id]); render();
+            wToastAct('Entry deleted','Undo',()=>{ saveEntries(k,[...entries(k),{...e, id:uniqueIdFrom(), updatedAt:Date.now()}]); render(); wToast('Entry restored'); });
+          } },
+        { label:'Keep it', on:()=>{ setTimeout(()=>wEntry(k,id),0); } } ]});
+  };
+  // Logbook list rows open their entry
+  function tagLogRows(){
+    const all=[]; ['clinics','procedures','cpd','simulation','teaching'].forEach(k=>(state.logbook?.[k]||[]).forEach(e=>all.push({id:e.id,date:e.date,_kind:k})));
+    all.sort((a,b)=>(b.date||'').localeCompare(a.date||''));   // same order as the list itself
+    const fk=logSubTab||'all', list=(fk==='all'?all:all.filter(e=>e._kind===fk)).slice(0,80);
+    main().querySelectorAll('.lb-row-data').forEach((row,i)=>{
+      const e=list[i]; if(!e) return;
+      row.setAttribute('data-id',String(e.id)); row.setAttribute('role','button'); row.setAttribute('tabindex','0');
+      row.setAttribute('aria-label',`Open ${KIND_NAME[e._kind]||'entry'}`);
+      row.setAttribute('onclick',`wEntry('${e._kind}',${JSON.stringify(e.id)})`);
+      row.setAttribute('onkeydown',"if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}");
+      row.querySelectorAll('button[onclick]').forEach(b=>b.setAttribute('onclick','event.stopPropagation();'+b.getAttribute('onclick')));
+    });
+  }
+  window.wShowEntry = function(k,id){
+    logSubTab='all'; if(currentTab==='logbook') render(); else setTab('logbook');
+    setTimeout(()=>{ const row=main().querySelector(`.lb-row-data[data-id="${CSS.escape(String(id))}"]`); if(!row) return;
+      row.scrollIntoView({behavior:'smooth',block:'center'}); row.classList.remove('w-flash'); void row.offsetWidth; row.classList.add('w-flash');
+      setTimeout(()=>row.classList.remove('w-flash'),2000); },150);
+  };
+  // After saving an entry: say where to change it (the first few times), then a short "saved"
+  const __addEntry=window.addEntry;
+  window.addEntry=function(k){
+    const before=entries(k).length, r=__addEntry.apply(this,arguments), arr=entries(k);
+    if(arr.length>before && KINDS.includes(k)){
+      const e=arr[arr.length-1]; let n=0; try{ n=+localStorage.getItem('o1_tip_edit')||0; localStorage.setItem('o1_tip_edit',String(n+1)); }catch(err){}
+      setTimeout(()=> n<3 ? wToastAct('Saved. Tap any entry to edit or delete it.','Show me',()=>wShowEntry(k,e.id),7000)
+                          : wToastAct('Entry saved','View',()=>wShowEntry(k,e.id),3500), k==='teaching'?700:60);
+    }
+    return r;
+  };
+
+  // ═══ Import a logbook from a spreadsheet: the Outcome1 template, an Outcome1 export, or the trainee's own ═══
+  const IMP_KINDS=['clinics','procedures','cpd','simulation','teaching','acute','ward'];
+  const nrm=s=>String(s??'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+  const IMP_SYN={
+    date:['date','dateofclinic','clinicdate','proceduredate','dateofprocedure','day','when','sessiondate','eventdate','datedone','dateperformed','dateattended'],
+    scope:['scope','for','specialty','speciality','stream','gimorspecialty','specialtyorgim','gimspecialty'],
+    type:['type','clinictype','proceduretype','procedure','procedurename','clinic','clinicname','activity','activitytype','cpdtype','eventtype','teachingtype','sessiontype'],
+    hospital:['hospital','site','location','trust','hospitalsite','venue','placement'],
+    supervisor:['supervisor','consultant','supervisedby','trainer','assessor','consultantname','clinicalsupervisor','observedby','observer','supervisingconsultant'],
+    patients:['patients','noofpatients','numberofpatients','patientsseen','pts','numpatients','patientspertake'],
+    dops:['dops','dopssigned','dopsdone','dopscompleted','assessed'],
+    category:['category','cpdcategory','internalexternal','internalorexternal'],
+    title:['title','name','eventname','coursename','sessiontitle','event','session'],
+    provider:['provider','organiser','organizer','host','deliveredby','organisation','organization'],
+    hours:['hours','hrs','duration','cpdhours','credits','cpdpoints','points','cpdcredits'],
+    year:['year','trainingyear','styear','stage','grade','trainingyearoptional'],
+    learning:['learning','keylearning','learningpoints','whatilearned','whatilearnt','learningoutcomes'],
+    reflection:['reflection','reflections','reflectivenote'],
+    notes:['notes','note','comments','comment','details','description','remarks'],
+    course:['course','coursetype','simulationtype','simulationcourse','programme'],
+    topic:['topic','subject','teachingtopic'],
+    audience:['audience','learners','attendees','taught','whotaught','group'],
+    signoff:['signoff','signedoff','feedback','observed','observation','teachingobservation'],
+    start:['start','startdate','from','datefrom','placementstart','begin'],
+    end:['end','enddate','to','dateto','placementend','finish'],
+    months:['months','noofmonths','durationmonths','monthsduration'],
+    takes:['takes','takespermonth','noftakes','numberoftakes'],
+    estimated:['estimated','estimatedpatients','totalpatients','estimatedtotal']
+  };
+  const IMP_CONTAINS=[['start','start'],['end','end'],['date','date'],['supervis','supervisor'],['consultant','supervisor'],['patient','patients'],['hospital','hospital'],['site','hospital'],
+    ['hour','hours'],['dops','dops'],['orgim','scope'],['gimor','scope'],['note','notes'],['comment','notes'],['procedure','type'],['type','type'],['title','title'],['year','year'],
+    ['reflect','reflection'],['learn','learning'],['topic','topic'],['audience','audience'],['provider','provider'],['course','course'],['month','months'],['take','takes']];
+  function impMatch(kind, headers){
+    const fields=ENTRY_FIELDS[kind], sp=nrm(specCfg().short), map=headers.map(()=>null), used=new Set();
+    const syn=f=>f==='scope'?[...IMP_SYN.scope, sp+'orgim', 'gimor'+sp, sp]:(IMP_SYN[f]||[f]);
+    headers.forEach((h,i)=>{ const n=nrm(h); if(!n) return; const f=fields.find(f=>!used.has(f) && (n===f || syn(f).includes(n))); if(f){ map[i]=f; used.add(f); } });
+    headers.forEach((h,i)=>{ if(map[i]) return; const n=nrm(h); if(!n) return; const hit=IMP_CONTAINS.find(([c,f])=>n.includes(c) && fields.includes(f) && !used.has(f)); if(hit){ map[i]=hit[1]; used.add(hit[1]); } });
+    return map;
+  }
+  function impKindFromName(name){
+    const n=String(name||'').toLowerCase();
+    if(/teaching\s*(done|delivered|given)/.test(n)) return 'teaching';
+    if(/cpd|study|conference/.test(n)) return 'cpd';
+    if(/simul/.test(n)) return 'simulation';
+    if(/acute|take/.test(n)) return 'acute';
+    if(/ward/.test(n)) return 'ward';
+    if(/teach/.test(n)) return 'teaching';
+    if(/clinic/.test(n)) return 'clinics';
+    if(/proced|dops/.test(n)) return 'procedures';
+    return null;
+  }
+  function impKindFromHeaders(headers){
+    const hs=headers.map(nrm).filter(Boolean), has=(...a)=>a.some(x=>hs.some(h=>h.includes(x)));
+    if(has('takes')) return 'acute';
+    if(has('dops')) return 'procedures';
+    if(has('patient')) return 'clinics';
+    if(has('topic','audience')) return 'teaching';
+    if(has('course') && !has('provider','reflection','category')) return 'simulation';
+    if(has('hour','provider','reflection')) return 'cpd';
+    if(has('start') && has('end')) return 'ward';
+    return null;
+  }
+  const MON={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
+  function impDate(v){
+    if(v===null||v===undefined||v==='') return '';
+    const iso=(y,m,d)=>{ if(y<100) y+=2000; if(!(m>=1&&m<=12&&d>=1&&d<=31)) return null; const dt=new Date(Date.UTC(y,m-1,d)); if(dt.getUTCMonth()!==m-1) return null; return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; };
+    if(v instanceof Date && !isNaN(v)) return iso(v.getFullYear(), v.getMonth()+1, v.getDate());
+    if(typeof v==='number'){ if(v>20000 && v<80000){ const dt=new Date(Math.round((v-25569)*86400000)); return iso(dt.getUTCFullYear(), dt.getUTCMonth()+1, dt.getUTCDate()); } return null; }   // Excel day number
+    const s=String(v).trim(); let m;
+    const mon=w=>{ w=w.toLowerCase(); return MON[w.slice(0,4)]||MON[w.slice(0,3)]; };
+    if((m=/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s))) return iso(+m[1],+m[2],+m[3]);
+    if((m=/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2}|\d{4})$/.exec(s))){ let d=+m[1], mo=+m[2]; if(mo>12 && d<=12) [d,mo]=[mo,d]; return iso(+m[3],mo,d); }   // UK order unless it can only be US
+    if((m=/^(\d{1,2})(?:st|nd|rd|th)?[\s\-]+([a-z]{3,9})\.?,?[\s\-]+(\d{2}|\d{4})$/i.exec(s))){ const mo=mon(m[2]); return mo?iso(+m[3],mo,+m[1]):null; }
+    if((m=/^([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{2}|\d{4})$/i.exec(s))){ const mo=mon(m[1]); return mo?iso(+m[3],mo,+m[2]):null; }
+    if(/^\d{5}(\.\d+)?$/.test(s)) return impDate(Number(s));
+    return null;
+  }
+  // Training year from a date, counting whole years from when the profile's training year started
+  function impYearFor(iso){
+    const ys=state.profile?.yearStart, ty=state.profile?.trainingYear, n0=parseInt(String(ty||'').replace(/\D/g,''),10);
+    const d=new Date(iso+'T00:00:00'); if(!ys?.year || !n0 || isNaN(d)) return currentYear;
+    const months=(d.getFullYear()-Number(ys.year))*12+(d.getMonth()-((Number(ys.month)||8)-1));
+    return 'ST'+Math.max(1, n0+Math.floor(months/12));
+  }
+  function impKey(k,e){
+    const L=v=>String(v||'').trim().toLowerCase();
+    if(k==='acute'||k==='ward') return [L(e.hospital), e.start||''].join('|');
+    if(k==='cpd') return [e.date||'', L(e.title||e.type), String(Number(e.hours||0))].join('|');
+    if(k==='simulation') return [e.date||'', L(e.title||e.course)].join('|');
+    if(k==='teaching') return [e.date||'', L(e.topic||e.type)].join('|');
+    return [e.date||'', e.scope==='gim'?'gim':'spec', L(normProcName(e.type)), L(e.hospital)].join('|');
+  }
+  function impSheet(name, aoa){
+    const rows=aoa.map(r=>(r||[]).map(c=>typeof c==='string'?c.trim():c)), blank=c=>c===''||c===null||c===undefined;
+    let h=-1;
+    for(let i=0;i<Math.min(rows.length,8);i++){
+      const r=rows[i], filled=r.filter(c=>!blank(c)).length, texty=r.filter(c=>typeof c==='string' && c && isNaN(Number(c))).length;
+      if(filled>=2 && texty>=Math.max(2,filled-1)){ h=i; break; }
+    }
+    if(h<0) return null;
+    const headers=rows[h].map(c=>String(c??'').trim());
+    const data=rows.slice(h+1).map((cells,j)=>({n:h+j+2, cells})).filter(x=>x.cells.some(c=>!blank(c)));
+    return {name, headers, data};
+  }
+  const IMP_EXAMPLE=/example[\s\S]*delete this row/i;
+  function impEval(sh){
+    const out={ready:[], dup:[], bad:[], locked:[], examples:0, years:{}, unknown:new Set()};
+    if(!sh.kind || sh.skip) return out;
+    const k=sh.kind, fields=ENTRY_FIELDS[k], need=(k==='acute'||k==='ward')?'start':'date';
+    const existing=new Set(entries(k).map(e=>impKey(k,e)));
+    sh.data.forEach(({n,cells})=>{
+      if(cells.some(c=>typeof c==='string' && IMP_EXAMPLE.test(c))){ out.examples++; return; }
+      const e={}, extra=[];
+      sh.map.forEach((f,i)=>{ const raw=cells[i]; if(raw===''||raw===null||raw===undefined) return;
+        if(f==='__notes'){ extra.push(`${sh.headers[i]}: ${raw}`); return; } if(f) e[f]=raw; });
+      let badDate='';
+      ['date','start','end'].forEach(f=>{ if(e[f]===undefined) return; const d=impDate(e[f]); if(d) e[f]=d; else { badDate=badDate||`${fieldLabel(f,k)} not recognised (“${String(e[f]).slice(0,24)}”)`; delete e[f]; } });
+      if(!e[need]){ out.bad.push({n, why:badDate||`No ${fieldLabel(need,k).toLowerCase()}`}); return; }
+      ['patients','hours','months','takes','estimated'].forEach(f=>{ if(e[f]===undefined) return; const x=parseFloat(String(e[f]).replace(/[^0-9.\-]/g,'')); if(isFinite(x)) e[f]=String(Math.round(x*100)/100); else delete e[f]; });
+      fields.forEach(f=>{ if(e[f]!==undefined) e[f]=String(e[f]).trim(); });
+      if(fields.includes('scope')){ const s=String(e.scope||'').toLowerCase(); e.scope = /gim|general\s*int/.test(s) ? 'gim' : s ? 'spec' : sh.scope; }
+      if(k==='procedures') e.dops = /^(y|yes|true|1|signed|done|complete|completed|✓|✔)/i.test(String(e.dops||'').trim()) ? 'Yes' : 'No';
+      if(e.type){ const opts=typeOptions(k,e.scope), lo=e.type.toLowerCase(), alt=normProcName(e.type).toLowerCase();
+        const hit=opts.find(o=>o.toLowerCase()===lo || o.toLowerCase()===alt); if(hit) e.type=hit; else if(opts.length) out.unknown.add(e.type); }
+      if(k==='cpd'){ const c=String(e.category||'').toLowerCase(); e.category = c.startsWith('int')?'Internal':c.startsWith('ext')?'External':(e.type?cpdCategoryFor(e.type):''); if(!e.category) delete e.category; }
+      const ym=/st\s*(\d)/i.exec(String(e.year||'')); e.year = ym ? 'ST'+ym[1] : impYearFor(e[need]);
+      if(k==='acute'||k==='ward'){ if(!e.months && e.end) e.months=String(monthsBetween(e.start,e.end));
+        if(k==='acute' && !e.estimated){ const est=Math.round(Number(e.months||0)*Number(e.takes||0)*Number(e.patients||0)); if(est) e.estimated=String(est); } }
+      if(extra.length) e.notes=[e.notes, extra.join(' · ')].filter(Boolean).join(' · ');
+      if(YEARS.includes(e.year) && yearLocked(e.year)){ out.locked.push({n, why:`${e.year} is signed off`}); return; }
+      if(existing.has(impKey(k,e))){ out.dup.push({n, why:'Already in your logbook'}); return; }
+      out.ready.push({n,e}); out.years[e.year]=(out.years[e.year]||0)+1;
+    });
+    return out;
+  }
+  // No Renal/GIM column: guess from the names (GIM clinic and procedure names differ from the specialty's)
+  function impTypeHits(sh, scope){
+    const j=sh.map.indexOf('type'); if(j<0) return 0;
+    const opts=typeOptions(sh.kind, scope).filter(o=>o!=='Other').map(o=>o.toLowerCase());
+    return sh.data.filter(d=>{ const v=String(d.cells[j]||'').trim().toLowerCase(); return v && (opts.includes(v) || opts.includes(normProcName(v).toLowerCase())); }).length;
+  }
+  function impGuessScope(sh){
+    if(!['clinics','procedures'].includes(sh.kind) || sh.map.includes('scope')) return sh.scope||'spec';
+    return impTypeHits(sh,'gim')>impTypeHits(sh,'spec') ? 'gim' : 'spec';
+  }
+  let IMP=null;
+  const impEl=()=>document.getElementById('w-imp');
+  window.wImport = function(){ IMP={stage:'pick'}; impRender(); };
+  function impClose(){ impEl()?.remove(); document.removeEventListener('keydown',impOnKey,true); IMP=null; }
+  function impOnKey(e){ if(e.key==='Escape' && IMP && !document.getElementById('w-su-sheet')){ e.preventDefault(); e.stopPropagation(); impClose(); } }
+  async function impRead(file){
+    IMP.status={msg:`Reading ${file.name}…`}; impRender();
+    try{
+      const XLSX=await loadSheetJS(), buf=await file.arrayBuffer();
+      const csv=/\.(csv|txt)$/i.test(file.name) || /csv/.test(file.type||'');
+      const wb=XLSX.read(buf,{type:'array', raw:csv});   // keep CSV dates as written so UK dates aren't read as US ones
+      const sheets=[];
+      wb.SheetNames.forEach(nm=>{
+        if(/^(summary|profile|how to use|instructions|read ?me|lists?)$/i.test(nm.trim())) return;
+        const aoa=XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1, raw:true, defval:'', blankrows:false});
+        const sh=impSheet(csv?file.name.replace(/\.[^.]+$/,''):nm, aoa); if(!sh) return;
+        sh.data=sh.data.filter(d=>!d.cells.some(c=>typeof c==='string' && IMP_EXAMPLE.test(c)));   // template example rows
+        if(!sh.data.length) return;
+        sh.kind=impKindFromName(sh.name) || impKindFromHeaders(sh.headers);
+        sh.scope='spec'; sh.map=sh.kind?impMatch(sh.kind,sh.headers):sh.headers.map(()=>null);
+        sheets.push(sh);
+      });
+      if(!sheets.length){ IMP.status={err:true, msg:'No entries found in that file. Check the column headings are in the first row.'}; impRender(); return; }
+      sheets.forEach(sh=>{ const need=(sh.kind==='acute'||sh.kind==='ward')?'start':'date'; sh.open=!sh.kind || !sh.map.includes(need); sh.scope=impGuessScope(sh); });
+      IMP={stage:'review', file:file.name, sheets}; impRender();
+    }catch(err){ console.error('[Outcome1] import read failed', err); IMP.status={err:true, msg:'Couldn’t read that file. Save it as .xlsx or .csv and try again.'}; impRender(); }
+  }
+  function impSheetHTML(sh,i){
+    const k=sh.kind, r=sh.res=impEval(sh), sp=specCfg().short;
+    const kindSel=`<select class="w-sel w-imp-sel" data-kind="${i}" aria-label="What the ${safe(sh.name)} sheet holds">${k||sh.skip?'':'<option value="" selected>Choose what this holds</option>'}${IMP_KINDS.map(x=>`<option value="${x}" ${x===k&&!sh.skip?'selected':''}>${KIND_TITLE[x]}</option>`).join('')}<option value="__skip" ${sh.skip?'selected':''}>Skip this sheet</option></select>`;
+    const head=`<div class="w-imp-shh"><div class="w-imp-shn">${I('table',16)}<span>${safe(sh.name)}</span><small>${sh.data.length} row${sh.data.length===1?'':'s'}</small></div>${kindSel}</div>`;
+    if(sh.skip) return `<section class="w-imp-sh is-skip">${head}<p class="w-imp-muted">Skipped. Nothing from this sheet will be imported.</p></section>`;
+    if(!k) return `<section class="w-imp-sh">${head}<p class="w-imp-muted">Choose what this sheet holds and its columns will be matched for you.</p></section>`;
+    const fields=ENTRY_FIELDS[k], need=(k==='acute'||k==='ward')?'start':'date';
+    const cols=sh.headers.map((h,j)=>({h,j,f:sh.map[j]})).filter(c=>c.h);
+    const matched=cols.filter(c=>c.f && c.f!=='__notes').length, sample=j=>{ const row=sh.data.find(d=>d.cells[j]!==''&&d.cells[j]!==undefined); return row?String(row.cells[j]).slice(0,32):''; };
+    const colRows=cols.map(c=>`<label class="w-imp-col"><span><b>${safe(c.h)}</b>${sample(c.j)?`<small>e.g. ${safe(sample(c.j))}</small>`:''}</span>
+      <select class="w-sel w-imp-sel" data-col="${i}:${c.j}" aria-label="Outcome1 field for ${safe(c.h)}"><option value="">Don’t import</option>${fields.map(f=>`<option value="${f}" ${c.f===f?'selected':''}>${safe(fieldLabel(f,k))}</option>`).join('')}<option value="__notes" ${c.f==='__notes'?'selected':''}>Add to notes</option></select></label>`).join('');
+    const scopeSel=fields.includes('scope')?`<label class="w-imp-scope"><span>${sh.map.includes('scope')?`Blank “${safe(sp)} or GIM” cells count as`:'These entries are'}</span><select class="w-sel w-imp-sel" data-scope="${i}"><option value="spec" ${sh.scope!=='gim'?'selected':''}>${safe(sp)}</option><option value="gim" ${sh.scope==='gim'?'selected':''}>GIM</option></select></label>`:'';
+    const li=(cls,ic,n,txt,key)=>n?`<li class="${cls}"><span class="dot">${ic}</span><span><b>${n}</b> ${txt}</span>${key&&n?`<button class="w-imp-link" data-why="${i}:${key}">${sh.why===key?'Hide':'Rows'}</button>`:''}</li>`:'';
+    const why=sh.why?`<ul class="w-imp-why">${(r[sh.why]||[]).slice(0,30).map(x=>`<li>Row ${x.n}: ${safe(x.why)}</li>`).join('')}${(r[sh.why]||[]).length>30?`<li>…and ${(r[sh.why]||[]).length-30} more</li>`:''}</ul>`:'';
+    const yrs=Object.entries(r.years).sort(([a],[b])=>a.localeCompare(b,undefined,{numeric:true}));
+    const unk=[...r.unknown], other=sh.scope==='gim'?'spec':'gim';
+    const otherFits=unk.length && fields.includes('scope') && !sh.map.includes('scope') && impTypeHits(sh,other)>impTypeHits(sh,sh.scope);
+    const pv=r.ready.slice(0,3).map(({e})=>`<div class="w-imp-pv"><b>${safe(entryTitle(k,e))}</b><span>${safe(entrySub(k,e))}</span></div>`).join('');
+    return `<section class="w-imp-sh">${head}
+      <div class="w-imp-cols"><button class="w-imp-colsbtn" data-open="${i}" aria-expanded="${!!sh.open}"><span>${sh.map.includes(need)?`${matched} of ${cols.length} columns matched`:`Which column has the ${safe(fieldLabel(need,k).toLowerCase())}?`}</span>${I('chev',16)}</button>
+        ${sh.open?`<div class="w-imp-colist">${colRows}</div>`:''}</div>
+      ${scopeSel}
+      <ul class="w-imp-res">${li('ok',I('check',15),r.ready.length,'ready to import')}${li('dup',I('reset',14),r.dup.length,'already in your logbook, skipped','dup')}${li('bad','!',r.bad.length,`need${r.bad.length===1?'s':''} a look, skipped`,'bad')}${li('dup',I('lock',14),r.locked.length,'in a signed-off year, skipped','locked')}${!r.ready.length&&!r.dup.length&&!r.bad.length&&!r.locked.length?'<li class="bad"><span class="dot">!</span><span>No entries found</span></li>':''}</ul>${why}
+      ${yrs.length?`<div class="w-imp-years">${yrs.map(([y,n])=>`<span>${safe(y)} · ${n}</span>`).join('')}</div>`:''}
+      ${unk.length?`<p class="w-imp-muted">${unk.length} ${k==='procedures'?'procedure':'type'} name${unk.length===1?' isn’t':'s aren’t'} on Outcome1’s list and will be saved as written: ${unk.slice(0,4).map(safe).join(', ')}${unk.length>4?'…':''}.${otherFits?` They look like ${other==='gim'?'GIM':safe(sp)} ones. <button class="w-imp-link" data-swap="${i}">Switch to ${other==='gim'?'GIM':safe(sp)}</button>`:k==='procedures'?' Rename them in the file if they should count towards a named procedure.':''}</p>`:''}
+      ${pv?`<div class="w-imp-pvs">${pv}</div>`:''}
+    </section>`;
+  }
+  function impRender(){
+    if(!IMP) return;
+    let el=impEl(); const fresh=!el;
+    if(fresh){
+      el=document.createElement('div'); el.id='w-imp'; el.className='w-imp'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','w-imp-t');
+      el.innerHTML=`<div class="w-imp-top"><button class="w-imp-x" data-close="1" aria-label="Close import">${I('x',22)}</button><h2 id="w-imp-t">Import logbook</h2><span class="w-imp-sp"></span></div><div class="w-imp-body"><div class="w-imp-in"></div></div><div class="w-imp-foot"><div class="w-imp-fin"></div></div>`;
+      el.addEventListener('click', impClick); el.addEventListener('change', impChange);
+      document.addEventListener('keydown',impOnKey,true); document.body.appendChild(el);
+    }
+    const body=el.querySelector('.w-imp-body'), top=body.scrollTop, inner=el.querySelector('.w-imp-in'), foot=el.querySelector('.w-imp-fin');
+    const act=document.activeElement, keep=act&&el.contains(act)?['data-kind','data-col','data-scope','data-open','data-why'].map(a=>act.getAttribute(a)?`[${a}="${act.getAttribute(a)}"]`:'').find(Boolean):null;
+    if(IMP.stage==='pick'){
+      const st=IMP.status;
+      inner.innerHTML=`<p class="w-imp-lead">Bring your entries in from a spreadsheet. You’ll see a preview, and nothing is saved until you say so.</p>
+        <div class="w-imp-step" style="--c:var(--c-spec)"><h3>1 · Get the template</h3><p>An Excel file with a tab for each kind of entry, an example row in each, and a how-to sheet.</p><button class="w-imp-btn" data-tpl="1">${I('dl',18)}Download template</button></div>
+        <div class="w-imp-step" style="--c:var(--c-gim)"><h3>2 · Fill it in</h3><p>One entry per row, dates as day/month/year. Got your own spreadsheet already? Skip this step: you’ll match its columns next.</p></div>
+        <div class="w-imp-step" style="--c:var(--c-quick)"><h3>3 · Upload it</h3><p>Excel (.xlsx or .xls) or CSV. An Outcome1 Excel export works as it is.</p><label class="w-imp-btn" for="w-imp-file">${I('ul',18)}Choose file</label><input type="file" id="w-imp-file" class="w-imp-file" accept=".xlsx,.xls,.csv,.ods,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"></div>
+        ${st?`<p class="w-imp-status ${st.err?'err':''}" role="status">${safe(st.msg)}</p>`:''}`;
+      foot.innerHTML=`<button class="w-imp-alt" data-close="1">Cancel</button>`;
+    } else if(IMP.stage==='review'){
+      inner.innerHTML=`<p class="w-imp-lead"><b>${safe(IMP.file)}</b>. Check each sheet, then import. Rows already in your logbook are left out.</p>${IMP.sheets.map(impSheetHTML).join('')}`;
+      const n=IMP.sheets.reduce((a,sh)=>a+(sh.res?.ready.length||0),0);
+      foot.innerHTML=`<button class="w-imp-alt" data-again="1">Different file</button><button class="w-imp-go" data-run="1" ${n?'':'disabled'}>Import ${n} entr${n===1?'y':'ies'}</button>`;
+    } else if(IMP.stage==='done'){
+      const a=IMP.added, n=Object.values(a).reduce((s,l)=>s+l.length,0);
+      inner.innerHTML=`<div class="w-imp-done"><span class="w-imp-tick">${I('check',34)}</span><h3>${n} entr${n===1?'y':'ies'} imported</h3>
+        <ul class="w-imp-sum">${Object.entries(a).map(([k,l])=>`<li><span>${KIND_TITLE[k]}</span><b>${l.length}</b></li>`).join('')}</ul>
+        <p class="w-imp-muted">They count towards your targets and reports straight away. Tap any entry in your logbook to edit or delete it.</p>
+        <button class="w-imp-link" data-undo="1">Undo this import</button></div>`;
+      foot.innerHTML=`<button class="w-imp-alt" data-close="1">Done</button><button class="w-imp-go" data-open-log="1">Open logbook</button>`;
+    }
+    body.scrollTop=fresh?0:top;
+    if(keep){ try{ el.querySelector(keep)?.focus({preventScroll:true}); }catch(e){} }
+    else if(fresh){ el.tabIndex=-1; el.style.outline='none'; try{ el.focus({preventScroll:true}); }catch(e){} }
+  }
+  function impClick(e){
+    const t=e.target.closest('button'); if(!t) return;
+    if(t.dataset.close){ impClose(); return; }
+    if(t.dataset.tpl){ wImportTemplate(); return; }
+    if(t.dataset.again){ IMP={stage:'pick'}; impRender(); return; }
+    if(t.dataset.open!==undefined){ const sh=IMP.sheets[+t.dataset.open]; sh.open=!sh.open; impRender(); return; }
+    if(t.dataset.why){ const [i,key]=t.dataset.why.split(':'), sh=IMP.sheets[+i]; sh.why=sh.why===key?'':key; impRender(); return; }
+    if(t.dataset.swap!==undefined){ const sh=IMP.sheets[+t.dataset.swap]; sh.scope=sh.scope==='gim'?'spec':'gim'; impRender(); return; }
+    if(t.dataset.run){ impRun(); return; }
+    if(t.dataset.undo){ impUndo(); return; }
+    if(t.dataset.openLog){ impClose(); logSubTab='all'; setTab('logbook'); return; }
+  }
+  function impChange(e){
+    const t=e.target;
+    if(t.id==='w-imp-file'){ const f=t.files&&t.files[0]; t.value=''; if(f) impRead(f); return; }
+    if(t.dataset.kind!==undefined){ const sh=IMP.sheets[+t.dataset.kind];
+      if(t.value==='__skip'){ sh.skip=true; } else { sh.skip=false; if(t.value && t.value!==sh.kind){ sh.kind=t.value; sh.map=impMatch(sh.kind,sh.headers); const need=(sh.kind==='acute'||sh.kind==='ward')?'start':'date'; sh.open=!sh.map.includes(need); sh.why=''; sh.scope=impGuessScope(sh); } }
+      impRender(); return; }
+    if(t.dataset.col){ const [i,j]=t.dataset.col.split(':').map(Number), sh=IMP.sheets[i];
+      if(t.value && t.value!=='__notes') sh.map=sh.map.map((f,x)=>x!==j && f===t.value ? null : f);   // one column per field
+      sh.map[j]=t.value||null; impRender(); return; }
+    if(t.dataset.scope!==undefined){ IMP.sheets[+t.dataset.scope].scope=t.value; impRender(); return; }
+  }
+  function impRun(){
+    const ts=Date.now(); let id=uniqueIdFrom(); const added={}, hosp=new Set();
+    IMP.sheets.forEach(sh=>{ const r=impEval(sh); if(!sh.kind || sh.skip || !r.ready.length) return;
+      added[sh.kind]=(added[sh.kind]||[]).concat(r.ready.map(({e})=>{ if(e.hospital) hosp.add(e.hospital); return {...e, id:id++, createdAt:ts, updatedAt:ts, src:'import'}; })); });
+    if(!Object.keys(added).length) return;
+    Object.entries(added).forEach(([k,list])=>{ state.logbook[k]=[...entries(k), ...list]; });
+    if(hosp.size) state.hospitals=Array.from(new Set([...(state.hospitals||[]), ...hosp]));
+    if(state.setup){ const s=suState(); s.done.import=true; delete s.skipped.import; }
+    syncLogbookTargets(); saveState(); render();
+    IMP={stage:'done', file:IMP.file, added}; impRender();
+  }
+  function impUndo(){
+    const a=IMP?.added||{}; let n=0;
+    Object.entries(a).forEach(([k,list])=>{ n+=list.length; removeEntries(k, list.map(e=>e.id)); });
+    if(state.setup?.done){ delete state.setup.done.import; saveState(); }
+    render(); impClose(); wToast(`Import undone. ${n} entr${n===1?'y':'ies'} removed`);
+  }
+  // The template: one tab per kind of entry with an example row, and a how-to sheet
+  window.wImportTemplate = async function(){
+    let XLSX; try{ XLSX=await loadSheetJS(); }catch(err){ wToast('Couldn’t load the spreadsheet tools. Check your connection'); return; }
+    const sp=specCfg(), short=sp.short, L=sp.logbook||{}, base=state.profile?.baseHospital||'', EX='EXAMPLE – delete this row', OPT='Training year (optional)';
+    const T=[
+      ['Clinics',[['Date','14/10/2026'],[`${short} or GIM`,short],['Clinic type',(L.clinics||[])[0]||''],['Hospital',base],['Supervisor','Dr Smith'],['Patients',8],['Notes',EX],[OPT,'']]],
+      ['Procedures',[['Date','02/10/2026'],[`${short} or GIM`,'GIM'],['Procedure','Ascitic tap'],['Hospital',base],['Supervisor','Dr Jones'],['DOPS signed','Yes'],['Notes',EX],[OPT,'']]],
+      ['CPD',[['Date','19/09/2026'],[`${short} or GIM`,short],['CPD type','Conference'],['Internal or external','External'],['Title','Regional training day'],['Provider','Deanery'],['Hours',6],['Learning',''],['Reflection',''],['Notes',EX],[OPT,'']]],
+      ['Simulation',[['Date','20/03/2026'],['Course','GIMME'],['Title','Human factors simulation'],['Hours',4],['Hospital',base],['Notes',EX],[OPT,'']]],
+      ['Teaching',[['Date','20/03/2026'],['Type','Tutorial / seminar'],['Topic','AKI management'],['Audience','FY1s'],['Observed by','Dr Smith'],['Sign-off',''],['Notes',EX],[OPT,'']]],
+      ['Acute take',[['Hospital',base],['Start date','04/02/2026'],['End date','05/05/2026'],['Takes per month',5],['Patients per take',10],['Supervisor',EX],[OPT,'']]],
+      ['Ward cover',[['Hospital',base],['Start date','04/02/2026'],['End date','05/05/2026'],['Supervisor',EX],[OPT,'']]]
+    ];
+    const wb=XLSX.utils.book_new();
+    const how=[['Outcome1 logbook template'],[''],['How to use it'],
+      ['1','Fill in a tab for each kind of entry you have. Leave the others empty.'],
+      ['2','Keep the headings in row 1, one entry per row. Delete the example row in each tab.'],
+      ['3','Write dates as day/month/year, for example 14/10/2026.'],
+      ['4',`In “${short} or GIM”, write ${short} or GIM. Leave it blank and you can choose when you import.`],
+      ['5','Training year is optional. Outcome1 works it out from the date.'],
+      ['6','In Outcome1, open Logbook and tap Import, then choose this file. You’ll see a preview before anything is saved.'],
+      [''],['Names Outcome1 recognises'],['','Using these means entries count towards the right targets. Other names are saved as you wrote them.'],
+      [`${short} clinics`,(L.clinics||[]).join(', ')],['GIM clinics',GIM_LOGBOOK.clinics.join(', ')],
+      [`${short} procedures`,(L.procedures||[]).join(', ')],['GIM procedures',GIM_LOGBOOK.procedures.join(', ')],
+      ['CPD types',CPD_DIARY_TYPES.join(', ')],['Teaching types',TEACH_TYPES.join(', ')]];
+    const hs=XLSX.utils.aoa_to_sheet(how); hs['!cols']=[{wch:22},{wch:120}]; XLSX.utils.book_append_sheet(wb,hs,'How to use');
+    T.forEach(([name,cols])=>{ const ws=XLSX.utils.aoa_to_sheet([cols.map(c=>c[0]), cols.map(c=>c[1])]); ws['!cols']=cols.map(c=>({wch:Math.max(14,String(c[0]).length+4, String(c[1]).length+2)})); XLSX.utils.book_append_sheet(wb,ws,name); });
+    XLSX.writeFile(wb,'Outcome1 logbook template.xlsx');
+  };
+
   // ═══ First run: three welcome cards, then a "Get set up" checklist at the top of Home ═══
   // Only new accounts get it automatically (state.setup is created at sign-up); anyone can open it from Account.
   Object.assign(IC, {
@@ -7556,6 +8106,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         sub: scePassed?'Passed':state.sceDate?`Sitting ${suDate(state.sceDate)}`:s.done.sce?'Not booked yet':'Add the date if you have one', open:suSce },
       { k:'already', icon:'check', t:'Already done', done:!!s.done.already,
         sub:'Tick off anything finished before today', open:suAlready },
+      { k:'import', icon:'ul', t:'Bring in your old logbook', done:!!s.done.import,
+        sub: s.done.import?'Done':'From a spreadsheet, with our template', open:suImport },
       { k:'install', icon:'phone', t:'Install on your phone', done:isStandalone() || !!s.done.install,
         sub: isStandalone()?'Installed':'Opens like an app, works offline', open:suInstall },
       { k:'first', icon:'plus', t:'Log your first entry', done:suAnyEntry(),
@@ -7611,7 +8163,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-sus-t" tabindex="-1">
       <div class="w-ask-t" id="w-sus-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
       ${o.body?`<div class="w-sus-body">${o.body}</div>`:''}
-      <div class="w-sus-acts">${o.actions.map((a,i)=>`<button class="${a.primary?'w-sus-go':'w-sus-alt'}" data-i="${i}">${a.label}</button>`).join('')}</div>
+      <div class="w-sus-acts">${o.actions.map((a,i)=>`<button class="${a.cls||(a.primary?'w-sus-go':'w-sus-alt')}" data-i="${i}">${a.label}</button>`).join('')}</div>
       <button class="w-ask-x" data-x="1">Close</button></div>`;
     const close=()=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
     const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
@@ -7721,6 +8273,12 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     else if(phone){ sub='Open your browser menu, then choose <b>Install app</b> or <b>Add to Home screen</b>.'; acts=[{ label:'I’ve added it', primary:true, on:()=>suMark('install') }, later]; }
     else { sub=`On your phone, open <b>${safe(host)}</b> and add it to your home screen. It’s the same account, so everything is already there.`; acts=[{ label:'Done', primary:true, on:()=>suMark('install') }, later]; }
     suSheet({ title:'Install on your phone', sub, actions:acts });
+  }
+  function suImport(){
+    suSheet({ title:'Bring in your old logbook', sub:'Kept your logbook in a spreadsheet? Bring it in so your totals start in the right place. You’ll see a preview before anything is saved.',
+      actions:[ { label:'Import a spreadsheet', primary:true, on:()=>{ setTimeout(()=>wImport(),0); } },
+                { label:'Download the template', on:()=>{ wImportTemplate(); return false; } },
+                { label:'I’m starting fresh', on:()=>suMark('import') } ]});
   }
   function suFirst(){
     const sp=specCfg().short;
