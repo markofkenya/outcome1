@@ -19,6 +19,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin === location.origin) {
+    if (/\/feedback\.html$/.test(url.pathname)) return;   // the public feedback form always comes from the server
     if (req.mode === 'navigate') e.respondWith(page(e));
     else e.respondWith(fresh(req, APP));            // icons and manifest
     return;
