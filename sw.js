@@ -32,9 +32,23 @@ const FLAG = () => self.registration.scope + '__o1-update-ready';
 async function setFlag(on) { const c = await caches.open(APP); if (on) await c.put(FLAG(), new Response('1')); else await c.delete(FLAG()); }
 async function hasFlag() { const c = await caches.open(APP); return !!(await c.match(FLAG())); }
 self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'o1-hello' && e.source)
+  if (!e.data) return;
+  if (e.data.type === 'o1-hello' && e.source)
     e.waitUntil(hasFlag().then(f => { if (f) e.source.postMessage({ type: 'o1-update' }); }));
+  // the app came back on screen: look for a newer version without waiting for a fresh open
+  if (e.data.type === 'o1-check' && e.data.url) e.waitUntil(checkPage(e.data.url));
 });
+async function checkPage(u) {
+  const key = new URL(u); if (key.origin !== location.origin) return; key.search = ''; key.hash = '';
+  const cache = await caches.open(APP), saved = await cache.match(key.href);
+  if (!saved) return;
+  try {
+    const res = await fetch(key.href, { cache: 'no-cache', credentials: 'same-origin' });
+    if (!res.ok || res.redirected || res.type !== 'basic') return;
+    const text = await res.clone().text(), before = await saved.text();
+    if (before !== text) { await cache.put(key.href, res); await setFlag(true); tell({ type: 'o1-update' }); }
+  } catch (err) {}
+}
 
 // The app page: saved copy first, then check for a newer one
 async function page(e) {
