@@ -2,12 +2,30 @@
   "name": "Outcome1 — Portfolio Tracker",
   "short_name": "Outcome1",
   "description": "ARCP portfolio tracker for physician trainees",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#F4F3EE",
   "theme_color": "#F4F3EE",
   "icons": [
-    { "src": "outcome2.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "outcome3.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "outcome-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "outcome2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "outcome3.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "outcome-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
