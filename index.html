@@ -1340,9 +1340,39 @@ body.focus .w-su-bar{border-color:var(--line-strong)}
 .w-wel-slide.on .w-wv-docs i:nth-child(2){animation-delay:.08s}.w-wel-slide.on .w-wv-docs i:nth-child(3){animation-delay:.16s}
 @keyframes wvUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes wvPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+.w-wel.now{animation:none}
+/* Welcome page, after the three cards */
+.w-hello{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;max-width:520px;width:100%;margin:0 auto;padding:12px 2px;box-sizing:border-box}
+.w-hello>*{animation:wvUp .5s cubic-bezier(.2,.8,.2,1) both}
+.w-hello>*:nth-child(2){animation-delay:.07s}.w-hello>*:nth-child(3){animation-delay:.14s}
+.w-hello-card{background:var(--c);color:#1E1E1E;border:2px solid #1E1E1E;border-radius:30px;padding:22px 24px 24px;box-shadow:0 18px 30px -26px rgba(0,0,0,.55)}
+.w-hello-k{display:block;font:700 13px var(--font);letter-spacing:.08em;text-transform:uppercase;opacity:.72}
+.w-hello-card h2{font:800 40px/1.02 var(--font);letter-spacing:-.045em;margin:12px 0 6px;overflow-wrap:anywhere}
+.w-hello-card p{margin:0;font:600 17px/1.4 var(--font);color:#3A3836}
+.w-hello-facts{margin:16px 0 0;padding:2px 20px;border:1px solid var(--line);border-radius:24px;background:var(--bg2)}
+.w-hello-facts div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:13px 0;border-top:1px solid var(--line)}
+.w-hello-facts div:first-child{border-top:0}
+.w-hello-facts dt{font:600 15px var(--font);color:var(--dim);flex:none}
+.w-hello-facts dd{margin:0;font:700 15.5px/1.35 var(--font);text-align:right;min-width:0}
+.w-hello-next{margin:22px 4px 0}
+.w-hello-next b{display:block;font:800 23px/1.15 var(--font);letter-spacing:-.03em}
+.w-hello-next p{margin:6px 0 0;font:500 16.5px/1.45 var(--font);color:var(--dim)}
+.w-wel-foot.hello{flex-direction:column;align-items:stretch;gap:2px}
+.w-wel-foot.hello .w-wel-next{justify-content:center;padding:18px 22px}
+.w-wel-alt{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;font:700 16px var(--font);color:var(--dim);padding:13px}
+.w-wel-alt:hover{color:var(--text)}
+.w-wel-alt:focus-visible{outline:3px solid var(--text);outline-offset:2px;border-radius:12px}
+/* Setup card: pick the guided setup up where it stopped */
+.w-su-go{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;margin:14px 0 6px;background:var(--ink);color:var(--ink-fg);border-radius:999px;padding:11px 14px 11px 22px}
+.w-su-go-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.w-su-go-t b{font:700 17px/1.2 var(--font)}
+.w-su-go-t span{font:500 14px/1.25 var(--font);opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-su-go>svg{flex:none;color:var(--c-quick)}
+body.focus .w-su-go>svg{color:#121212}
+.w-su-go:focus-visible{outline:3px solid var(--text);outline-offset:3px}
 @media (max-width:420px){.w-wel-slide h2{font-size:31px}.w-wel-slide p{font-size:17px}.w-wel-vis{margin-bottom:24px}.w-su{padding:18px 18px 6px;border-radius:28px}.w-su-h{font-size:27px}}
 @media (max-height:640px){.w-wel-vis{height:30vh;margin-bottom:18px}.w-wel-slide h2{font-size:28px}}
-@media (prefers-reduced-motion:reduce){.w-wel-track{transition:none}.w-wel-slide.on .w-wv-card,.w-wel-slide.on .w-wv-qrow b,.w-wel-slide.on .w-wv-docs i,.w-su-bar i{animation:none;transition:none}}
+@media (prefers-reduced-motion:reduce){.w-hello>*{animation:none}.w-wel-track{transition:none}.w-wel-slide.on .w-wv-card,.w-wel-slide.on .w-wv-qrow b,.w-wel-slide.on .w-wv-docs i,.w-su-bar i{animation:none;transition:none}}
 
 /* ═══ Entry sheet: details, edit and delete ═══ */
 .w-acts.five{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
@@ -5022,7 +5052,7 @@ try { initOnboarding(); render(); forceLiveStatus(); } catch(e) { console.warn('
 // Correct Yorkshire & Humber hospital wording requested by user.
 if (DEANERIES["Yorkshire & Humber"]) {
   DEANERIES["Yorkshire & Humber"] = DEANERIES["Yorkshire & Humber"]
-    .map(h => h === "Sheffield Royal Hallamshire Hospital" ? "Sheffield Teaching Hospitals" : h)
+    .map(h => (h === "Sheffield Royal Hallamshire Hospital" || h === "Sheffield Teaching Hospitals") ? "Northern General Hospital" : h)
     .filter((h, i, arr) => arr.indexOf(h) === i);
 }
 
@@ -7677,8 +7707,10 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const before=state.profile; const r=__saveOnb.apply(this,arguments);
     if(state.profile && state.profile!==before){
       applyArcpDefaults();
-      if(!before && !state.setup) state.setup={v:1, startedAt:Date.now()};   // new account: welcome cards + setup checklist
+      const fresh=!before && !state.setup;
+      if(fresh) state.setup={v:1, startedAt:Date.now()};   // new account: welcome cards + setup checklist
       saveState(); render();
+      if(fresh) wWelcome({instant:true});   // in the same moment as the sign-up form closes, so Home never shows first
     }
     return r;
   };
@@ -8179,15 +8211,26 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       render();
     }, 400);
   }
+  // Yorkshire & Humber list: "Sheffield Teaching Hospitals" became "Northern General Hospital". Update the hospital
+  // lists people already have (logged entries keep the name they were saved with).
+  const OLD_STH='Sheffield Teaching Hospitals', NGH='Northern General Hospital';
+  function wRenameHospital(){
+    if(!state || !state.profile) return;
+    const fix=a=>Array.isArray(a)&&a.includes(OLD_STH) ? Array.from(new Set(a.map(h=>h===OLD_STH?NGH:h))) : a;
+    let changed=false;
+    ['hospitals','deletedHospitals','hiddenHospitals'].forEach(k=>{ const v=fix(state[k]); if(v!==state[k]){ state[k]=v; changed=true; } });
+    if(state.profile.baseHospital===OLD_STH){ state.profile.baseHospital=NGH; changed=true; }
+    if(changed) saveState();
+  }
   const __renderFb=window.render;
-  window.render=function(){ const r=__renderFb.apply(this,arguments); try{ wWatchFeedback(); }catch(e){} return r; };
+  window.render=function(){ try{ wRenameHospital(); }catch(e){} const r=__renderFb.apply(this,arguments); try{ wWatchFeedback(); }catch(e){} return r; };
   ['firebase-signed-in','firebase-load'].forEach(ev=>window.addEventListener(ev, ()=>setTimeout(()=>{ try{ wWatchFeedback(); }catch(e){} },800)));
   window.addEventListener('firebase-signed-out', ()=>{ fbWatch.forEach(off=>{ try{ off(); }catch(e){} }); fbWatch.clear(); });
 
   // ═══ Card ↔ section transition ═══
   // Opening: the tapped card's colour grows into the section header while the other cards drop away. The header's
-  // contents appear with the rest of the screen, the summary card tucked over the "Add…" card; once the colour has
-  // filled the header, the summary card slides down to reveal it.
+  // contents appear with the rest of the screen, the summary card tucked over the "Add…" card; as the colour
+  // settles, the summary card slides down to reveal it.
   // Closing is quieter: Home is already in place and the header simply shrinks back into its card in the stack.
   // The screen itself switches straight away underneath; the movement is drawn on top. Off with Reduce Motion.
   const ANIM_TABS=['arcp','specialty','gim','cpd','logbook','admin'];
@@ -8219,7 +8262,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     if(top){ const r=box(top); topClone=top.cloneNode(true); Object.assign(topClone.style,{ position:'fixed', top:r.top+'px', left:r.left+'px', width:r.width+'px', margin:'0', zIndex:'1' }); layer.appendChild(topClone); }
     let done=false, head=null, pk=null;
     const restore=()=>{ if(head) Object.assign(head.style,{ background:'', borderBottomColor:'', position:'', zIndex:'', pointerEvents:'' }); };
-    const finish=()=>{ if(done) return; done=true; restore(); if(pk) pk.bal.style.transform=''; layer.remove(); animBusy=false; };
+    const finish=()=>{ if(done) return; done=true; restore(); layer.remove(); animBusy=false; };
     try{
       goTab(tab); window.scrollTo(0,0);
       head=main().querySelector('.w-head'); if(!head){ finish(); return; }
@@ -8228,7 +8271,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       // with the summary card still tucked over the "Add…" card
       pk=pocket(head); if(pk && !(pk.tab && pk.dy>0)) pk=null;
       Object.assign(head.style,{ background:'transparent', borderBottomColor:'transparent', position:'relative', zIndex:'1501', pointerEvents:'none' });
-      if(pk) pk.bal.style.transform=`translateY(${-pk.dy}px)`;
+      // the summary card waits tucked over the "Add…" card, then slides down as the colour settles
+      if(pk){ const a=pk.bal.animate([{transform:`translateY(${-pk.dy}px)`},{transform:'translateY(0)'}],{duration:520,delay:190,easing:'cubic-bezier(.3,.7,.25,1)',fill:'backwards'}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
       [...head.children].forEach(ch=>ch.animate([{opacity:0},{opacity:1}],{duration:200,delay:70,easing:'ease-out',fill:'backwards'}));
       // the other cards drop away and fade quickly, so they're gone before the header's contents arrive
       clones.forEach(({k,r},i)=>{ const below=r.top>from.r.top;
@@ -8238,11 +8282,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       const grow=g.animate([frame(from),frame(to,{borderRadius:'0px'})],{duration:360,easing:EASE,fill:'forwards'});
       grow.onfinish=()=>{
         done=true; restore(); layer.remove();
-        if(!pk){ animBusy=false; return; }
-        // a short beat, then the summary card slides down to reveal the "Add…" card
-        pk.bal.style.transform='';
-        const a=pk.bal.animate([{transform:`translateY(${-pk.dy}px)`},{transform:'translateY(0)'}],{duration:520,delay:90,easing:'cubic-bezier(.3,.7,.25,1)',fill:'backwards'});
-        a.onfinish=a.oncancel=()=>{ animBusy=false; };
+        if(!pk) animBusy=false;
       };
       setTimeout(finish,1500);   // never leave the screen covered
       setTimeout(()=>{ animBusy=false; },2000);
@@ -8327,6 +8367,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       return '';
     }
     const open=steps.filter(x=>!x.done && !x.later), later=steps.filter(x=>x.later), done=steps.filter(x=>x.done);
+    const rk=SG.on ? null : suResumeKey(), rx=rk?steps.find(x=>x.k===rk):null;
+    const goBtn=rx?`<button class="w-su-go" onclick="wSetupResume()"><span class="w-su-go-t"><b>${s.flowed?'Continue setup':'Start setup'}</b><span>${s.flowed?'Next':'First'}: ${safe(rx.t)}</span></span>${I('chev',20)}</button>`:'';
     const all=!!window.__wSuAll, list=all?[...open,...later,...done]:[...open,...later].slice(0,3);
     const rows=list.map(x=>`<button class="w-su-row ${x.done?'is-done':''}" onclick="wSetupStep('${x.k}')">
         <span class="w-su-ic">${I(x.done?'check':x.icon,20)}</span>
@@ -8335,6 +8377,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       <div class="w-su-head"><div><div class="w-su-k">${d} of ${n} done</div><h2 class="w-su-h" id="w-su-t">Get set up</h2></div>
         <button class="w-su-x" onclick="wSetupHide()" aria-label="Hide the setup guide" title="Hide">${I('x',18)}</button></div>
       <div class="w-su-bar" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${d}"><i style="width:${Math.max(4,Math.round(d/n*100))}%"></i></div>
+      ${goBtn}
       <div class="w-su-list">${rows}</div>
       ${n>list.length||all?`<button class="w-su-more" onclick="window.__wSuAll=!window.__wSuAll;render()">${all?'Show less':`See all ${n} steps`}</button>`:''}
     </section>`;
@@ -8352,11 +8395,25 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     SG.opening=SG.on?k:null;
     try{ st.open(); } finally { SG.opening=null; }
   }
-  function suStartFlow(){ const k=suNextKey(null); if(!k) return; SG.on=true; suOpen(k); }
+  function suStartFlow(){ const k=suNextKey(null); if(!k) return; const s=suState(); s.flowed=true; delete s.at; saveState(); SG.on=true; suOpen(k); }
+  // Where "Continue setup" picks up: the step they stopped on (or the next one not done), else whatever is left
+  function suResumeKey(){
+    const s=suState(), steps=suSteps(), open=x=>!x.done && !x.later;
+    const from=s.at ? Math.max(0, steps.findIndex(x=>x.k===s.at)) : 0;
+    return (steps.slice(from).find(open) || steps.find(open) || steps.find(x=>!x.done) || {}).k || null;
+  }
+  window.wSetupResume = function(){
+    if(SG.on){ wSetupContinue(); return; }
+    const k=suResumeKey(); if(!k) return;
+    const s=suState(); s.flowed=true; saveState(); SG.on=true; suOpen(k);
+  };
   function suAdvance(){ const k=suNextKey(SG.k); if(k) setTimeout(()=>{ if(SG.on && !SG.paused) suOpen(k); },200); else suFlowDone(); }
-  function suFlowDone(){ suEndFlow(); if(currentTab!=='home') setTab('home'); }   // end of the run: back to Home, where the card shows what's left
+  function suFlowDone(){ suEndFlow(); if(state.setup){ delete state.setup.at; saveState(); } if(currentTab!=='home') setTab('home'); else render(); }   // end of the run: back to Home, where the card shows what's left
   function suPause(){ if(!SG.on) return; SG.paused=true; setTimeout(wContBar,0); }
-  function suEndFlow(){ SG.on=false; SG.paused=false; SG.k=null; wContBar(); render(); }
+  function suEndFlow(){
+    if(SG.on && SG.k && state.setup){ state.setup.at=SG.k; saveState(); }   // remember where they stopped for "Continue setup"
+    SG.on=false; SG.paused=false; SG.k=null; wContBar(); render();
+  }
   function suStepLabel(k){ const steps=suSteps(), i=steps.findIndex(x=>x.k===k); return i<0?'':`Step ${i+1} of ${steps.length}`; }
   window.wSetupContinue = function(){ const k=suNextKey(SG.k); if(k) suOpen(k); else suFlowDone(); };
   window.wSetupFinishLater = function(){ suEndFlow(); };
@@ -8380,7 +8437,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   };
   window.wSetupOpen = function(){
     const s=Object.assign({v:1, startedAt:Date.now()}, state.setup||{});
-    s.dismissed=false; s.skipped={}; delete s.completedAt; s.welcomed=true;
+    s.dismissed=false; s.skipped={}; delete s.completedAt; delete s.at; s.welcomed=true;
     state.setup=s; saveState();
     currentTab='home'; try{ localStorage.setItem('arcp_v2_tab','home'); }catch(e){}
     render(); wWelcome();
@@ -8567,8 +8624,10 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       { label:'Not now', sub:'Leave it for later', on:()=>suLater('first') } ]});
   }
 
-  // Three welcome cards, shown once after sign-up and from Account › Setup guide
-  window.wWelcome = function(){
+  // Three welcome cards, then a welcome page that offers the setup. Shown once after sign-up and from Account › Setup guide.
+  const helloName = n => (String(n||'').trim().replace(/^(dr|mr|mrs|ms|miss|mx|prof)\.?\s+/i,'').split(/\s+/)[0]) || '';
+  window.wWelcome = function(opts){
+    opts=opts||{};
     document.getElementById('w-welcome')?.remove();
     const sp=specCfg().short, cy=currentYear;
     const slides=[
@@ -8579,40 +8638,61 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       { vis:`<div class="w-wv-arcp"><span class="w-wv-k">ARCP</span><b>21 days</b><span class="w-wv-lock">${I('lock',15)}Portfolio locks in 7 days</span><span class="w-wv-docs"><i>${I('print',15)}Report</i><i>${I('book',15)}CPD diary</i><i>${I('spark',15)}Wrapped</i></span></div>`,
         t:'Ready for the panel', p:'Outcome1 counts down to your ARCP and the portfolio lock two weeks before. When it comes round, your reports and CPD diary print in a tap.' }
     ];
-    const el=document.createElement('div'); el.id='w-welcome'; el.className='w-wel';
+    const el=document.createElement('div'); el.id='w-welcome'; el.className='w-wel'+(opts.instant?' now':'');
     el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Welcome to Outcome1');
     el.innerHTML=`<div class="w-wel-top"><span class="w-wel-brand">Outcome1</span><button class="w-wel-skip" data-skip="1">Skip</button></div>
       <div class="w-wel-view"><div class="w-wel-track">${slides.map((s,i)=>`<section class="w-wel-slide" aria-hidden="${i?'true':'false'}"><div class="w-wel-vis">${s.vis}</div><h2>${s.t}</h2><p>${s.p}</p></section>`).join('')}</div></div>
       <div class="w-wel-foot"><div class="w-wel-dots" aria-hidden="true">${slides.map(()=>'<i></i>').join('')}</div><button class="w-wel-next" data-next="1"></button></div>`;
-    let i=0;
+    let i=0, page='slides';
     const track=el.querySelector('.w-wel-track'), next=el.querySelector('.w-wel-next'), skip=el.querySelector('.w-wel-skip');
     const show=n=>{
       i=Math.max(0,Math.min(slides.length-1,n));
       track.style.transform=`translateX(${-i*100}%)`;
       el.querySelectorAll('.w-wel-slide').forEach((s,k)=>{ s.classList.toggle('on',k===i); s.setAttribute('aria-hidden',k===i?'false':'true'); });
       el.querySelectorAll('.w-wel-dots i').forEach((d,k)=>d.classList.toggle('on',k===i));
-      const last=i===slides.length-1;
-      next.innerHTML=last?`Get set up${I('chev',20)}`:`Next${I('chev',20)}`; skip.style.visibility=last?'hidden':'visible';
+      next.innerHTML=`Next${I('chev',20)}`; skip.style.visibility=i===slides.length-1?'hidden':'visible';
     };
-    const finish=()=>{
+    // The welcome page: who the app is set up for, then the choice to start the setup now or look around first
+    const hello=()=>{
+      page='hello';
+      const pr=state.profile||{}, nm=helloName(pr.name);
+      const arcpV=state.arcpDates?.[cy]||ARCP_DEFAULTS[cy], auto=arcpIsAuto(cy);
+      const ys=pr.yearStart?new Date(pr.yearStart.year, pr.yearStart.month-1, 1).toLocaleDateString('en-GB',{month:'long',year:'numeric'}):'';
+      const n=suSteps().length;
+      const facts=[[`Training year`, `${cy}${ys?`, from ${ys}`:''}`], ['Deanery', pr.deanery||''], ['ARCP', arcpV?`${suDate(arcpV)}${auto?' (pencilled in)':''}`:'']].filter(f=>f[1]);
+      el.classList.add('hello');
+      el.innerHTML=`<div class="w-wel-top"><span class="w-wel-brand">Outcome1</span></div>
+        <div class="w-hello">
+          <div class="w-hello-card" style="--c:var(--c-spec)"><span class="w-hello-k">${safe(cy)} · ${safe(specCfg().label||sp)} and GIM</span><h2 id="w-hello-t">Welcome${nm?`, ${safe(nm)}`:''}</h2><p>Your portfolio is ready to use.</p></div>
+          <dl class="w-hello-facts">${facts.map(([k,v])=>`<div><dt>${safe(k)}</dt><dd>${safe(v)}</dd></div>`).join('')}</dl>
+          <div class="w-hello-next"><b>Next, a quick setup</b><p>${n} short steps, about 3 minutes: your key dates, hospitals, your old logbook and more. Stop whenever you like, and Continue setup on Home picks up where you left off.</p></div>
+        </div>
+        <div class="w-wel-foot hello"><button class="w-wel-next" data-start="1">Start setup${I('chev',20)}</button><button class="w-wel-alt" data-look="1">I’ll look around first</button></div>`;
+      el.setAttribute('aria-labelledby','w-hello-t'); el.removeAttribute('aria-label');
+      try{ el.querySelector('[data-start]').focus({preventScroll:true}); }catch(e){}
+    };
+    const close=start=>{
       el.remove(); document.removeEventListener('keydown',onKey,true);
       if(state.setup && !state.setup.welcomed){ state.setup.welcomed=true; saveState(); }
       if(currentTab!=='home') setTab('home'); else render();
-      setTimeout(()=>{ if(state.setup && !state.setup.completedAt && !state.setup.dismissed) suStartFlow(); },250);
+      if(start) setTimeout(()=>{ if(state.setup && !state.setup.completedAt && !state.setup.dismissed) suStartFlow(); },250);
     };
     const onKey=e=>{
-      if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); finish(); }
-      else if(e.key==='ArrowRight'){ e.preventDefault(); show(i+1); }
-      else if(e.key==='ArrowLeft'){ e.preventDefault(); show(i-1); }
-      else if(e.key==='Tab'){ e.preventDefault(); const f=[skip,next].filter(b=>b.style.visibility!=='hidden'); const k=f.indexOf(document.activeElement); f[(k+(e.shiftKey?-1:1)+f.length)%f.length].focus(); }
+      const f=[...el.querySelectorAll('button')].filter(b=>b.style.visibility!=='hidden');
+      if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); if(page==='slides') hello(); else close(false); }
+      else if(page==='slides' && e.key==='ArrowRight'){ e.preventDefault(); if(i>=slides.length-1) hello(); else show(i+1); }
+      else if(page==='slides' && e.key==='ArrowLeft'){ e.preventDefault(); show(i-1); }
+      else if(e.key==='Tab'){ e.preventDefault(); const k=f.indexOf(document.activeElement); f[(k+(e.shiftKey?-1:1)+f.length)%f.length]?.focus(); }
     };
     el.addEventListener('click',e=>{
-      if(e.target.closest('[data-skip]')) finish();
-      else if(e.target.closest('[data-next]')){ if(i>=slides.length-1) finish(); else show(i+1); }
+      if(e.target.closest('[data-skip]')) hello();
+      else if(e.target.closest('[data-next]')){ if(i>=slides.length-1) hello(); else show(i+1); }
+      else if(e.target.closest('[data-start]')) close(true);
+      else if(e.target.closest('[data-look]')) close(false);
     });
     let x0=null;   // swipe between cards
     el.querySelector('.w-wel-view').addEventListener('pointerdown',e=>{ x0=e.clientX; });
-    el.querySelector('.w-wel-view').addEventListener('pointerup',e=>{ if(x0===null) return; const dx=e.clientX-x0; x0=null; if(Math.abs(dx)>40) show(i+(dx<0?1:-1)); });
+    el.querySelector('.w-wel-view').addEventListener('pointerup',e=>{ if(x0===null) return; const dx=e.clientX-x0; x0=null; if(Math.abs(dx)>40){ if(dx<0 && i>=slides.length-1) hello(); else show(i+(dx<0?1:-1)); } });
     document.addEventListener('keydown',onKey,true);
     el.tabIndex=-1; el.style.outline='none';
     document.body.appendChild(el); show(0);
