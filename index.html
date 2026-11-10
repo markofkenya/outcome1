@@ -1433,6 +1433,35 @@ body.focus .w-sus-go.w-sus-dz{color:#121212}
 .w-imp-sum li{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font:600 16px var(--font)}
 .w-imp-sum li:last-child{border-bottom:0}
 .w-imp-done .w-imp-muted{max-width:420px;margin:0 auto 16px}
+
+.w-sus-how{margin:0;padding:0;list-style:none;counter-reset:how;display:grid;gap:10px}
+.w-sus-how li{counter-increment:how;display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;font:500 15px/1.45 var(--font);color:var(--text)}
+.w-sus-how li::before{content:counter(how);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--c-spec);color:#1E1E1E;border:2px solid #1E1E1E;font:800 14px var(--font)}
+.w-sus-how li:nth-child(2)::before{background:var(--c-gim)}.w-sus-how li:nth-child(3)::before{background:var(--c-quick)}
+
+/* Companion step: the three kinds of requirement row */
+.w-cmp{border:1px solid var(--line);border-radius:18px;background:var(--bg3);padding:2px 14px}
+.w-cmp-r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.w-cmp-r:last-child{border-bottom:0}
+.w-cmp-m{min-width:0}
+.w-cmp-m b{display:block;font:700 15.5px/1.25 var(--font)}
+.w-cmp-m small{display:block;font:500 13px/1.3 var(--font);color:var(--dim);margin-top:2px}
+.w-cmp-step{display:flex;align-items:center;gap:2px;border:1.5px solid var(--line-strong);border-radius:99px;padding:3px;flex:none}
+.w-cmp-step i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 17px var(--font);background:var(--bg4)}
+.w-cmp-step b{min-width:26px;text-align:center;font:800 16px var(--font)}
+.w-cmp-tog{flex:none;font:700 13.5px var(--font);border:1.5px solid var(--text);border-radius:99px;padding:7px 12px}
+.w-cmp-auto{flex:none;font:600 14px var(--font);color:var(--dim)}
+.w-cmp-auto b{font:800 18px var(--font);color:var(--text)}
+
+/* Phones (iPhone Safari especially): every field the same height and shape as a text box */
+.input{-webkit-appearance:none;appearance:none;line-height:1.3;font-family:inherit}
+input.input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]),select.input:not([multiple]){height:48px;padding-top:0;padding-bottom:0}
+textarea.input{min-height:84px}
+select.input{padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6862' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px 16px;text-overflow:ellipsis}
+body.focus select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23A19D94' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+input.input[type=date],input.input[type=time],input.input[type=month],input.input[type=datetime-local]{display:block;width:100%;min-width:0;max-width:100%;text-align:left}
+input.input::-webkit-date-and-time-value{text-align:left;margin:0;min-height:1.3em}
+input.input::-webkit-datetime-edit{padding:0}
 </style>
 
 </head>
@@ -3016,7 +3045,7 @@ function fbRenderModal(){
   const active=document.activeElement?.id;
   if(!m){ m=document.createElement('div'); m.id='fb-modal'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('aria-label','Teaching feedback'); m.addEventListener('click',ev=>{ if(ev.target===m) closeFeedback(); }); document.body.appendChild(m); }
   const link=e.feedbackId?fbLink(e.feedbackId):'';
-  const fileWarn=location.protocol==='file:'?`<div class="fb-warn">You opened the app from a file on this computer, so this link only works once the app and <b>feedback.html</b> are on your GitHub site. Open the app from there to share it.</div>`:'';
+  const fileWarn=location.protocol==='file:'?`<div class="fb-warn">You opened the app from a file on this computer, so this link only works once the app and <b>feedback.html</b> are on your website. Open the app from there to share it.</div>`:'';
   const resp=fbState.responses;
   const respHtml = fbState.loading && !resp ? '<div class="hint">Loading responses…</div>'
     : !resp ? '' : !resp.length ? '<div class="fb-empty">No responses yet. They appear here as people submit.</div>'
@@ -7766,7 +7795,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   const __addEntry=window.addEntry;
   window.addEntry=function(k){
     const before=entries(k).length, r=__addEntry.apply(this,arguments), arr=entries(k);
-    if(arr.length>before && KINDS.includes(k)){
+    if(arr.length>before && KINDS.includes(k) && k!=='teaching'){
       const e=arr[arr.length-1]; let n=0; try{ n=+localStorage.getItem('o1_tip_edit')||0; localStorage.setItem('o1_tip_edit',String(n+1)); }catch(err){}
       setTimeout(()=> n<3 ? wToastAct('Saved. Tap any entry to edit or delete it.','Show me',()=>wShowEntry(k,e.id),7000)
                           : wToastAct('Entry saved','View',()=>wShowEntry(k,e.id),3500), k==='teaching'?700:60);
@@ -8084,7 +8113,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   Object.assign(IC, {
     pin:'<path d="M12 21s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
     phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
-    compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>'
+    compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+    qr:'<rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2.5v2.5h-2.5zM20.5 14.5v.01M14.5 20.5h.01M17.5 20.5h3v-3"/>'
   });
   const suState = () => { const s=state.setup; s.done=s.done||{}; s.skipped=s.skipped||{}; return s; };
   const suDate = v => { const d=new Date(v); return isNaN(d)?'':d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
@@ -8111,7 +8141,11 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       { k:'install', icon:'phone', t:'Install on your phone', done:isStandalone() || !!s.done.install,
         sub: isStandalone()?'Installed':'Opens like an app, works offline', open:suInstall },
       { k:'first', icon:'plus', t:'Log your first entry', done:suAnyEntry(),
-        sub:'Clinic, procedure, CPD and more', open:suFirst }
+        sub:'Clinic, procedure, CPD and more', open:suFirst },
+      { k:'companion', icon:'list', t:'How Outcome1 works with your ePortfolio', done:!!s.done.companion,
+        sub:'Keep the tally in step with JRCPTB', open:suCompanion },
+      { k:'teach', icon:'qr', t:'Teaching and feedback', done:entries('teaching').some(e=>e.feedbackId),
+        sub: entries('teaching').some(e=>e.feedbackId)?'Feedback link ready':entries('teaching').length?'Now collect feedback on a session':'Log a session, then collect feedback with a QR code', open:suTeach }
     ].filter(Boolean);
     steps.forEach(x=>{ x.later=!x.done && !!s.skipped[x.k]; });
     return steps;
@@ -8280,6 +8314,52 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
                 { label:'Download the template', on:()=>{ wImportTemplate(); return false; } },
                 { label:'I’m starting fresh', on:()=>suMark('import') } ]});
   }
+  // The app is a running tally beside the JRCPTB ePortfolio: show the three kinds of requirement row
+  function suCompanion(){
+    const sp=safe(specCfg().short);
+    suSheet({ title:'Your ePortfolio companion',
+      sub:`Outcome1 works alongside your JRCPTB ePortfolio. It keeps track of the ${sp} and GIM requirements from the ARCP decision aid, so you can see what’s left at a glance. When something is done in the ePortfolio, record it here too.`,
+      body:`<div class="w-cmp">
+        <div class="w-cmp-r"><span class="w-cmp-m"><b>${sp} MCRs</b><small>Add 1 each time one is completed</small></span><span class="w-cmp-step" aria-hidden="true"><i>−</i><b>2</b><i>+</i></span></div>
+        <div class="w-cmp-r"><span class="w-cmp-m"><b>Educational Supervisor Report</b><small>Tick it once it’s signed off</small></span><span class="w-cmp-tog" aria-hidden="true">Mark done</span></div>
+        <div class="w-cmp-r"><span class="w-cmp-m"><b>GIM clinics</b><small>Logbook totals count themselves</small></span><span class="w-cmp-auto" aria-hidden="true"><b>12</b> / 20</span></div>
+      </div><p class="w-sus-note">These are on the ${sp} and GIM screens. Your ePortfolio stays the official record; Outcome1 is your running tally.</p>`,
+      actions:[ { label:`Show me on the ${sp} screen`, primary:true, on:()=>{ suMark('companion'); setTimeout(wShowCounter,60); } },
+                { label:'Got it', on:()=>suMark('companion') } ]});
+  }
+  function wShowCounter(){
+    setTab('specialty');
+    setTimeout(()=>{ const row=main().querySelector('.w-req .w-step')?.closest('.w-req'); if(!row) return;
+      row.scrollIntoView({behavior:'smooth',block:'center'}); row.classList.remove('w-flash'); void row.offsetWidth; row.classList.add('w-flash');
+      setTimeout(()=>row.classList.remove('w-flash'),2200); wToast('Tap + when one is done in your ePortfolio'); },250);
+  }
+  // Teaching and feedback in one step: log a session, then get its QR code
+  function suTeach(){
+    const list=entries('teaching').slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+    const how=`<ol class="w-sus-how"><li><span><b>Log the session.</b> Date, type, topic and who it was for.</span></li><li><span><b>Get a QR code.</b> Outcome1 offers one as soon as you save, or later from the session in your logbook.</span></li><li><span><b>Attendees give feedback</b> on their phones using the teaching evaluation form. It’s anonymous, with no sign-in, and the answers come back to you.</span></li></ol>`;
+    const log={ label:list.length?'Log another session':'Log a teaching session', primary:!list.length, on:()=>{ setTimeout(()=>wQuick('teaching','spec'),0); } };
+    const pick={ label:'Collect feedback on a session', primary:true, on:()=>{ setTimeout(()=>suPickSession(list),0); } };
+    suSheet({ title:'Teaching and feedback', sub:'Teaching you give counts towards your portfolio: tutorials, bedside teaching, journal clubs and talks. Outcome1 collects feedback on each session for you.',
+      body:how, actions:list.length?[pick, log, { label:'Not now', on:()=>suLater('teach') }]:[log, { label:'Not now', on:()=>suLater('teach') }] });
+  }
+  function suPickSession(list){
+    wAsk({ title:'Which session?', sub:'Each session gets its own QR code and link. Put the QR on your last slide or send the link. Responses come back here and print as a summary for your portfolio.', many:true,
+      options:list.slice(0,5).map(e=>({ label:safe(e.topic||e.type||'Teaching session'), sub:safe([suDate(e.date), e.audience, e.feedbackCount?`${e.feedbackCount} response${e.feedbackCount===1?'':'s'}`:''].filter(Boolean).join(' · ')), on:()=>openFeedback(e.id) })) });
+  }
+  // After saving a teaching session: offer the feedback QR straight away (replaces the browser's yes/no box)
+  window.wFeedbackOffer = function(id){
+    const e=entries('teaching').find(x=>String(x.id)===String(id)); if(!e) return;
+    suSheet({ title:'Collect feedback on this session?', sub:`${safe(e.topic||e.type||'Teaching session')}${e.date?' · '+safe(suDate(e.date)):''}. Get a QR code and link for attendees. They fill in the teaching evaluation form on their phones: anonymous, no sign-in.`,
+      actions:[ { label:'Get QR code and link', primary:true, on:()=>{ setTimeout(()=>openFeedback(e.id),0); } },
+                { label:'Later', on:()=>{ setTimeout(()=>wToastAct('Saved. Tap the session in your logbook to collect feedback later.','Show me',()=>wShowEntry('teaching',e.id),7000),0); } } ]});
+  };
+  const __saveSimple=window.saveSimple;
+  window.saveSimple=function(k,fieldStr){
+    if(k!=='teaching' || typeof __saveSimple!=='function') return __saveSimple.apply(this,arguments);
+    const data={}; String(fieldStr).split('|').forEach(f=>{ data[f]=val('sl-'+f); });
+    const before=entries('teaching').length; addEntry('teaching',data); if(data.hospital) addHospitalIfNew(data.hospital);
+    const arr=entries('teaching'); if(arr.length>before) setTimeout(()=>wFeedbackOffer(arr[arr.length-1].id),120);
+  };
   function suFirst(){
     const sp=specCfg().short;
     wAsk({ title:'Log your first entry', sub:'Pick what you did. It counts towards your targets straight away.', many:true, options:[
