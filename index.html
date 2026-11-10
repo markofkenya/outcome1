@@ -1485,6 +1485,11 @@ body.w-cont-on{padding-bottom:84px}
 body.w-cont-on .w-toast{bottom:calc(max(14px,env(safe-area-inset-bottom)) + 74px)}
 @keyframes wContIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
 @media (prefers-reduced-motion:reduce){.w-cont{animation:none}}
+
+/* Card <-> section transition layers */
+.w-anim{position:fixed;inset:0;pointer-events:auto;background:transparent}
+.w-ghost{position:fixed;box-sizing:border-box;border-style:solid;overflow:hidden;margin:0;will-change:top,left,width,height}
+.w-anim-clone{pointer-events:none;box-sizing:border-box}
 </style>
 
 </head>
@@ -6833,7 +6838,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const p=panelInfo();
     const cpdH=hrs(yearEntries('cpd')), gimExt=gimExternalCpdHours();
     const logN=KINDS.reduce((a,k)=>a+yearEntries(k).length,0);
-    const card=(tab,c,l,lsub,r,rsub,dark,lp,rp)=>`<div class="w-card ${dark?'dark':''}" style="--c:${c}"><button class="w-cardlink" aria-label="Open ${l}" onclick="${tab==='logbook'?"wGoLog('all')":`setTab('${tab}')`}"></button><span class="l"><span class="w-lrow"><b>${l}</b>${lp||''}</span>${lsub?`<small>${lsub}</small>`:''}</span><span class="r"><span class="w-rrow"><b>${r}</b>${rp||''}</span><small>${rsub}</small></span></div>`;
+    const card=(tab,c,l,lsub,r,rsub,dark,lp,rp)=>`<div class="w-card ${dark?'dark':''}" style="--c:${c}"><button class="w-cardlink" aria-label="Open ${l}" onclick="wOpenCard(this,'${tab}')"></button><span class="l"><span class="w-lrow"><b>${l}</b>${lp||''}</span>${lsub?`<small>${lsub}</small>`:''}</span><span class="r"><span class="w-rrow"><b>${r}</b>${rp||''}</span><small>${rsub}</small></span></div>`;
     const ql=qlLoad(), qt=KINDS.includes(ql.type)?ql.type:'clinics', qs=ql.scope==='gim'?'gim':'spec';
     const tOpts=[['clinics','Clinic'],['procedures','Procedure'],['cpd','CPD session'],['simulation','Simulation'],['teaching','Teaching session']].map(([v,l])=>`<option value="${v}" ${v===qt?'selected':''}>${l}</option>`).join('');
     const front=`<div class="w-card w-front" style="--c:var(--c-quick)">
@@ -6879,7 +6884,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
 
     main().innerHTML=`<div class="w-home">
       <div class="w-hometop">
-        <button class="w-avatar" onclick="setTab('admin')" aria-label="Account and settings" title="Account and settings">${safe(initials())}</button>
+        <button class="w-avatar" onclick="wOpenCard(this,'admin')" aria-label="Account and settings" title="Account and settings">${safe(initials())}</button>
         <div class="w-topr">
           <select class="w-pill" aria-label="Training year" onchange="setYear(this.value)">${YEARS.map(y=>`<option value="${y}" ${y===currentYear?'selected':''}>${y}${yearLocked(y)?' ✓':''}</option>`).join('')}</select>
           <button class="w-circ" onclick="wWrapped()" aria-label="Last month’s Wrapped" title="Last month’s Wrapped">${I('spark',22)}</button>
@@ -8178,6 +8183,89 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   window.render=function(){ const r=__renderFb.apply(this,arguments); try{ wWatchFeedback(); }catch(e){} return r; };
   ['firebase-signed-in','firebase-load'].forEach(ev=>window.addEventListener(ev, ()=>setTimeout(()=>{ try{ wWatchFeedback(); }catch(e){} },800)));
   window.addEventListener('firebase-signed-out', ()=>{ fbWatch.forEach(off=>{ try{ off(); }catch(e){} }); fbWatch.clear(); });
+
+  // ═══ Card ↔ section transition ═══
+  // Opening: the tapped card's colour grows into the section header while the other cards drop away; then the
+  // summary card slides down out of the pocket to reveal the "Add…" card. Closing plays it backwards.
+  // The screen itself switches straight away underneath; the movement is drawn on top. ~0.6s; off with Reduce Motion.
+  const ANIM_TABS=['arcp','specialty','gim','cpd','logbook','admin'];
+  const EASE='cubic-bezier(.2,.8,.2,1)';
+  let animBusy=false;
+  const reduceMotion=()=>{ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } };
+  const box=el=>{ const r=el.getBoundingClientRect(); return {top:r.top,left:r.left,width:r.width,height:r.height}; };
+  function shape(el){   // what a card or header looks like, for the moving colour block
+    const cs=getComputedStyle(el), r=box(el);
+    const rad=el.classList.contains('w-avatar')?r.width/2+'px':cs.borderTopLeftRadius;
+    return { r, bg:cs.backgroundColor, rad, bc:cs.borderTopColor, bt:cs.borderTopWidth, bs:cs.borderLeftWidth, bb:cs.borderBottomWidth };
+  }
+  const frame=(sh,over)=>Object.assign({ top:sh.r.top+'px', left:sh.r.left+'px', width:sh.r.width+'px', height:sh.r.height+'px', borderRadius:sh.rad, backgroundColor:sh.bg,
+    borderTopWidth:sh.bt, borderLeftWidth:sh.bs, borderRightWidth:sh.bs, borderBottomWidth:sh.bb }, over||{});
+  function animLayer(z){ const l=document.createElement('div'); l.className='w-anim'; l.style.zIndex=String(z); document.body.appendChild(l); return l; }
+  function pocket(head){ const tab=head.querySelector('.w-pocket .w-tab'), bal=head.querySelector('.w-pocket .w-bal'); if(!bal) return null; return { tab, bal, dy: tab ? bal.getBoundingClientRect().top - tab.getBoundingClientRect().top : 0 }; }
+  function goTab(tab){ if(tab==='logbook') logSubTab='all'; setTab(tab); }
+  function homeSource(tab){ return tab==='admin' ? main().querySelector('.w-avatar') : main().querySelector(`.w-cardlink[onclick*="'${tab}'"]`)?.closest('.w-card'); }
+  window.wOpenCard = function(src, tab){
+    const card=src.classList.contains('w-avatar') ? src : (src.closest('.w-card')||src);
+    if(animBusy || reduceMotion() || currentTab!=='home' || !ANIM_TABS.includes(tab) || typeof Element.prototype.animate!=='function'){ goTab(tab); return; }
+    animBusy=true;
+    const from=shape(card), vh=innerHeight, layer=animLayer(1500);
+    const g=document.createElement('div'); g.className='w-ghost'; g.style.borderColor=from.bc; Object.assign(g.style, frame(from)); layer.appendChild(g);
+    const others=[...main().querySelectorAll('.w-stack > .w-card')].filter(c=>c!==card).map(c=>({c,r:box(c)})).filter(o=>o.r.top<vh && o.r.top+o.r.height>0);
+    const clones=others.map(({c,r},i)=>{ const k=c.cloneNode(true); k.removeAttribute('id'); k.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+      k.classList.add('w-anim-clone'); Object.assign(k.style,{ position:'fixed', top:r.top+'px', left:r.left+'px', width:r.width+'px', height:r.height+'px', margin:'0', zIndex:String(2+i) }); layer.appendChild(k); return {k,r}; });
+    const top=main().querySelector('.w-hometop'); let topClone=null;
+    if(top){ const r=box(top); topClone=top.cloneNode(true); Object.assign(topClone.style,{ position:'fixed', top:r.top+'px', left:r.left+'px', width:r.width+'px', margin:'0', zIndex:'1' }); layer.appendChild(topClone); }
+    let done=false;
+    const finish=()=>{ if(done) return; done=true; const h=main().querySelector('.w-head'); if(h) h.style.visibility=''; layer.remove(); animBusy=false; };
+    try{
+      goTab(tab); window.scrollTo(0,0);
+      const head=main().querySelector('.w-head'); if(!head){ finish(); return; }
+      head.style.visibility='hidden';
+      const to=shape(head);
+      clones.forEach(({k,r},i)=>{ const below=r.top>from.r.top; k.animate([{transform:'translateY(0)',opacity:1},{transform:`translateY(${below?vh*.6:-vh*.35}px)`,opacity:0}],{duration:280,delay:i*16,easing:'cubic-bezier(.45,0,.8,.45)',fill:'forwards'}); });
+      if(topClone) topClone.animate([{opacity:1},{opacity:0}],{duration:160,fill:'forwards'});
+      const grow=g.animate([frame(from),frame(to,{borderRadius:'0px'})],{duration:360,easing:EASE,fill:'forwards'});
+      grow.onfinish=()=>{
+        head.style.visibility=''; layer.remove(); done=true;
+        const pk=pocket(head);
+        if(pk && pk.tab && pk.dy>0){ const a=pk.bal.animate([{transform:`translateY(${-pk.dy}px)`},{transform:'translateY(0)'}],{duration:240,easing:EASE}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
+        else if(pk){ const a=pk.bal.animate([{transform:'translateY(-10px)',opacity:.4},{transform:'none',opacity:1}],{duration:220,easing:EASE}); a.onfinish=a.oncancel=()=>{ animBusy=false; }; }
+        else animBusy=false;
+      };
+      setTimeout(finish,1500);   // never leave the screen covered
+    }catch(err){ console.warn('[Outcome1] open transition skipped', err); finish(); }
+  };
+  const __wHomeAnim=window.wHome;
+  window.wHome = function(){
+    const fromTab=currentTab, head=main().querySelector('.w-head');
+    if(animBusy || reduceMotion() || !ANIM_TABS.includes(fromTab) || !head || typeof Element.prototype.animate!=='function') return __wHomeAnim.apply(this,arguments);
+    animBusy=true;
+    const hs=shape(head), layer=animLayer(1);   // sits under the home cards so they rise back over it
+    const hc=head.cloneNode(true); hc.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id')); hc.classList.add('w-ghost');
+    hc.style.borderColor=hs.bc; Object.assign(hc.style, frame(hs,{borderRadius:'0px', margin:'0', padding:getComputedStyle(head).padding}));
+    layer.appendChild(hc);
+    let cards=[], card=null, done=false;
+    const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; cards.forEach(c=>c.style.zIndex=''); layer.remove(); animBusy=false; };
+    try{
+      __wHomeAnim.apply(this,arguments); window.scrollTo(0,0);
+      card=homeSource(fromTab); if(!card){ finish(); return; }
+      card.style.visibility='hidden';
+      const to=shape(card), vh=innerHeight;
+      cards=[...main().querySelectorAll('.w-stack > .w-card')].filter(c=>c!==card);
+      if(fromTab==='admin') cards=cards.concat([]);
+      cards.forEach((c,i)=>{ c.style.zIndex='2'; const below=c.getBoundingClientRect().top>to.r.top;
+        c.animate([{transform:`translateY(${below?vh*.6:-vh*.35}px)`,opacity:0},{transform:'none',opacity:1}],{duration:300,delay:200+i*18,easing:EASE,fill:'backwards'}); });
+      const pk=pocket(hc);
+      const shrink=()=>{
+        [...hc.children].forEach(ch=>ch.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'}));
+        const a=hc.animate([frame(hs,{borderRadius:'0px'}),frame(to)],{duration:360,easing:EASE,fill:'forwards'});
+        a.onfinish=finish;
+      };
+      if(pk && pk.tab && pk.dy>0){ const a=pk.bal.animate([{transform:'translateY(0)'},{transform:`translateY(${-pk.dy}px)`}],{duration:200,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'}); a.onfinish=shrink; }
+      else shrink();
+      setTimeout(finish,1500);
+    }catch(err){ console.warn('[Outcome1] close transition skipped', err); finish(); }
+  };
 
   // ═══ First run: three welcome cards, then a "Get set up" checklist at the top of Home ═══
   // Only new accounts get it automatically (state.setup is created at sign-up); anyone can open it from Account.
