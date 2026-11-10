@@ -1463,6 +1463,28 @@ input.input[type=date],input.input[type=time],input.input[type=month],input.inpu
 input.input::-webkit-datetime-edit{padding:0}   /* desktop Chrome makes date boxes 2px taller than text boxes */
 input.input::-webkit-datetime-edit-fields-wrapper{padding:0}
 input.input::-webkit-calendar-picker-indicator{padding-top:0;padding-bottom:0;margin-top:0;margin-bottom:0}
+
+/* Setup flow: step label, key dates sheet and the Continue bar */
+.w-sus-k{font:700 12.5px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
+.w-kd{display:grid;gap:18px}
+.w-kd-chk{display:flex;align-items:center;gap:10px;margin-top:10px;font:600 15px var(--font);color:var(--text);cursor:pointer}
+.w-kd-chk input{width:20px;height:20px;margin:0;accent-color:var(--ink)}
+.w-kd input:disabled{opacity:.45}
+.w-cont{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1900;display:flex;align-items:center;gap:6px;width:min(560px,calc(100vw - 24px));box-sizing:border-box;padding:6px;background:#1E1E1E;color:#F4F3EE;border:2px solid #1E1E1E;border-radius:999px;box-shadow:0 18px 40px -16px rgba(0,0,0,.55);animation:wContIn .25s ease}
+body.focus .w-cont{background:#F4F3EE;color:#121212;border-color:#F4F3EE}
+.w-cont-go{all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 18px;border-radius:999px}
+.w-cont-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.w-cont-t b{font:800 16px/1.2 var(--font);letter-spacing:-.01em}
+.w-cont-t span{font:500 13.5px/1.3 var(--font);opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-cont-go>svg{flex:none;color:var(--c-quick)}
+body.focus .w-cont-go>svg{color:#121212}
+.w-cont-x{all:unset;box-sizing:border-box;cursor:pointer;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);flex:none}
+body.focus .w-cont-x{background:rgba(0,0,0,.08)}
+.w-cont-go:focus-visible,.w-cont-x:focus-visible{outline:3px solid var(--c-quick);outline-offset:2px}
+body.w-cont-on{padding-bottom:84px}
+body.w-cont-on .w-toast{bottom:calc(max(14px,env(safe-area-inset-bottom)) + 74px)}
+@keyframes wContIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){.w-cont{animation:none}}
 </style>
 
 </head>
@@ -6927,18 +6949,18 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const prev=document.activeElement;
     const wrap=document.createElement('div'); wrap.id='w-ask'; wrap.className='w-ask';
     wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-ask-t">
-      <div class="w-ask-t" id="w-ask-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
+      ${o.kicker?`<div class="w-sus-k">${o.kicker}</div>`:''}<div class="w-ask-t" id="w-ask-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
       <div class="w-ask-opts ${o.many?'many':''}">${o.options.map((x,i)=>`<button class="w-ask-opt" data-i="${i}"><span><b>${x.label}</b>${x.sub?`<small>${x.sub}</small>`:''}</span>${I('chev',20)}</button>`).join('')}</div>
       <button class="w-ask-x" data-x="1">Cancel</button></div>`;
-    const close=()=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const close=cancelled=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} if(cancelled && o.onCancel) o.onCancel(); };
     const onKey=e=>{
-      if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); return; }
+      if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(true); return; }
       if(e.key==='Tab'){ const f=[...wrap.querySelectorAll('button')]; const i=f.indexOf(document.activeElement); e.preventDefault(); f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus(); }
     };
     wrap.addEventListener('click',e=>{
-      if(e.target===wrap||e.target.closest('[data-x]')){ close(); return; }
+      if(e.target===wrap||e.target.closest('[data-x]')){ close(true); return; }
       const b=e.target.closest('.w-ask-opt'); if(!b) return;
-      const x=o.options[+b.dataset.i]; close(); x.on();
+      const x=o.options[+b.dataset.i]; close(false); x.on();
     });
     document.addEventListener('keydown',onKey,true);
     document.body.appendChild(wrap);
@@ -8156,32 +8178,31 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   const suLockDate = v => { const d=new Date(v); if(isNaN(d)) return ''; d.setDate(d.getDate()-14); return suDate(d); };
   const suAnyEntry = () => KINDS.some(k=>(entries(k)||[]).length);
 
+  const shortDate = v => { const d=new Date(v); return isNaN(d)?'':d.toLocaleDateString('en-GB',{month:'short',year:'numeric'}); };
   function suSteps(){
     const s=suState(), cy=currentYear, sce=specReqs().spec_sce;
     const arcpV=state.arcpDates?.[cy]||ARCP_DEFAULTS[cy], arcpAuto=arcpIsAuto(cy);
     const scePassed=!!(sce && getReqVal('spec_sce',sce));
+    const datesDone=!!s.done.dates || (!arcpAuto && !!state.als && (!sce || scePassed || !!state.sceDate));
+    const datesSub=[`ARCP ${suDate(arcpV)}`, state.als?`ALS to ${shortDate(state.als)}`:'ALS not set', sce?(scePassed?'SCE passed':state.sceDate?`SCE ${shortDate(state.sceDate)}`:'SCE not booked'):''].filter(Boolean).join(' · ');
+    const teachN=entries('teaching').length, teachFb=entries('teaching').some(e=>e.feedbackId);
     const steps=[
-      { k:'arcp', icon:'flag', t:`Your ${cy} ARCP date`, done:!!s.done.arcp || !arcpAuto,
-        sub: arcpAuto?`Pencilled in for ${suDate(arcpV)}`:`Set for ${suDate(arcpV)}`, open:suArcp },
-      { k:'als', icon:'pulse', t:'ALS expiry', done:!!state.als,
-        sub: state.als?`Valid to ${suDate(state.als)}`:'Shown on your ARCP card', open:suAls },
-      { k:'hosp', icon:'pin', t:'Hospitals you rotate through', done:!!s.done.hosp,
-        sub: s.done.hosp?`${hospitalOptions().length} in your list`:'Trim the list to your sites', open:suHosp },
-      sce && { k:'sce', icon:'book', t:'SCE exam', done:!!s.done.sce || !!state.sceDate || scePassed,
-        sub: scePassed?'Passed':state.sceDate?`Sitting ${suDate(state.sceDate)}`:s.done.sce?'Not booked yet':'Add the date if you have one', open:suSce },
-      { k:'already', icon:'check', t:'Already done', done:!!s.done.already,
-        sub:'Tick off anything finished before today', open:suAlready },
-      { k:'import', icon:'ul', t:'Bring in your old logbook', done:!!s.done.import,
-        sub: s.done.import?'Done':'From a spreadsheet, with our template', open:suImport },
-      { k:'install', icon:'phone', t:'Install on your phone', done:isStandalone() || !!s.done.install,
-        sub: isStandalone()?'Installed':'Opens like an app, works offline', open:suInstall },
-      { k:'first', icon:'plus', t:'Log your first entry', done:suAnyEntry(),
-        sub:'Clinic, procedure, CPD and more', open:suFirst },
       { k:'companion', icon:'list', t:'How Outcome1 works with your ePortfolio', done:!!s.done.companion,
         sub:'Keep the tally in step with JRCPTB', open:suCompanion },
-      { k:'teach', icon:'qr', t:'Teaching and feedback', done:entries('teaching').some(e=>e.feedbackId),
-        sub: entries('teaching').some(e=>e.feedbackId)?'Feedback link ready':entries('teaching').length?'Now collect feedback on a session':'Log a session, then collect feedback with a QR code', open:suTeach }
-    ].filter(Boolean);
+      { k:'dates', icon:'flag', t:'Your key dates', done:datesDone, sub:datesSub, open:suDates },
+      { k:'already', icon:'check', t:'Already done', done:!!s.done.already,
+        sub:'Tick off anything finished before today', open:suAlready },
+      { k:'hosp', icon:'pin', t:'Hospitals you rotate through', done:!!s.done.hosp,
+        sub: s.done.hosp?`${hospitalOptions().length} in your list`:'Trim the list to your sites', open:suHosp },
+      { k:'import', icon:'ul', t:'Bring in your old logbook', done:!!s.done.import,
+        sub: s.done.import?'Done':'From a spreadsheet, with our template', open:suImport },
+      { k:'first', icon:'plus', t:'Log your first entry', done:suAnyEntry(),
+        sub:'Clinic, procedure, CPD and more', open:suFirst },
+      { k:'teach', icon:'qr', t:'Teaching and feedback', done:teachFb,
+        sub: teachFb?'Feedback link ready':teachN?'Now collect feedback on a session':'Log a session, then collect feedback with a QR code', open:suTeach },
+      { k:'install', icon:'phone', t:'Install on your phone', done:isStandalone() || !!s.done.install,
+        sub: isStandalone()?'Installed':'Opens like an app, works offline', open:suInstall }
+    ];
     steps.forEach(x=>{ x.later=!x.done && !!s.skipped[x.k]; });
     return steps;
   }
@@ -8191,7 +8212,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     if(!s.welcomed) setTimeout(()=>{ if(state.setup && !state.setup.welcomed && !document.getElementById('w-welcome')) wWelcome(); },200);
     const steps=suSteps(), n=steps.length, d=steps.filter(x=>x.done).length;
     if(d===n){
-      s.completedAt=Date.now(); saveState();
+      s.completedAt=Date.now(); saveState(); SG.on=false; SG.paused=false; setTimeout(wContBar,0);
       setTimeout(()=>{ confetti(document.body,'party'); wToast('You’re all set up'); },250);
       return '';
     }
@@ -8208,9 +8229,41 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       ${n>list.length||all?`<button class="w-su-more" onclick="window.__wSuAll=!window.__wSuAll;render()">${all?'Show less':`See all ${n} steps`}</button>`:''}
     </section>`;
   }
-  function suMark(k){ const s=suState(); s.done[k]=true; delete s.skipped[k]; saveState(); render(); }
-  function suLater(k){ const s=suState(); s.skipped[k]=true; saveState(); render(); }
-  window.wSetupStep = function(k){ const st=suSteps().find(x=>x.k===k); if(st) st.open(); };
+  // Guided flow: after the welcome, each step opens the next one. Steps that take you elsewhere pause it
+  // and a Continue bar picks it up again. "Finish later" ends it; after that the card opens one step at a time.
+  const SG={ on:false, paused:false, k:null, opening:null };
+  function suNextKey(after){
+    const steps=suSteps(), i=after?steps.findIndex(x=>x.k===after):-1;
+    return (steps.slice(i+1).find(x=>!x.done && !x.later)||{}).k || null;
+  }
+  function suOpen(k){
+    const st=suSteps().find(x=>x.k===k); if(!st) return;
+    if(SG.on){ SG.k=k; SG.paused=false; wContBar(); }
+    SG.opening=SG.on?k:null;
+    try{ st.open(); } finally { SG.opening=null; }
+  }
+  function suStartFlow(){ const k=suNextKey(null); if(!k) return; SG.on=true; suOpen(k); }
+  function suAdvance(){ const k=suNextKey(SG.k); if(k) setTimeout(()=>{ if(SG.on && !SG.paused) suOpen(k); },200); else suFlowDone(); }
+  function suFlowDone(){ suEndFlow(); if(currentTab!=='home') setTab('home'); }   // end of the run: back to Home, where the card shows what's left
+  function suPause(){ if(!SG.on) return; SG.paused=true; setTimeout(wContBar,0); }
+  function suEndFlow(){ SG.on=false; SG.paused=false; SG.k=null; wContBar(); render(); }
+  function suStepLabel(k){ const steps=suSteps(), i=steps.findIndex(x=>x.k===k); return i<0?'':`Step ${i+1} of ${steps.length}`; }
+  window.wSetupContinue = function(){ const k=suNextKey(SG.k); if(k) suOpen(k); else suFlowDone(); };
+  window.wSetupFinishLater = function(){ suEndFlow(); };
+  function wContBar(){
+    let bar=document.getElementById('w-cont');
+    const show=SG.on && SG.paused && !!state.setup && !state.setup.completedAt;
+    document.body.classList.toggle('w-cont-on', show);
+    if(!show){ bar?.remove(); return; }
+    const nk=suNextKey(SG.k), nx=nk?suSteps().find(x=>x.k===nk):null;
+    if(!bar){ bar=document.createElement('div'); bar.id='w-cont'; bar.className='w-cont'; bar.setAttribute('role','region'); bar.setAttribute('aria-label','Setup'); document.body.appendChild(bar); }
+    bar.innerHTML=`<button class="w-cont-go" onclick="wSetupContinue()"><span class="w-cont-t"><b>${nx?'Continue setup':'Finish setup'}</b><span>${nx?`Next: ${safe(nx.t)}`:'You’ve been through every step'}</span></span>${I('chev',20)}</button><button class="w-cont-x" onclick="wSetupFinishLater()" aria-label="Finish setup later" title="Finish later">${I('x',18)}</button>`;
+  }
+  function suMark(k){ const s=suState(); s.done[k]=true; delete s.skipped[k]; saveState(); render(); if(SG.on && !SG.paused && SG.k===k) suAdvance(); }
+  function suLater(k){ const s=suState(); s.skipped[k]=true; saveState(); render(); if(SG.on && !SG.paused && SG.k===k) suAdvance(); }
+  window.wSetupStep = function(k){ suOpen(k); };
+  const __renderSu=window.render;
+  window.render=function(){ const r=__renderSu.apply(this,arguments); try{ if(SG.on && SG.paused) wContBar(); }catch(e){} return r; };
   window.wSetupHide = function(){
     if(!state.setup) return; state.setup.dismissed=true; saveState(); render();
     wToast('Setup guide hidden. Find it in Account');
@@ -8226,20 +8279,21 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
 
   // One sheet for every step: a title, a short why, the field, then the actions
   function suSheet(o){
+    if(SG.opening){ o.kicker=suStepLabel(SG.opening); o.closeLabel='Finish later'; o.onDismiss=suEndFlow; }
     document.getElementById('w-su-sheet')?.remove();
     const prev=document.activeElement;
     const wrap=document.createElement('div'); wrap.id='w-su-sheet'; wrap.className='w-ask w-su-sheet';
     wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-sus-t" tabindex="-1">
-      <div class="w-ask-t" id="w-sus-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
+      ${o.kicker?`<div class="w-sus-k">${o.kicker}</div>`:''}<div class="w-ask-t" id="w-sus-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
       ${o.body?`<div class="w-sus-body">${o.body}</div>`:''}
       <div class="w-sus-acts">${o.actions.map((a,i)=>`<button class="${a.cls||(a.primary?'w-sus-go':'w-sus-alt')}" data-i="${i}">${a.label}</button>`).join('')}</div>
-      <button class="w-ask-x" data-x="1">Close</button></div>`;
-    const close=()=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
-    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
+      <button class="w-ask-x" data-x="1">${o.closeLabel||'Close'}</button></div>`;
+    const close=dismissed=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} if(dismissed && o.onDismiss) o.onDismiss(); };
+    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(true); } };
     wrap.addEventListener('click',e=>{
-      if(e.target===wrap||e.target.closest('[data-x]')){ close(); return; }
+      if(e.target===wrap||e.target.closest('[data-x]')){ close(true); return; }
       const b=e.target.closest('[data-i]'); if(!b) return;
-      if(o.actions[+b.dataset.i].on(wrap)!==false) close();
+      if(o.actions[+b.dataset.i].on(wrap)!==false) close(false);
     });
     document.addEventListener('keydown',onKey,true);
     document.body.appendChild(wrap);
@@ -8250,25 +8304,31 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   const dateField=(label,v)=>`<label class="w-sus-l" for="w-sus-date">${label}</label><input class="input w-sus-in" id="w-sus-date" type="date" value="${safe(v||'')}">`;
   const needDate=w=>{ const i=w.querySelector('#w-sus-date'); if(i.value) return i.value; i.classList.remove('w-flash'); void i.offsetWidth; i.classList.add('w-flash'); try{ i.focus(); }catch(e){} return ''; };
 
-  function suArcp(){
-    const cy=currentYear, v=state.arcpDates?.[cy]||ARCP_DEFAULTS[cy], auto=arcpIsAuto(cy);
-    suSheet({ title:`Your ${cy} ARCP`,
-      sub: auto?`Pencilled in for ${suDate(v)}, based on when your training year started. Put the real date in when you know it.`:`Your panel is set for ${suDate(v)}.`,
-      body: dateField('ARCP date', v)+`<div class="w-sus-note" id="w-sus-lock">Your portfolio locks on ${suLockDate(v)}, two weeks before.</div>`,
-      onOpen:w=>{ const i=w.querySelector('#w-sus-date'), n=w.querySelector('#w-sus-lock');
-        const upd=()=>{ n.textContent=i.value?`Your portfolio locks on ${suLockDate(i.value)}, two weeks before.`:''; };
-        i.addEventListener('input',upd); i.addEventListener('change',upd); },
+  function suDates(){
+    const cy=currentYear, v=state.arcpDates?.[cy]||ARCP_DEFAULTS[cy], auto=arcpIsAuto(cy), req=specReqs().spec_sce, passed=!!(req && getReqVal('spec_sce',req));
+    const named=req && !/^(sce exam|specialty certificate exam)$/i.test(req.label||'') ? ` · ${safe(req.label)}` : '';
+    const lockTxt=d=>d?`${auto&&d===v?'Pencilled in from when your training year started. ':''}Your portfolio locks on ${suLockDate(d)}.`:'';
+    suSheet({ title:'Your key dates', sub:'Add what you know now. Anything left blank can be filled in later.',
+      body:`<div class="w-kd">
+        <div class="w-kd-f"><label class="w-sus-l" for="w-kd-arcp">${safe(cy)} ARCP</label><input class="input w-sus-in" id="w-kd-arcp" type="date" value="${safe(v||'')}"><div class="w-sus-note" id="w-kd-lock">${lockTxt(v)}</div></div>
+        <div class="w-kd-f"><label class="w-sus-l" for="w-kd-als">ALS expiry</label><input class="input w-sus-in" id="w-kd-als" type="date" value="${safe(state.als||'')}"><div class="w-sus-note">Shown on your ARCP card, with a reminder before it runs out.</div></div>
+        ${req?`<div class="w-kd-f"><label class="w-sus-l" for="w-kd-sce">SCE exam${named}</label><input class="input w-sus-in" id="w-kd-sce" type="date" value="${safe(state.sceDate||'')}" ${passed?'disabled':''}><label class="w-kd-chk"><input type="checkbox" id="w-kd-passed" ${passed?'checked':''}><span>I’ve already passed it</span></label></div>`:''}
+      </div>`,
+      onOpen:w=>{
+        const a=w.querySelector('#w-kd-arcp'), n=w.querySelector('#w-kd-lock'), up=()=>{ n.textContent=lockTxt(a.value); };
+        a.addEventListener('input',up); a.addEventListener('change',up);
+        const pc=w.querySelector('#w-kd-passed'), sd=w.querySelector('#w-kd-sce'); if(pc) pc.addEventListener('change',()=>{ sd.disabled=pc.checked; });
+      },
       actions:[
-        { label:'Save date', primary:true, on:w=>{ const nv=needDate(w); if(!nv) return false;
-            if(nv!==v){ state.arcpDates[cy]=nv; if(state.arcpAuto) delete state.arcpAuto[cy]; } suMark('arcp'); } },
-        ...(auto?[{ label:'Keep the pencilled date', on:()=>suMark('arcp') }]:[])
-      ]});
-  }
-  function suAls(){
-    suSheet({ title:'ALS expiry', sub:'Outcome1 shows it on your ARCP card and reminds you before it runs out.',
-      body: dateField('Expires on', state.als),
-      actions:[ { label:'Save', primary:true, on:w=>{ const v=needDate(w); if(!v) return false; state.als=v; suMark('als'); } },
-                { label:'Not now', on:()=>suLater('als') } ]});
+        { label:'Save dates', primary:true, on:w=>{
+            const a=w.querySelector('#w-kd-arcp').value, l=w.querySelector('#w-kd-als').value;
+            if(a && a!==v){ state.arcpDates[cy]=a; if(state.arcpAuto) delete state.arcpAuto[cy]; }
+            if(l) state.als=l;
+            if(req){ const pc=w.querySelector('#w-kd-passed').checked, sd=w.querySelector('#w-kd-sce').value;
+              if(pc!==passed) setReqVal('spec_sce', req, pc);
+              if(!pc && sd) state.sceDate=sd; }
+            suMark('dates'); } },
+        { label:'Not now', on:()=>suLater('dates') } ]});
   }
   function suHosp(){
     const dean=DEANERIES[state.profile?.deanery]||[], base=state.profile?.baseHospital||'';
@@ -8299,15 +8359,6 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
           state.deletedHospitals=[...del]; state.hiddenHospitals=[...hid]; state.hospitals=[...mine];
           suMark('hosp'); } },
         { label:'Not now', on:()=>suLater('hosp') } ]});
-  }
-  function suSce(){
-    const req=specReqs().spec_sce; if(!req) return;
-    const named=/^(sce exam|specialty certificate exam)$/i.test(req.label||'')?'':req.label;
-    suSheet({ title:'SCE exam', sub:`${named?`${safe(named)}. `:''}If you’ve booked a sitting, add the date and Outcome1 will count down to it.`,
-      body: dateField('Planned sitting', state.sceDate),
-      actions:[ { label:'Save date', primary:true, on:w=>{ const v=needDate(w); if(!v) return false; state.sceDate=v; suMark('sce'); } },
-                { label:'Already passed', on:()=>{ setReqVal('spec_sce', req, true); suMark('sce'); } },
-                { label:'Not booked yet', on:()=>suMark('sce') } ]});
   }
   // One-off milestones someone may have finished before joining (yearly items and the SCE are left out)
   function suAlreadyItems(){
@@ -8345,7 +8396,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   }
   function suImport(){
     suSheet({ title:'Bring in your old logbook', sub:'Kept your logbook in a spreadsheet? Bring it in so your totals start in the right place. You’ll see a preview before anything is saved.',
-      actions:[ { label:'Import a spreadsheet', primary:true, on:()=>{ setTimeout(()=>wImport(),0); } },
+      actions:[ { label:'Import a spreadsheet', primary:true, on:()=>{ suPause(); setTimeout(()=>wImport(),0); } },
                 { label:'Download the template', on:()=>{ wImportTemplate(); return false; } },
                 { label:'I’m starting fresh', on:()=>suMark('import') } ]});
   }
@@ -8359,7 +8410,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         <div class="w-cmp-r"><span class="w-cmp-m"><b>Educational Supervisor Report</b><small>Tick it once it’s signed off</small></span><span class="w-cmp-tog" aria-hidden="true">Mark done</span></div>
         <div class="w-cmp-r"><span class="w-cmp-m"><b>GIM clinics</b><small>Logbook totals count themselves</small></span><span class="w-cmp-auto" aria-hidden="true"><b>12</b> / 20</span></div>
       </div><p class="w-sus-note">These are on the ${sp} and GIM screens. Your ePortfolio stays the official record; Outcome1 is your running tally.</p>`,
-      actions:[ { label:`Show me on the ${sp} screen`, primary:true, on:()=>{ suMark('companion'); setTimeout(wShowCounter,60); } },
+      actions:[ { label:`Show me on the ${sp} screen`, primary:true, on:()=>{ suPause(); suMark('companion'); setTimeout(wShowCounter,60); } },
                 { label:'Got it', on:()=>suMark('companion') } ]});
   }
   function wShowCounter(){
@@ -8372,14 +8423,15 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   function suTeach(){
     const list=entries('teaching').slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
     const how=`<ol class="w-sus-how"><li><span><b>Log the session.</b> Date, type, topic and who it was for.</span></li><li><span><b>Get a QR code.</b> Outcome1 offers one as soon as you save, or later from the session in your logbook.</span></li><li><span><b>Attendees give feedback</b> on their phones using the teaching evaluation form. It’s anonymous, with no sign-in, and the answers come back to you.</span></li></ol>`;
-    const log={ label:list.length?'Log another session':'Log a teaching session', primary:!list.length, on:()=>{ setTimeout(()=>wQuick('teaching','spec'),0); } };
-    const pick={ label:'Collect feedback on a session', primary:true, on:()=>{ setTimeout(()=>suPickSession(list),0); } };
+    const log={ label:list.length?'Log another session':'Log a teaching session', primary:!list.length, on:()=>{ suPause(); setTimeout(()=>wQuick('teaching','spec'),0); } };
+    const flowStep=SG.opening;
+    const pick={ label:'Collect feedback on a session', primary:true, on:()=>{ setTimeout(()=>suPickSession(list, flowStep),0); } };
     suSheet({ title:'Teaching and feedback', sub:'Teaching you give counts towards your portfolio: tutorials, bedside teaching, journal clubs and talks. Outcome1 collects feedback on each session for you.',
       body:how, actions:list.length?[pick, log, { label:'Not now', on:()=>suLater('teach') }]:[log, { label:'Not now', on:()=>suLater('teach') }] });
   }
-  function suPickSession(list){
-    wAsk({ title:'Which session?', sub:'Each session gets its own QR code and link. Put the QR on your last slide or send the link. Responses come back here and print as a summary for your portfolio.', many:true,
-      options:list.slice(0,5).map(e=>({ label:safe(e.topic||e.type||'Teaching session'), sub:safe([suDate(e.date), e.audience, e.feedbackCount?`${e.feedbackCount} response${e.feedbackCount===1?'':'s'}`:''].filter(Boolean).join(' · ')), on:()=>openFeedback(e.id) })) });
+  function suPickSession(list, flowStep){
+    wAsk({ kicker:flowStep&&SG.on?suStepLabel(flowStep):'', onCancel:()=>suPause(), title:'Which session?', sub:'Each session gets its own QR code and link. Put the QR on your last slide or send the link. Responses come back here and print as a summary for your portfolio.', many:true,
+      options:list.slice(0,5).map(e=>({ label:safe(e.topic||e.type||'Teaching session'), sub:safe([suDate(e.date), e.audience, e.feedbackCount?`${e.feedbackCount} response${e.feedbackCount===1?'':'s'}`:''].filter(Boolean).join(' · ')), on:()=>{ suPause(); openFeedback(e.id); } })) });
   }
   // After saving a teaching session: offer the feedback QR straight away (replaces the browser's yes/no box)
   window.wFeedbackOffer = function(id){
@@ -8396,12 +8448,12 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const arr=entries('teaching'); if(arr.length>before) setTimeout(()=>wFeedbackOffer(arr[arr.length-1].id),120);
   };
   function suFirst(){
-    const sp=specCfg().short;
-    wAsk({ title:'Log your first entry', sub:'Pick what you did. It counts towards your targets straight away.', many:true, options:[
-      { label:`${safe(sp)} clinic`, on:()=>wQuick('clinics','spec') },
-      { label:'GIM clinic', on:()=>wQuick('clinics','gim') },
-      { label:`${safe(sp)} procedure`, on:()=>wQuick('procedures','spec') },
-      { label:'CPD session', sub:'Study day, course or conference', on:()=>wQuick('cpd','spec') },
+    const sp=specCfg().short, go=(t,sc)=>()=>{ suPause(); wQuick(t,sc); };
+    wAsk({ kicker:SG.opening?suStepLabel(SG.opening):'', onCancel:()=>suPause(), title:'Log your first entry', sub:'Pick what you did. It counts towards your targets straight away.', many:true, options:[
+      { label:`${safe(sp)} clinic`, on:go('clinics','spec') },
+      { label:'GIM clinic', on:go('clinics','gim') },
+      { label:`${safe(sp)} procedure`, on:go('procedures','spec') },
+      { label:'CPD session', sub:'Study day, course or conference', on:go('cpd','spec') },
       { label:'Not now', sub:'Leave it for later', on:()=>suLater('first') } ]});
   }
 
@@ -8436,7 +8488,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       el.remove(); document.removeEventListener('keydown',onKey,true);
       if(state.setup && !state.setup.welcomed){ state.setup.welcomed=true; saveState(); }
       if(currentTab!=='home') setTab('home'); else render();
-      setTimeout(()=>{ const c=document.querySelector('.w-su'); if(c) c.scrollIntoView({behavior:'smooth',block:'start'}); },60);
+      setTimeout(()=>{ if(state.setup && !state.setup.completedAt && !state.setup.dismissed) suStartFlow(); },250);
     };
     const onKey=e=>{
       if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); finish(); }
