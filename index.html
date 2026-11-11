@@ -1362,6 +1362,121 @@ body.focus .w-su-bar{border-color:var(--line-strong)}
 .w-wel-alt{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;font:700 16px var(--font);color:var(--dim);padding:13px}
 .w-wel-alt:hover{color:var(--text)}
 .w-wel-alt:focus-visible{outline:3px solid var(--text);outline-offset:2px;border-radius:12px}
+/* ═══ Insights (Logbook screen) ═══ */
+.ix{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;font-family:var(--font);color:var(--text)}
+.ix *{box-sizing:border-box}
+.ix-card{min-width:0;background:var(--bg2);border:1px solid var(--line);border-radius:28px;padding:20px 20px 22px}
+.ix-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font:800 21px/1.15 var(--font);letter-spacing:-.025em;margin-bottom:14px}
+.ix-h>span{font:500 14px/1.25 var(--font);letter-spacing:0;color:var(--dim);text-align:right}
+.ix-k{font:700 13px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.ix-cap{margin:12px 0 0;font:500 14.5px/1.4 var(--font);color:var(--dim)}
+.ix button:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+/* progress */
+.ix-pace{background:var(--c-log);color:#1E1E1E;border:2px solid #1E1E1E}
+.ix-pace .ix-k{color:#1E1E1E;opacity:.72}
+.ix-big{display:flex;align-items:baseline;gap:2px;margin:6px 0 12px;letter-spacing:-.05em}
+.ix-big b{font:800 76px/.9 var(--font)}.ix-big>span{font:800 34px var(--font)}
+.ix-big em{margin-left:auto;align-self:center;font:700 15px var(--font);font-style:normal;letter-spacing:0;background:#1E1E1E;color:#F4F3EE;border-radius:99px;padding:8px 14px;white-space:nowrap}
+.ix-track{position:relative;height:16px;border:2px solid #1E1E1E;border-radius:99px;background:rgba(255,255,255,.55)}
+.ix-track i{display:block;height:100%;background:#1E1E1E;border-radius:99px}
+.ix-track u{position:absolute;top:-7px;bottom:-7px;width:3px;margin-left:-1.5px;background:#1E1E1E;border-radius:2px}
+.ix-leg{display:flex;justify-content:space-between;gap:10px;font:600 14px var(--font);margin-top:9px}
+.ix-split{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.ix-split span{flex:1 1 0;min-width:88px;background:rgba(255,255,255,.55);border:1.5px solid #1E1E1E;border-radius:16px;padding:9px 12px;font:600 14px var(--font)}
+.ix-split b{display:block;font:800 21px/1.15 var(--font);letter-spacing:-.03em}
+/* targets */
+.ix-t{all:unset;box-sizing:border-box;cursor:pointer;display:grid;width:100%;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px;padding:13px 0;border-top:1px solid var(--line)}
+.ix-h+.ix-t{border-top:0;padding-top:2px}
+.ix-t b{font:700 16.5px/1.25 var(--font)}
+.ix-t em{font:700 15px var(--font);font-style:normal;color:var(--dim);white-space:nowrap}
+.ix-t .bar{grid-column:1/-1;display:block;height:8px;border-radius:99px;background:var(--bg4);overflow:hidden}
+.ix-t .bar i{display:block;height:100%;border-radius:99px;background:var(--c)}
+.ix-t .p{grid-column:1/-1;font:500 15px/1.35 var(--font);color:var(--text2)}
+.ix-t .p strong{font-weight:700;color:var(--text)}
+.ix-more{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;font:700 15px var(--font);padding:13px 0 0;border-top:1px solid var(--line);margin-top:2px}
+.ix-ticks{margin:0;padding:12px 0;border-top:1px solid var(--line);font:500 15px/1.45 var(--font);color:var(--text2)}
+.ix-ticks b{color:var(--text)}
+.ix-done{display:flex;align-items:center;gap:10px;margin:0;font:600 16px/1.4 var(--font)}
+/* numbers */
+.ix-nums{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.ix-n{min-width:0;background:var(--bg3);border:1px solid var(--line);border-radius:20px;padding:14px 16px}
+.ix-n span{font:600 14.5px var(--font);color:var(--dim)}
+.ix-n b{display:block;font:800 38px/1 var(--font);letter-spacing:-.04em;margin:6px 0}
+.ix-n em{font:600 14px/1.3 var(--font);font-style:normal;color:var(--text2)}
+.ix-also{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ix-also span{font:600 14.5px var(--font);border:1.5px solid var(--line-strong);border-radius:99px;padding:7px 13px}
+.ix-also b{font-weight:800}
+/* activity */
+.ix-chips{display:flex;gap:7px;overflow-x:auto;margin:0 -20px 14px;padding:3px 20px;scrollbar-width:none}
+.ix-chips::-webkit-scrollbar{display:none}
+.ix-chip{all:unset;box-sizing:border-box;cursor:pointer;flex:none;font:700 14px var(--font);border:1.5px solid var(--line-strong);border-radius:99px;padding:8px 14px;color:var(--text)}
+.ix-chip.on{background:var(--ink);border-color:var(--ink);color:var(--ink-fg)}
+.ix-heat-sc.scroll{overflow-x:auto;padding-bottom:4px}
+.ix-heat-sc.scroll .ix-heat s,.ix-heat-sc.scroll .ix-mon span:first-child{position:sticky;left:0;z-index:1;background:var(--bg2);align-self:stretch;display:flex;align-items:center}
+.ix-heat-sc.scroll .ix-heat-in{width:max-content}
+.ix-heat,.ix-mon{display:grid;gap:3px;align-items:center}
+.ix-mon{font:600 12.5px var(--font);color:var(--dim);margin-bottom:5px}
+.ix-mon span{white-space:nowrap;overflow:visible}
+.ix-heat s{text-decoration:none;font:600 12.5px var(--font);color:var(--dim)}
+.ix-heat i{aspect-ratio:1;border-radius:4px;background:var(--bg4);cursor:pointer}
+.ix-heat i.l1,.ix-scale i.l1{background:color-mix(in srgb,var(--text) 24%,var(--bg4))}
+.ix-heat i.l2,.ix-scale i.l2{background:color-mix(in srgb,var(--text) 50%,var(--bg4))}
+.ix-heat i.l3,.ix-scale i.l3{background:color-mix(in srgb,var(--text) 76%,var(--bg4))}
+.ix-heat i.l4,.ix-scale i.l4{background:var(--text)}
+.ix-heat i.sel{outline:2.5px solid var(--c-log);outline-offset:1px}
+.ix-heat i.fut{background:transparent;border:1px dashed var(--line);cursor:default}
+.ix-day{margin-top:12px;background:var(--bg3);border:1px solid var(--line);border-radius:16px;padding:11px 14px;font:500 15px/1.4 var(--font)}
+.ix-day b{font-weight:700}
+.ix-hf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font:600 14px var(--font);color:var(--dim)}
+.ix-scale{display:inline-flex;align-items:center;gap:4px}
+.ix-scale i{width:13px;height:13px;border-radius:3px;display:inline-block;background:var(--bg4)}
+.ix-link{all:unset;cursor:pointer;font:700 14.5px var(--font);color:var(--text);text-decoration:underline;text-underline-offset:3px}
+/* by month */
+.ix-seg{display:inline-flex;border:1.5px solid var(--line-strong);border-radius:99px;padding:3px}
+.ix-seg button{all:unset;box-sizing:border-box;cursor:pointer;font:700 13.5px var(--font);padding:6px 12px;border-radius:99px;color:var(--text);white-space:nowrap}
+.ix-seg button.on{background:var(--ink);color:var(--ink-fg)}
+.ix-bars{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;align-items:end;height:150px;margin-top:6px}
+.ix-bars div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;min-width:0}
+.ix-bars b{font:700 13px var(--font);white-space:nowrap}
+.ix-bars i{display:block;width:100%;border-radius:7px 7px 3px 3px;background:var(--bg4);min-height:3px}
+.ix-bars .has i{background:var(--text)}
+.ix-bars .now.has i{background:var(--c-log);border:2px solid var(--line-ink)}
+.ix-bx{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;margin-top:6px;font:600 12.5px var(--font);color:var(--dim);text-align:center}
+/* mix */
+.ix-stack{display:flex;height:22px;border:2px solid var(--line-ink);border-radius:99px;overflow:hidden}
+.ix-stack i{display:block;height:100%;border-right:2px solid var(--line-ink)}.ix-stack i:last-child{border-right:0}
+.ix-lg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 14px;margin:14px 0 4px}
+.ix-lg span{display:flex;align-items:center;gap:8px;font:600 15px var(--font)}
+.ix-lg i{width:14px;height:14px;border-radius:50%;border:2px solid var(--line-ink);flex:none}
+.ix-lg em{margin-left:auto;font-style:normal;color:var(--dim);font-weight:700}
+.ix-sub{font:700 13px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:18px 0 4px}
+.ix-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font:600 15.5px/1.3 var(--font)}
+.ix-sub+.ix-row{border-top:0}
+.ix-row em{font-style:normal;color:var(--dim);font-weight:700;text-align:right}
+/* Wrapped: purple gradient and sparkle, so it stands out from the working cards */
+.ix-wr{min-width:0}
+.ix-wrap{all:unset;box-sizing:border-box;position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:center;gap:14px;width:100%;border-radius:28px;padding:20px 20px 22px;color:#fff;background:linear-gradient(135deg,#6f4ff5,#a945f2 55%,#f0458f);box-shadow:0 14px 28px -18px rgba(122,70,240,.9)}
+.ix-wrap.off{cursor:default;opacity:.7;box-shadow:none}
+.ix-wrap-t{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ix-wrap-t small{font:700 13px var(--font);letter-spacing:.1em;text-transform:uppercase;opacity:.92}
+.ix-wrap-t b{font:800 24px/1.1 var(--font);letter-spacing:-.03em}
+.ix-wrap-t span{font:600 15px/1.35 var(--font);opacity:.95}
+.ix-wrap-go{position:relative;flex:none;width:46px;height:46px;border-radius:50%;background:#fff;color:#7a46f0;display:grid;place-items:center}
+.ix-tw{position:absolute;inset:0;pointer-events:none}
+.ix-tw i{position:absolute;font-style:normal;color:#fff;opacity:.15;animation:ixTwinkle 2.6s ease-in-out infinite}
+.ix-tw i:nth-child(1){top:12%;right:26%;font-size:15px}
+.ix-tw i:nth-child(2){bottom:14%;right:38%;font-size:11px;animation-delay:.9s}
+.ix-tw i:nth-child(3){top:18%;right:8%;font-size:10px;animation-delay:1.7s}
+@keyframes ixTwinkle{0%,100%{opacity:.12;transform:scale(.7) rotate(0)}50%{opacity:.95;transform:scale(1.25) rotate(20deg)}}
+.ix-wr .w-wrpast{margin-top:10px}
+/* nothing logged yet */
+.ix-empty{text-align:center;padding:30px 22px 26px}
+.ix-empty-i{width:60px;height:60px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:var(--c-log);color:#1E1E1E;border:2px solid #1E1E1E}
+.ix-empty>b{display:block;font:800 23px/1.15 var(--font);letter-spacing:-.03em}
+.ix-empty p{margin:8px auto 18px;max-width:30em;font:500 16px/1.45 var(--font);color:var(--dim)}
+.ix-empty .w-go{display:inline-flex;align-items:center;gap:8px;width:auto;margin:0 auto;padding:14px 24px;font-size:17px;background:var(--ink);color:var(--ink-fg)}
+@media (min-width:900px){.ix{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}.ix-wide{grid-column:1/-1}.ix-heat i{border-radius:5px}}
+@media (prefers-reduced-motion:reduce){.ix-tw i{animation:none;opacity:.6}}
 /* ARCP ready checklist */
 .w-rdy .w-ask-card{max-width:460px}
 .w-rdy .w-sus-acts{margin-top:16px}
@@ -1395,7 +1510,15 @@ body.focus .w-su-bar{border-color:var(--line-strong)}
 .w-rdy-gk{display:inline-block;font:700 13px var(--font);color:var(--text);background:var(--bg4);border-radius:99px;padding:5px 12px;margin-bottom:12px}
 .w-rdy-step .w-ask-t{font-size:29px}
 .w-rdy-step .w-ask-s{font-size:16.5px;line-height:1.45;margin-top:10px}
-.w-rdy.walk .w-sus-acts{margin-top:14px}
+.w-rdy-tools{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.w-rdy-tools>span{width:100%;font:600 13.5px var(--font);color:var(--dim)}
+.w-rdy-tool{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font:700 14.5px var(--font);color:var(--text);border:1.5px solid var(--line-strong);border-radius:99px;padding:8px 14px 8px 11px;white-space:nowrap}
+.w-rdy-tool:hover{border-color:var(--text)}
+.w-rdy-tool:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.w-rdy.walk .w-sus-acts{margin-top:16px}
+/* full list: the buttons stay in reach while the list scrolls */
+.w-rdy-ft{position:sticky;bottom:0;margin:0 -20px -14px;padding:2px 20px 10px;background:var(--bg2);box-shadow:0 -14px 14px -10px var(--bg2)}
+.w-rdy-ft .w-sus-acts{margin-top:12px}
 .w-rdy-foot{display:flex;gap:6px;margin-top:6px}
 .w-rdy-foot .w-ask-x{flex:1;width:auto;margin-top:0}
 @media (prefers-reduced-motion:reduce){.w-rdy-step{animation:none}}
@@ -1519,6 +1642,16 @@ body.focus .w-sus-go.w-sus-dz{color:#121212}
 .w-cmp-step i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 17px var(--font);background:var(--bg4)}
 .w-cmp-step b{min-width:26px;text-align:center;font:800 16px var(--font)}
 .w-cmp-tog{flex:none;font:700 13.5px var(--font);border:1.5px solid var(--text);border-radius:99px;padding:7px 12px}
+.w-cmp-tog{display:inline-flex;align-items:center;gap:5px;transition:background .2s,color .2s}
+.w-cmp-tog.on{background:var(--ink);color:var(--ink-fg);border-color:var(--ink)}
+.w-cmp-step i,.w-cmp-tog{position:relative}
+.w-cmp .tap::after{content:"";position:absolute;inset:-7px;border-radius:99px;border:3px solid var(--c-log);opacity:0;animation:wCmpTap .55s ease-out}
+.w-cmp i.tap{animation:wCmpPress .6s ease-out}
+@keyframes wCmpPress{0%,35%{background:var(--c-quick)}100%{background:var(--bg4)}}
+@keyframes wCmpTap{0%{opacity:.95;transform:scale(.7)}100%{opacity:0;transform:scale(1.25)}}
+.w-cmp-step b.bump{animation:wCmpBump .4s cubic-bezier(.2,.8,.2,1)}
+@keyframes wCmpBump{0%{transform:translateY(7px);opacity:0}100%{transform:none;opacity:1}}
+.w-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .w-cmp-auto{flex:none;font:600 14px var(--font);color:var(--dim)}
 .w-cmp-auto b{font:800 18px var(--font);color:var(--text)}
 
@@ -1559,6 +1692,9 @@ body.w-cont-on .w-toast{bottom:calc(max(14px,env(safe-area-inset-bottom)) + 74px
 .w-anim{position:fixed;inset:0;pointer-events:auto;background:transparent}
 .w-ghost{position:fixed;box-sizing:border-box;border-style:solid;overflow:hidden;margin:0;will-change:top,left,width,height}
 .w-anim-clone{pointer-events:none;box-sizing:border-box}
+.w-ghost-t{will-change:transform,opacity}
+/* ARCP › Upload to your portfolio: no status pill; the button already says whether it's uploaded */
+@media (min-width:761px){.arcp-doc{grid-template-columns:minmax(0,1fr) 150px 270px}}
 </style>
 
 </head>
@@ -2818,6 +2954,7 @@ function lastCompletedMonth(){
 }
 function maybeAutoRevealWrapped(){
   if(!state.profile) return;
+  if(typeof remoteReady!=='undefined' && !remoteReady) return;   // another device may already have shown it
   const lc = lastCompletedMonth();
   const tag = lc.year+'-'+lc.month;
   const seen = (state.profile.wrappedSeen)||[];
@@ -2946,7 +3083,6 @@ function renderArcp(){
     const gen=d.gen?`<button class="btn action" onclick="arcpGenerate('${d.id}')">Generate</button>`:'';
     const rm=d.custom?`<button class="btn small" onclick="arcpRemoveDoc('${d.id}')" aria-label="Remove ${safe(d.name)}">×</button>`:'';
     return `<div class="arcp-doc">
-      <span class="arcp-pill ${pill[1]}">${pill[0]}</span>
       <div class="arcp-doc-main"><div class="arcp-doc-name">${safe(d.name)}</div><div class="arcp-doc-hint">${safe(d.hint||'')}</div></div>
       <div class="arcp-doc-meta">${safe(meta)}</div>
       <div class="arcp-doc-actions">${gen}<button class="btn ${st.status==='up'?'primary':''}" onclick="arcpToggleUploaded('${d.id}')" aria-pressed="${st.status==='up'}">${st.status==='up'?'Uploaded ✓':'Mark uploaded'}</button>${rm}</div>
@@ -3633,8 +3769,8 @@ function renderLogClinics(){
   const specEntries=specEntriesAll.filter(inCurrentYear);   // renal clinics counted per training year
   const specPatients=specEntries.reduce((a,e)=>a+(parseInt(e.patients,10)||0),0);
   const gimEntries=entries('clinics').filter(e=>e.scope==='gim'); // GIM stays cumulative (target across years)
-  const specForm=`<input type="hidden" id="clinic-spec-scope" value="spec"><div class="field"><label>Clinic type</label>${otherClinicControl('clinic-spec-type', sp.logbook.clinics)}</div>${hospitalField('clinic-spec-hospital')}<div class="field"><label>Date</label><input class="input" id="clinic-spec-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Supervisor</label><input class="input" id="clinic-spec-supervisor" placeholder="Consultant name"></div><div class="field"><label>Patients seen / observed</label><input class="input" id="clinic-spec-patients" type="number" min="0"></div><div class="field"><label>Training year</label><select class="input" id="clinic-spec-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="clinic-spec-notes" placeholder="Optional"></div>`;
-  const gimForm=`<input type="hidden" id="clinic-gim-scope" value="gim"><div class="field"><label>Clinic type</label>${otherClinicControl('clinic-gim-type', GIM_LOGBOOK.clinics)}</div>${hospitalField('clinic-gim-hospital')}<div class="field"><label>Date</label><input class="input" id="clinic-gim-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Supervisor</label><input class="input" id="clinic-gim-supervisor" placeholder="Consultant name"></div><div class="field"><label>Patients seen / observed</label><input class="input" id="clinic-gim-patients" type="number" min="0"></div><div class="field"><label>Training year</label><select class="input" id="clinic-gim-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="clinic-gim-notes" placeholder="Optional"></div>`;
+  const specForm=`<input type="hidden" id="clinic-spec-scope" value="spec"><div class="field"><label>Clinic type</label>${otherClinicControl('clinic-spec-type', sp.logbook.clinics)}</div>${hospitalField('clinic-spec-hospital')}<div class="field"><label>Date</label><input class="input" id="clinic-spec-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="clinic-spec-supervisor" placeholder="Consultant name"></div><div class="field"><label>Patients seen / observed</label><input class="input" id="clinic-spec-patients" type="number" min="0"></div><div class="field"><label>Training year</label><select class="input" id="clinic-spec-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="clinic-spec-notes" placeholder="Optional"></div>`;
+  const gimForm=`<input type="hidden" id="clinic-gim-scope" value="gim"><div class="field"><label>Clinic type</label>${otherClinicControl('clinic-gim-type', GIM_LOGBOOK.clinics)}</div>${hospitalField('clinic-gim-hospital')}<div class="field"><label>Date</label><input class="input" id="clinic-gim-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="clinic-gim-supervisor" placeholder="Consultant name"></div><div class="field"><label>Patients seen / observed</label><input class="input" id="clinic-gim-patients" type="number" min="0"></div><div class="field"><label>Training year</label><select class="input" id="clinic-gim-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="clinic-gim-notes" placeholder="Optional"></div>`;
   const SDEC_CAP = 10;
   const sdecCount = gimEntries.filter(e=>String(e.type||'').toLowerCase().includes('sdec')).length;
   const sdecCls = sdecCount>SDEC_CAP ? 'red' : sdecCount>=SDEC_CAP ? 'amber' : 'blue';
@@ -3650,8 +3786,8 @@ function renderLogProcedures(){
   const sp=specCfg();
   const specEntries=entries('procedures').filter(e=>e.scope!=='gim').filter(inCurrentYear); // per training year
   const gimEntries=entries('procedures').filter(e=>e.scope==='gim').filter(inCurrentYear);   // per training year
-  const specForm=`<input type="hidden" id="proc-spec-scope" value="spec"><div class="field"><label>Procedure</label><select class="input" id="proc-spec-type">${optionsHtml(sp.logbook.procedures)}</select></div><div class="field"><label>Date</label><input class="input" id="proc-spec-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-spec-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-spec-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-spec-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-spec-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-spec-notes" placeholder="Optional"></div>`;
-  const gimForm=`<input type="hidden" id="proc-gim-scope" value="gim"><div class="field"><label>Procedure</label><select class="input" id="proc-gim-type">${optionsHtml(GIM_LOGBOOK.procedures)}</select></div><div class="field"><label>Date</label><input class="input" id="proc-gim-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-gim-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-gim-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-gim-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-gim-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-gim-notes" placeholder="Optional"></div>`;
+  const specForm=`<input type="hidden" id="proc-spec-scope" value="spec"><div class="field"><label>Procedure</label><select class="input" id="proc-spec-type">${optionsHtml(sp.logbook.procedures)}</select></div><div class="field"><label>Date</label><input class="input" id="proc-spec-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-spec-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-spec-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-spec-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-spec-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-spec-notes" placeholder="Optional"></div>`;
+  const gimForm=`<input type="hidden" id="proc-gim-scope" value="gim"><div class="field"><label>Procedure</label><select class="input" id="proc-gim-type">${optionsHtml(GIM_LOGBOOK.procedures)}</select></div><div class="field"><label>Date</label><input class="input" id="proc-gim-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-gim-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-gim-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-gim-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-gim-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-gim-notes" placeholder="Optional"></div>`;
   document.getElementById('log-content').innerHTML=
     logSummaryCards([{value:specEntries.length,label:`${sp.short} procedures logged`,cls:'primary'},{value:gimEntries.length,label:`GIM procedures logged`,cls:'blue'}])+
     formPanel(`Add ${sp.short} procedure`,specForm,"saveProc('spec')")+
@@ -3676,7 +3812,7 @@ function renderLogCPD(){
   const diaryForm = (scope) => `<input type="hidden" id="cpd-${scope}-scope" value="${scope}">
     <div class="field"><label>CPD type</label><select class="input" id="cpd-${scope}-type" onchange="cpdAutoCategory('${scope}')">${typeOpts}</select></div>
     <div class="field"><label>Category</label><select class="input" id="cpd-${scope}-category"><option>External</option><option>Internal</option></select></div>
-    <div class="field"><label>Date</label><input class="input" id="cpd-${scope}-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="field"><label>Date</label><input class="input" id="cpd-${scope}-date" type="date" value="${arcpIso(new Date())}"></div>
     <div class="field"><label>Activity / title</label><input class="input" id="cpd-${scope}-title" placeholder="e.g. UK Kidney Week"></div>
     <div class="field"><label>Provider / location</label><input class="input" id="cpd-${scope}-provider" placeholder="e.g. UKKA, Leeds"></div>
     <div class="field"><label>Hours</label><input class="input" id="cpd-${scope}-hours" type="number" min="0" step="0.5"></div>
@@ -4015,7 +4151,7 @@ function saveCpdEdit(id){
   render();
 }
 function saveCPD(scope='spec'){ const prefix=`cpd-${scope}`; const cert=(window._cpdPendingCert&&window._cpdPendingCert[scope])||null; addEntry('cpd',{scope,type:val(`${prefix}-type`),category:val(`${prefix}-category`),date:val(`${prefix}-date`),title:val(`${prefix}-title`),provider:val(`${prefix}-provider`),hours:val(`${prefix}-hours`),year:val(`${prefix}-year`),learning:val(`${prefix}-learning`),reflection:val(`${prefix}-reflection`),cert}); if(window._cpdPendingCert) delete window._cpdPendingCert[scope]; }
-function renderSimpleLog(k,title,fields,cols,types){ const html=fields.map(f=>{ if(f==='date')return `<div class="field"><label>Date</label><input class="input" id="sl-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>`; if(f==='hospital')return hospitalField('sl-hospital'); if(f==='year')return `<div class="field"><label>Year</label><select class="input" id="sl-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div>`; if((f==='type'||f==='course') && Array.isArray(types))return `<div class="field"><label>${f}</label><select class="input" id="sl-${f}">${optionsHtml(types)}</select></div>`; return `<div class="field"><label>${f}</label><input class="input" id="sl-${f}" ${f==='hours'?'type="number" step="0.5" min="0"':''}></div>`; }).join(''); const arr=entries(k).filter(inCurrentYear); document.getElementById('log-content').innerHTML=formPanel(`Add ${title}`,html,`saveSimple('${k}','${fields.join('|')}')`)+section(`${title} log`,`${arr.length} entries`,[`<div class="card" style="grid-column:1/-1">${table(k, cols, e=>fields.slice(1).map(f=>f==='date'?fmtDate(e[f]):e[f]))}</div>`]); }
+function renderSimpleLog(k,title,fields,cols,types){ const html=fields.map(f=>{ if(f==='date')return `<div class="field"><label>Date</label><input class="input" id="sl-date" type="date" value="${arcpIso(new Date())}"></div>`; if(f==='hospital')return hospitalField('sl-hospital'); if(f==='year')return `<div class="field"><label>Year</label><select class="input" id="sl-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div>`; if((f==='type'||f==='course') && Array.isArray(types))return `<div class="field"><label>${f}</label><select class="input" id="sl-${f}">${optionsHtml(types)}</select></div>`; return `<div class="field"><label>${f}</label><input class="input" id="sl-${f}" ${f==='hours'?'type="number" step="0.5" min="0"':''}></div>`; }).join(''); const arr=entries(k).filter(inCurrentYear); document.getElementById('log-content').innerHTML=formPanel(`Add ${title}`,html,`saveSimple('${k}','${fields.join('|')}')`)+section(`${title} log`,`${arr.length} entries`,[`<div class="card" style="grid-column:1/-1">${table(k, cols, e=>fields.slice(1).map(f=>f==='date'?fmtDate(e[f]):e[f]))}</div>`]); }
 function saveSimple(k,fieldStr){ const data={}; fieldStr.split('|').forEach(f=>{ data[f]=val('sl-'+f); }); const before=entries(k).length; addEntry(k,data); if(data.hospital)addHospitalIfNew(data.hospital); if(k==='teaching'){ const arr=entries('teaching'); if(arr.length>before){ const last=arr[arr.length-1]; setTimeout(()=>{ if(confirm('Teaching saved. Collect feedback for this session now? (QR code / link / email)')) openFeedback(last.id); },80); } } }
 function renderAcute(targetId){ const total=entries('acute').reduce((a,e)=>a+Number(e.estimated||0),0); const html=`${hospitalField('acute-hospital')}<div class="field"><label>Start</label><input class="input" id="acute-start" type="date" onchange="calcAcute()"></div><div class="field"><label>End</label><input class="input" id="acute-end" type="date" onchange="calcAcute()"></div><div class="field"><label>Takes / month</label><input class="input" id="acute-takes" type="number" oninput="calcAcute()"></div><div class="field"><label>Patients / take</label><input class="input" id="acute-patients" type="number" oninput="calcAcute()"></div><div class="field"><label>Estimated patients</label><input class="input" id="acute-estimated" readonly></div><div class="field"><label>Supervisor</label><input class="input" id="acute-supervisor"></div>`; const target=document.getElementById(targetId||'log-content'); if(!target) return; target.innerHTML=`<div class="summary-grid"><div class="summary"><div class="big blue">${Math.round(total)}</div><div class="hint">/ 750 estimated patients</div></div></div>`+formPanel('Add acute take placement',html,'saveAcute()')+section('Acute take log','Firth-style estimate', [`<div class="card" style="grid-column:1/-1">${table('acute',['Hospital','Start','End','Months','Takes/mo','Pts/take','Estimated','Year','Supervisor'], e=>[e.hospital,fmtDate(e.start),fmtDate(e.end),e.months,e.takes,e.patients,e.estimated,e.year,e.supervisor])}</div>`]); }
 function calcAcute(){ const s=val('acute-start'), e=val('acute-end'); const months=monthsBetween(s,e); const est=Math.round(months*Number(val('acute-takes')||0)*Number(val('acute-patients')||0)); document.getElementById('acute-estimated').value=est||''; }
@@ -4388,7 +4524,7 @@ function printReport(style){
   const yr=currentYear;
   const generatedDate=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
   const generatedShort=new Date().toLocaleDateString('en-GB');
-  const cct=state.profile?.cctDate ? new Date(state.profile.cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}) : 'Dec 2030';
+  const cct=state.profile?.cctDate ? new Date(state.profile.cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}) : 'Not set';
   const traineeName=state.profile?.name||'\u2014';
   const trainingNumber=state.profile?.trainingNumber||'\u2014';
 
@@ -4644,7 +4780,7 @@ async function exportLogbook(){
   const sp=specCfg();
   const profile=state.profile||{};
   const safeName=(profile.name||'logbook').replace(/[^a-zA-Z0-9]+/g,'_');
-  const stamp=new Date().toISOString().slice(0,10);
+  const stamp=arcpIso(new Date());
   const meta={ generated:new Date().toISOString(), trainee:profile.name||'', trainingNumber:profile.trainingNumber||'', email:profile.email||'', specialty:sp.label, currentYear, deanery:profile.deanery||'', baseHospital:profile.baseHospital||'' };
 
   // Field schemas — ordered to put identifying columns first
@@ -5360,7 +5496,7 @@ function bridgeExport(){
   const blob = new Blob([JSON.stringify(neutral,null,2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href=url; a.download=`arcp-logbook-bridge-${new Date().toISOString().slice(0,10)}.json`;
+  a.href=url; a.download=`arcp-logbook-bridge-${arcpIso(new Date())}.json`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url), 2000);
 }
@@ -5429,7 +5565,7 @@ function renderAdmin(){
   const hosp=hospitalOptions();
   const userEmail = window.ARCP_FB?.user?.email || '\u2014';
   const accountBlock = `<section class="section"><div class="sec-head"><span class="sec-title">Account</span><span class="sec-rule"></span><span class="sec-note">Signed in across devices</span></div><div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap"><div><div style="font-size:11px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-mono);margin-bottom:6px">Signed in as</div><div style="font-size:15px;color:var(--text);font-weight:500;word-break:break-all">${safe(userEmail)}</div></div><button class="btn small danger" onclick="signOutUser()">Sign out</button></div></div></section>`;
-  document.getElementById('main').innerHTML=accountBlock+`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${safe(h)}')">Delete from list</button></div>`).join('')}</div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM acute take</span><span class="sec-rule"></span><span class="sec-note">Firth-style placement records</span></div><div id="acute-admin-content"></div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM ward cover</span><span class="sec-rule"></span><span class="sec-note">Months of dedicated GIM ward cover</span></div><div id="ward-admin-content"></div></section>`+
+  document.getElementById('main').innerHTML=accountBlock+`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field"><label>Expected CCT date</label><input class="input" type="date" value="${state.profile?.cctDate||''}" onchange="state.profile.cctDate=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${safe(h)}')">Delete from list</button></div>`).join('')}</div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM acute take</span><span class="sec-rule"></span><span class="sec-note">Firth-style placement records</span></div><div id="acute-admin-content"></div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM ward cover</span><span class="sec-rule"></span><span class="sec-note">Months of dedicated GIM ward cover</span></div><div id="ward-admin-content"></div></section>`+
     `<section class="section"><div class="sec-head" style="cursor:pointer" onclick="toggleBridgeSection()"><span class="sec-title">Advanced <span id="bridge-caret" style="color:var(--dim)">\u25B8</span></span><span class="sec-rule"></span><span class="sec-note">Data bridge</span></div><div id="bridge-body" style="display:none"><div class="panel"><div style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:12px">Move your whole logbook between this app and your personal ARCP app. Export writes a bridge file; import merges it in without duplicates (matches by entry, newest wins).</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" onclick="bridgeExport()">\u21E9 Export logbook (bridge)</button><button class="btn small" onclick="bridgeImport()">\u21E7 Import logbook (bridge)</button></div></div></div></section>`;
   renderAcute('acute-admin-content');
   renderWard('ward-admin-content');
@@ -5518,11 +5654,11 @@ function _activityStreaks(idx){
   });
   // current streak: walk back from today; lenient — if today empty, start from yesterday
   const today=new Date(); today.setHours(0,0,0,0);
-  const todayStr=today.toISOString().slice(0,10);
+  const todayStr=arcpIso(today);
   let cur=0, cursor=new Date(today);
   if(!idx[todayStr]){ cursor.setDate(cursor.getDate()-1); }
   while(true){
-    const s=cursor.toISOString().slice(0,10);
+    const s=arcpIso(cursor);
     if(idx[s]) { cur++; cursor.setDate(cursor.getDate()-1); } else break;
   }
   return {current:cur,longest};
@@ -5550,7 +5686,7 @@ function _heatmapSVG(idx, filterKind){
     for(let r=0;r<rows;r++){
       const dt=new Date(startSat); dt.setDate(startSat.getDate()+c*7+r);
       if(dt>today) continue; // skip future
-      const key=dt.toISOString().slice(0,10);
+      const key=arcpIso(dt);
       const dayData=idx[key];
       const v = dayData ? (filterKind ? (dayData[filterKind]||0) : dayData.total) : 0;
       const b = bucket(v);
@@ -5577,7 +5713,7 @@ function _consistencyScore(idx){
   let active=0;
   for(let i=0;i<90;i++){
     const d=new Date(today); d.setDate(today.getDate()-i);
-    if(idx[d.toISOString().slice(0,10)]) active++;
+    if(idx[arcpIso(d)]) active++;
   }
   return Math.round((active/90)*100);
 }
@@ -5595,7 +5731,7 @@ function _last12Weeks(entries, kind){
   entries.forEach(e=>{
     if(kind && e._kind!==kind) return;
     if(!e.date) return;
-    const dt=new Date(e.date); const diff=Math.floor((today-dt)/86400000); if(diff<0||diff>=84) return;
+    const dt=new Date(String(e.date).slice(0,10)+'T00:00:00'); const diff=Math.round((today-dt)/86400000); if(!(diff>=0&&diff<84)) return;
     const idx=11-Math.floor(diff/7); if(idx>=0&&idx<12) buckets[idx]++;
   });
   return buckets;
@@ -5730,10 +5866,10 @@ function renderOverview(){
 
   // Evidence categories chart: simulation is excluded — its target is tracked separately as
   // cumulative GIM hours (gim_sim) rather than as an event-count category like the others.
-  const catEntries = Object.entries(counts).filter(([k])=>k!=='simulation');
+  const catEntries = Object.entries(counts);
   const catTotal = catEntries.reduce((a,[,v])=>a+v,0)||1;
-  const catColors={clinics:'var(--primary)',procedures:'var(--green)',cpd:'var(--gim)',teaching:'#fb923c'};
-  const catLabels={clinics:'Clinics',procedures:'Procedures',cpd:'CPD',teaching:'Teaching'};
+  const catColors={clinics:'var(--primary)',procedures:'var(--green)',cpd:'var(--gim)',simulation:'#8E7CC3',teaching:'#fb923c'};
+  const catLabels={clinics:'Clinics',procedures:'Procedures',cpd:'CPD',simulation:'Simulation',teaching:'Teaching'};
   const catBars=catEntries.map(([k,v])=>{
     const pct=(v/catTotal)*100;
     return `<div style="display:flex;flex-direction:column;gap:6px">
@@ -5780,10 +5916,10 @@ function renderOverview(){
   // KPI cards
   const kpis=[
     {label:'Total activities',value:totalActivities,sub:`${currentYear} so far`,spark:sparkAll,accent:'var(--primary)'},
-    {label:'Clinics logged',value:counts.clinics,sub:'across spec + GIM',spark:sparkClin,accent:'var(--primary)'},
-    {label:'Procedures logged',value:counts.procedures,sub:`${(state.logbook?.procedures||[]).filter(e=>e.dops==='Yes').length} DOPS-signed`,spark:sparkProc,accent:'var(--green)'},
+    {label:'Clinics logged',value:counts.clinics,sub:`${currentYear} \u00b7 ${sp.short} + GIM`,spark:sparkClin,accent:'var(--primary)'},
+    {label:'Procedures logged',value:counts.procedures,sub:`${currentYear} \u00b7 ${(state.logbook?.procedures||[]).filter(e=>(!e.year||e.year===currentYear) && e.dops==='Yes').length} DOPS-signed`,spark:sparkProc,accent:'var(--green)'},
     {label:'CPD hours',value:Math.round(cpdHours),sub:'this training year',spark:sparkCPD,accent:'var(--gim)'},
-    {label:'Teaching sessions',value:counts.teaching,sub:'all-time',spark:sparkTeach,accent:'var(--primary)'},
+    {label:'Teaching sessions',value:counts.teaching,sub:`${currentYear} so far`,spark:sparkTeach,accent:'var(--primary)'},
     {label:'WBAs completed',value:wbaTotal,sub:`${currentYear} \u00b7 SLEs + ACATs`,spark:'',accent:'var(--gim)'},
     {label:'Active days',value:activeDays,sub:'last 365 days',spark:'',accent:'var(--green)'}
   ];
@@ -5796,10 +5932,10 @@ function renderOverview(){
 
   // Insights sidebar
   const insightCards = [
-    {label:'Most active month', value: mostMonth?mostMonth.label:'\u2014', sub: mostMonth?`${mostMonth.count} activities`:'no data yet'},
+    {label:'Most active month', value: mostMonth?mostMonth.label:'\u2014', sub: mostMonth?`${mostMonth.count} ${mostMonth.count===1?'activity':'activities'}`:'no data yet'},
     {label:'Longest streak', value: streaks.longest+'d', sub:`current: ${streaks.current} day${streaks.current===1?'':'s'}`},
-    {label:'Most logged procedure', value: topProc?topProc[0]:'\u2014', sub: topProc?`${topProc[1]} times`:'log a procedure to see this', isText:true},
-    {label:'Most common clinic', value: topClinic?topClinic[0]:'\u2014', sub: topClinic?`${topClinic[1]} attendances`:'log a clinic to see this', isText:true},
+    {label:'Most logged procedure', value: topProc?topProc[0]:'\u2014', sub: topProc?`${topProc[1]} time${topProc[1]===1?'':'s'}`:'log a procedure to see this', isText:true},
+    {label:'Most common clinic', value: topClinic?topClinic[0]:'\u2014', sub: topClinic?`${topClinic[1]} clinic${topClinic[1]===1?'':'s'}`:'log a clinic to see this', isText:true},
     {label:'Most consistent day', value: mostDay, sub: mostDayPct, isText:true},
     {label:'Current momentum', value: momentum, sub:`${recent4w} in last 4w \u00b7 ${prev4w} prior`, accent:momentumColor, isText:true}
   ];
@@ -5823,7 +5959,7 @@ function renderOverview(){
         <div class="act-trajectory-bar"><div style="width:${overall}%;background:${projColor}"></div></div>
         <div class="act-trajectory-meta">
           <div><span class="act-trajectory-key">Projection</span><span style="color:${projColor};font-weight:500">${projection}</span></div>
-          <div><span class="act-trajectory-key">Year</span><span>${safe(currentYear)} \u00b7 CCT ${state.profile?.cctDate?new Date(state.profile.cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}):'Dec 2030'}</span></div>
+          <div><span class="act-trajectory-key">Year</span><span>${safe(currentYear)}${state.profile?.cctDate?' \u00b7 CCT '+new Date(state.profile.cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}):''}</span></div>
         </div>
       </div>
     </div>
@@ -5867,24 +6003,24 @@ function renderOverview(){
           </div>
           <div class="act-card">
             <div class="act-card-title">Evidence categories</div>
-            <div class="act-card-sub">share of all logged entries</div>
+            <div class="act-card-sub">share of ${safe(currentYear)} entries</div>
             <div class="act-cat-bars">${catBars}</div>
           </div>
           <div class="act-card">
             <div class="act-card-title">Procedure frequency</div>
-            <div class="act-card-sub">top 6 logged procedures</div>
+            <div class="act-card-sub">top 6 \u00b7 all years</div>
             <div class="act-proc-bars">${procBars}</div>
           </div>
           <div class="act-card">
             <div class="act-card-title">CPD accumulation</div>
-            <div class="act-card-sub">cumulative hours, 12-month</div>
+            <div class="act-card-sub">cumulative hours \u00b7 last 12 months</div>
             <div class="act-cpd-line">${cpdLineChart}</div>
           </div>
         </div>
       </div>
 
       <aside class="act-sidebar">
-        <div class="act-sidebar-title">Insights</div>
+        <div class="act-sidebar-title">Patterns \u00b7 all years</div>
         ${insightsHtml}
       </aside>
     </div>
@@ -6278,7 +6414,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   const isOnline = e => e.type==='E-learning / online module' || e.type==='Online CPD';
   const prof = () => state.profile||{};
   const who = () => prof().name || 'Trainee';
-  const cctTxt = () => prof().cctDate ? new Date(prof().cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}) : 'Dec 2030';
+  const cctTxt = () => prof().cctDate ? new Date(prof().cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}) : 'Not set';
   const isThisYear = e => inCurrentYear(e);
   const safeUrl = u => /^https?:\/\//i.test(String(u||'')) ? E(u) : '';
 
@@ -7550,13 +7686,12 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const list=main().innerHTML;
     if(yearLocked()){   // the old Insights screen is blank for a locked year, so offer the Wrapped instead
       const oc=outcome(), yw=OC_META[oc] && !['3','4','5'].includes(oc);
-      main().innerHTML = hd + list + `<section id="w-insights" class="section" style="margin-top:56px"><div class="sec-head"><span class="sec-title">Insights</span><span class="sec-note">${currentYear} · signed off</span></div>${yw?`<button class="w-go w-ywr" onclick="wYearWrapped('${currentYear}')">${I('spark',20)}<span>See your ${currentYear} Wrapped</span></button>`:''}<div style="margin-top:18px">${(()=>{ try{ return wrappedButtonHTML(); }catch(e){ return ''; } })()}</div>${wrappedArchiveHTML()}</section>`;
+      main().innerHTML = hd + list + `<section id="w-insights" class="section" style="margin-top:56px"><div class="sec-head"><span class="sec-title">Insights</span><span class="sec-note">${currentYear} · signed off</span></div>${yw?`<button class="w-go w-ywr" onclick="wYearWrapped('${currentYear}')">${I('spark',20)}<span>See your ${currentYear} Wrapped</span></button>`:''}<div class="ix" style="margin-top:18px">${ixWrapped()}</div></section>`;
       return;
     }
-    O.ov();
-    const tmp=document.createElement('div'); tmp.innerHTML=main().innerHTML;
-    const heroTitle=tmp.querySelector('.act-hero > div:first-child'); if(heroTitle) heroTitle.remove();
-    main().innerHTML = hd + list + `<section id="w-insights" class="section" style="margin-top:56px"><div class="sec-head"><span class="sec-title">Insights</span><span class="sec-note">${currentYear}</span></div>${tmp.innerHTML}</section>`;
+    let ins=''; try{ ins=insightsHTML(); }catch(e){ console.error('[Outcome1] Insights failed', e); ins='<p class="ix-cap">Insights couldn’t be shown just now.</p>'; }
+    main().innerHTML = hd + list + `<section id="w-insights" class="section" style="margin-top:56px"><div class="sec-head"><span class="sec-title">Insights</span></div>${ins}</section>`;
+    ixAfter();
     try{ fbRefreshCounts(); }catch(e){}
   }
   function renderArcpScreen(){
@@ -8262,10 +8397,193 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     if(state.profile.baseHospital===OLD_STH){ state.profile.baseHospital=NGH; changed=true; }
     if(changed) saveState();
   }
+  ['firebase-load','firebase-no-data'].forEach(ev=>window.addEventListener(ev, ()=>setTimeout(()=>{ try{ if(state && state.profile) maybeAutoRevealWrapped(); }catch(e){} }, 400)));
   const __renderFb=window.render;
   window.render=function(){ try{ wRenameHospital(); }catch(e){} const r=__renderFb.apply(this,arguments); try{ wWatchFeedback(); }catch(e){} return r; };
   ['firebase-signed-in','firebase-load'].forEach(ev=>window.addEventListener(ev, ()=>setTimeout(()=>{ try{ wWatchFeedback(); }catch(e){} },800)));
   window.addEventListener('firebase-signed-out', ()=>{ fbWatch.forEach(off=>{ try{ off(); }catch(e){} }); fbWatch.clear(); });
+
+  // ═══ Insights (on the Logbook screen) ═══
+  // Seven cards: progress against today, pace to each open target, this year's numbers, activity (weekly measure
+  // and a tappable heatmap), entries or CPD hours by month, the mix of what's logged, and Wrapped.
+  // Every card names the period it covers. Dates are local calendar days throughout.
+  const IX = { filter:'all', full:false, month:'entries', allTargets:false, day:null };
+  const IX_KINDS = [['clinics','Clinics','var(--c-spec)',['clinic','clinics']],['procedures','Procedures','var(--c-gim)',['procedure','procedures']],
+    ['cpd','CPD','var(--c-cpd)',['CPD entry','CPD entries']],['simulation','Simulation','var(--c-log)',['simulation session','simulation sessions']],['teaching','Teaching','var(--c-quick)',['teaching session','teaching sessions']]];
+  const ixN = (n,one,many) => `${n} ${n===1?one:(many||one+'s')}`;
+  const ixAll = () => IX_KINDS.flatMap(([k])=>(state.logbook?.[k]||[]).filter(e=>e && /^\d{4}-\d{2}-\d{2}/.test(String(e.date||''))).map(e=>({ kind:k, date:String(e.date).slice(0,10), e })));
+  const ixDate = iso => new Date(iso+'T00:00:00');   // local midnight, so a day is the same day in summer and winter
+  const ixInYear = x => !x.e.year || x.e.year===currentYear;
+  const ixShort = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+  function ixProgress(){
+    const sp=specCfg(), spec=calcReqsWithExtra(specReqs(),specDopsStats()), gim=calcReqsWithExtra(visibleGimReqs(),gimDopsStats());
+    const overall=Math.round((spec.pct+gim.pct)/2), p=panelInfo(), ys=state.profile?.yearStart, start=ys?new Date(ys.year, ys.month-1, 1):null;
+    // where you'd expect to be today: 90% of the share of the training year that has gone (same rule as before)
+    const exp = start && p.panel>start ? Math.round(Math.max(0,Math.min(1,(Date.now()-start)/(p.panel-start)))*90) : null;
+    const gap = exp===null ? 0 : overall-exp;
+    const fresh = overall===0 && !ixAll().length;   // nothing recorded yet: a verdict would only discourage
+    const verdict = exp===null ? '' : fresh ? 'Getting started' : gap>=5 ? 'Ahead of pace' : gap>=-10 ? 'On pace' : gap>=-25 ? 'Slightly behind' : 'Behind pace';
+    const cct = state.profile?.cctDate ? new Date(state.profile.cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}) : '';
+    const arcp = p.days>0 ? ['ARCP in', ixN(p.days,'day')] : p.days===0 ? ['ARCP','today'] : ['ARCP date','passed'];
+    return `<div class="ix-card ix-pace ix-wide">
+      <div class="ix-k">${safe(currentYear)} progress · ${safe(sp.short)} and GIM</div>
+      <div class="ix-big"><b>${overall}</b><span>%</span>${verdict?`<em>${verdict}</em>`:''}</div>
+      <div class="ix-track" role="img" aria-label="${overall}% of requirements met${exp===null?'':`. Expected by today: ${exp}%`}"><i style="width:${Math.max(overall?3:0,Math.min(100,overall))}%"></i>${exp===null?'':`<u style="left:${Math.min(99,exp)}%"></u>`}</div>
+      <div class="ix-leg"><span>You: ${overall}%</span>${exp===null?'':`<span>Expected by today: ${exp}%</span>`}</div>
+      <div class="ix-split"><span>${safe(sp.short)}<b>${spec.pct}%</b></span><span>GIM<b>${gim.pct}%</b></span><span>${arcp[0]}<b>${arcp[1]}</b></span>${cct?`<span>CCT<b>${safe(cct)}</b></span>`:''}</div>
+    </div>`;
+  }
+
+  // "about 3 a month": the rate that gets a count to its target by a date
+  function ixPace(left, days, h){
+    if(days<=0) return 'due now';
+    const perWeek=left/(days/7), perMonth=left/(days/30.44);
+    if(perWeek>=1.5) return `about ${Math.ceil(perWeek)}${h} a week`;
+    if(perMonth>=1) return `about ${Math.ceil(perMonth)}${h} a month`;
+    const gapDays=days/left;
+    return gapDays>=56 ? `about 1${h} every ${Math.round(gapDays/30.44)} months` : `about 1${h} every ${Math.max(2,Math.round(gapDays/7))} weeks`;
+  }
+  function ixTargetRows(){
+    const p=panelInfo(), rows=[], ticks=[], ys=state.profile?.yearStart, start=ys?new Date(ys.year, ys.month-1, 1):null;
+    const gone = start && p.panel>start ? Math.max(0,Math.min(1,(Date.now()-start)/(p.panel-start))) : .5;   // share of this training year used
+    const add=(reqs,scope)=>Object.entries(reqs).forEach(([id,r])=>{
+      const st=reqStatus(id,r); if(st==='met' || st==='na') return;
+      const later=deadlineFuture(r.deadline);
+      if(r.type==='checkbox'){ if(!later) ticks.push(r.label); return; }
+      const t=Number(r.target)||0, v=Math.min(Number(getReqVal(id,r))||0, t); if(!t || v>=t) return;
+      const h=/^hours?$/i.test(r.unit||'')?'h':'', left=r1(t-v);
+      let pace;
+      if(later){ const yrs=Math.max(.5, YEARS.indexOf(r.deadline)-yrIndex()+1-gone); pace=`by ${r.deadline} · about ${Math.ceil(left/yrs)}${h} a year`; }
+      else pace = !h && left<=1 && p.lockDays>0 ? `by ${ixShort(p.lock)}` : ixPace(left, p.lockDays, h);   // one left: a date reads better than a rate
+      rows.push({ scope, label:r.label, v:r1(v), t, h, left, frac:v/t, later, pace });
+    });
+    add(specReqs(),'spec'); add(visibleGimReqs(),'gim');
+    rows.sort((a,b)=>(a.later-b.later) || (a.frac-b.frac));
+    return { rows, ticks, p };
+  }
+  function ixTargets(){
+    const { rows, ticks, p }=ixTargetRows(), show=IX.allTargets?rows:rows.slice(0,3);
+    const when = p.days<0 ? '' : p.lockDays<0 ? 'the portfolio has locked' : `by ${ixShort(p.lock)}, when the portfolio locks`;
+    const row=r=>`<button class="ix-t" style="--c:var(--c-${r.scope==='spec'?'spec':'gim'})" onclick="wIxGo('${r.scope}')"><b>${safe(r.label)}</b><em>${r.v}${r.h} of ${r.t}${r.h}</em><span class="bar"><i style="width:${Math.max(r.v?4:0,Math.round(r.frac*100))}%"></i></span><span class="p">${r.left}${r.h} to go · <strong>${r.pace}</strong></span></button>`;
+    const tk = ticks.length && (IX.allTargets || rows.length<=3) ? `<p class="ix-ticks"><b>Also to tick off:</b> ${ticks.slice(0,5).map(safe).join(', ')}${ticks.length>5?` and ${ticks.length-5} more`:''}.</p>` : '';
+    const body = rows.length ? show.map(row).join('')+tk+(rows.length>3?`<button class="ix-more" data-ix="targets" aria-expanded="${IX.allTargets}" onclick="wIx('targets')">${IX.allTargets?'Show fewer':`See all ${rows.length} open targets`}</button>`:'')
+      : ticks.length ? tk : `<p class="ix-done">${I('check',20)}Every countable target for ${safe(currentYear)} is met.</p>`;
+    return `<div class="ix-card"><div class="ix-h">To reach your targets${when?`<span>${when}</span>`:''}</div>${body}</div>`;
+  }
+
+  function ixNumbers(all){
+    const yr=all.filter(ixInYear), cnt=k=>yr.filter(x=>x.kind===k).length, t=today0().getTime(), from=t-27*DAY;
+    const recent=arr=>arr.filter(x=>{ const d=ixDate(x.date).getTime(); return d>=from && d<=t; }).length;
+    const cpd=yr.filter(x=>x.kind==='cpd'), cpdH=Math.round(cpd.reduce((a,x)=>a+(Number(x.e.hours)||0),0));
+    const dops=yr.filter(x=>x.kind==='procedures' && x.e.dops==='Yes').length;
+    let ext=null; try{ ext=gimExternalCpdHours(e=>!e.year||e.year===currentYear); }catch(e){}
+    const wba=['gim_sles','gim_acats','spec_sles'].reduce((a,k)=>a+(Number(state.req?.[`${currentYear}.${k}`])||0),0);
+    const tile=(l,v,s)=>`<div class="ix-n"><span>${l}</span><b>${v}</b><em>${s}</em></div>`;
+    return `<div class="ix-card"><div class="ix-h">${safe(currentYear)} in numbers</div><div class="ix-nums">
+        ${tile('Entries', yr.length, `${recent(yr)} in the last 4 weeks`)}
+        ${tile('Clinics', cnt('clinics'), `${recent(yr.filter(x=>x.kind==='clinics'))} in the last 4 weeks`)}
+        ${tile('Procedures', cnt('procedures'), `${dops} DOPS-signed`)}
+        ${tile('CPD hours', cpdH, ext===null?ixN(cpd.length,'entry','entries'):`${r1(ext)}h GIM external`)}
+      </div><div class="ix-also"><span>Teaching <b>${cnt('teaching')}</b></span><span>Simulation <b>${cnt('simulation')}</b></span><span>SLEs and ACATs <b>${wba}</b></span></div></div>`;
+  }
+
+  function ixDayText(iso, rec){
+    const d=ixDate(iso), head=`<b>${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</b>`;
+    if(!rec) return `${head} · nothing logged`;
+    return `${head} · ${IX_KINDS.filter(([k])=>rec.k[k]).map(([k,,,w])=>ixN(rec.k[k],w[0],w[1])).join(', ')}`;
+  }
+  function ixActivity(all){
+    const list=all.filter(x=>IX.filter==='all' || x.kind===IX.filter), byDay={};
+    list.forEach(x=>{ const r=byDay[x.date]=byDay[x.date]||{n:0,k:{}}; r.n++; r.k[x.kind]=(r.k[x.kind]||0)+1; });
+    const today=today0(), monday=new Date(today); monday.setDate(today.getDate()-((today.getDay()+6)%7));   // weeks run Monday to Sunday
+    const wide=typeof matchMedia==='function' && matchMedia('(min-width:900px)').matches, weeks=(wide||IX.full)?53:16;
+    const day=(c,r)=>{ const d=new Date(monday); d.setDate(monday.getDate()-7*(weeks-1-c)+r); return d; };
+    let wk=0; for(let w=0;w<12;w++){ for(let r=0;r<7;r++){ const d=day(weeks-1-w,r); if(d<=today && byDay[arcpIso(d)]){ wk++; break; } } }
+    let max=4, active=0, last=null;
+    for(let c=0;c<weeks;c++) for(let r=0;r<7;r++){ const k=arcpIso(day(c,r)), rec=byDay[k]; if(rec && day(c,r)<=today){ max=Math.max(max,rec.n); active++; last=k; } }
+    const sel = IX.day && ixDate(IX.day)>=day(0,0) && ixDate(IX.day)<=today ? IX.day : last;
+    const months=[]; for(let c=0;c<weeks;c++){ const d=day(c,0), prev=c?day(c-1,0):null; months.push(!prev || prev.getMonth()!==d.getMonth() ? d.toLocaleDateString('en-GB',{month:'short'}).replace('Sept','Sep') : ''); }
+    if(months[0] && months[1]) months[0]='';   // a month that only just fits would collide with the next label
+    const names=['Mon','','Wed','','Fri','',''];
+    let cells='';
+    for(let r=0;r<7;r++){ cells+=`<s>${names[r]}</s>`; for(let c=0;c<weeks;c++){ const d=day(c,r), k=arcpIso(d), rec=byDay[k];
+      cells+= d>today ? '<i class="fut"></i>' : `<i class="${rec?'l'+Math.max(1,Math.ceil(rec.n/max*4)):''}${k===sel?' sel':''}" data-d="${k}"></i>`; } }
+    const cols=`grid-template-columns:30px repeat(${weeks},${weeks>16&&!wide?'14px':'minmax(0,1fr)'})`;
+    const label=IX_KINDS.find(([k])=>k===IX.filter)?.[1]||'All entries';
+    const chip=(k,l)=>`<button class="ix-chip${IX.filter===k?' on':''}" data-ix="filter:${k}" aria-pressed="${IX.filter===k}" onclick="wIx('filter','${k}')">${l}</button>`;
+    return `<div class="ix-card ix-wide"><div class="ix-h">Activity<span>logged in ${wk} of the last 12 weeks</span></div>
+      <div class="ix-chips" role="group" aria-label="Show activity for">${chip('all','All')}${IX_KINDS.map(([k,l])=>chip(k,l)).join('')}</div>
+      <div class="ix-heat-sc${weeks>16&&!wide?' scroll':''}"><div class="ix-heat-in">
+        <div class="ix-mon" style="${cols}" aria-hidden="true"><span></span>${months.map(m=>`<span>${m}</span>`).join('')}</div>
+        <div class="ix-heat" style="${cols}" role="img" aria-label="${safe(label)}, last ${weeks} weeks: ${ixN(active,'active day')}." onclick="wIxDay(event)">${cells}</div>
+      </div></div>
+      <div class="ix-day" aria-live="polite">${sel?ixDayText(sel, byDay[sel]):'Tap a day to see what you logged.'}</div>
+      <div class="ix-hf"><span class="ix-scale" aria-hidden="true">Less <i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> More</span>${wide?'':`<button class="ix-link" data-ix="full" onclick="wIx('full')">${IX.full?'Show 16 weeks':'Show the full year'}</button>`}</div>
+    </div>`;
+  }
+
+  function ixMonths(all){
+    const now=new Date(), ms=[];
+    for(let i=11;i>=0;i--){ const d=new Date(now.getFullYear(), now.getMonth()-i, 1); ms.push({ k:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`, l:d.toLocaleDateString('en-GB',{month:'short'}).slice(0,1), full:d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}), v:0 }); }
+    const idx=Object.fromEntries(ms.map((m,i)=>[m.k,i])), cpd=IX.month==='cpd';
+    all.forEach(x=>{ const i=idx[x.date.slice(0,7)]; if(i===undefined) return; if(cpd){ if(x.kind==='cpd') ms[i].v+=Number(x.e.hours)||0; } else ms[i].v++; });
+    ms.forEach(m=>{ m.v=r1(m.v); });
+    const max=Math.max(1,...ms.map(m=>m.v)), total=r1(ms.reduce((a,m)=>a+m.v,0));
+    const seg=(k,l)=>`<button data-ix="month:${k}" class="${IX.month===k?'on':''}" aria-pressed="${IX.month===k}" onclick="wIx('month','${k}')">${l}</button>`;
+    return `<div class="ix-card"><div class="ix-h">By month<span class="ix-seg" role="group" aria-label="Show by month">${seg('entries','Entries')}${seg('cpd','CPD hours')}</span></div>
+      <div class="ix-bars" role="img" aria-label="${cpd?'CPD hours':'Entries'} by month. ${ms.map(m=>`${m.full}: ${m.v}`).join('. ')}.">${ms.map((m,i)=>`<div class="${m.v?'has':''}${i===11?' now':''}">${m.v?`<b>${m.v}</b>`:''}<i style="height:${m.v?Math.max(8,m.v/max*100):0}%"></i></div>`).join('')}</div>
+      <div class="ix-bx" aria-hidden="true">${ms.map(m=>`<span>${m.l}</span>`).join('')}</div>
+      <p class="ix-cap">${cpd?`${total}h of CPD`:ixN(total,'entry','entries')} in the last 12 months</p></div>`;
+  }
+
+  function ixMix(all){
+    const yr=all.filter(ixInYear), n=yr.length, counts=IX_KINDS.map(([k,l,c])=>({ l, c, n:yr.filter(x=>x.kind===k).length }));
+    const top=(arr,keyOf)=>{ const m={}; arr.forEach(x=>{ const k=keyOf(x); if(k) m[k]=(m[k]||0)+1; }); return Object.entries(m).sort((a,b)=>b[1]-a[1]); };
+    const procs=top(all.filter(x=>x.kind==='procedures'), x=>normProcName(x.e.type||'').trim()).slice(0,3);
+    const clinic=top(all.filter(x=>x.kind==='clinics'), x=>String(x.e.type||'').trim())[0];
+    const month=top(all, x=>x.date.slice(0,7))[0], wd=top(all, x=>String(ixDate(x.date).getDay()))[0];
+    const pats=[ month?['Busiest month', `${ixDate(month[0]+'-01').toLocaleDateString('en-GB',{month:'long',year:'numeric'})} · ${ixN(month[1],'entry','entries')}`]:null,
+      clinic?['Most common clinic', clinic[0]]:null,
+      wd && all.length>=5?['You usually log on', ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'][+wd[0]]]:null ].filter(Boolean);
+    const rowsOf=a=>a.map(([l,v])=>`<div class="ix-row"><span>${safe(l)}</span><em>${safe(String(v))}</em></div>`).join('');
+    return `<div class="ix-card"><div class="ix-h">What you log<span>${safe(currentYear)}</span></div>
+      ${n?`<div class="ix-stack" role="img" aria-label="${counts.filter(c=>c.n).map(c=>`${c.l} ${c.n}`).join(', ')}">${counts.filter(c=>c.n).map(c=>`<i style="width:${c.n/n*100}%;background:${c.c}"></i>`).join('')}</div>
+      <div class="ix-lg">${counts.map(c=>`<span><i style="background:${c.c}"></i>${c.l}<em>${c.n}</em></span>`).join('')}</div>`:`<p class="ix-cap" style="margin-top:0">Nothing logged in ${safe(currentYear)} yet.</p>`}
+      ${procs.length?`<div class="ix-sub">Top procedures · all years</div>${rowsOf(procs)}`:''}
+      ${pats.length?`<div class="ix-sub">Patterns · all years</div>${rowsOf(pats)}`:''}</div>`;
+  }
+
+  // Wrapped keeps its purple gradient and sparkle so it stands out from the working cards
+  function ixWrapped(){
+    const lc=lastCompletedMonth(), M=['January','February','March','April','May','June','July','August','September','October','November','December'], name=M[lc.month-1];
+    let n=0; try{ n=WrappedEngine.gatherStats(wrappedAdapter(), lc.year, lc.month).totalEntries; }catch(e){}
+    const stars='<span class="ix-tw" aria-hidden="true"><i>✦</i><i>✦</i><i>✦</i></span>';
+    const card = n ? `<button class="ix-wrap" onclick="openWrapped(${lc.year},${lc.month})">${stars}<span class="ix-wrap-t"><small>✨ New</small><b>Your ${name} Wrapped</b><span>${ixN(n,'entry','entries')} · relive your month</span></span><span class="ix-wrap-go" aria-hidden="true">${I('chev',24)}</span></button>`
+      : `<div class="ix-wrap off"><span class="ix-wrap-t"><b>${name} Wrapped</b><span>Nothing was logged in ${name}, so there’s no Wrapped for it. ${M[lc.month%12]}’s arrives next month.</span></span></div>`;
+    let past=''; try{ past=wrappedArchiveHTML(); }catch(e){}
+    return `<div class="ix-wide ix-wr">${card}${past}</div>`;
+  }
+  const ixEmpty = () => `<div class="ix-card ix-empty ix-wide"><div class="ix-empty-i">${I('chart',26)}</div><b>Insights appear as you log</b><p>Your numbers, activity and patterns will show here once you’ve added your first entries.</p><button class="w-go" onclick="openLogbookForm('clinics')">${I('plus',20)}<span>Log an entry</span></button></div>`;
+
+  function insightsHTML(){
+    const all=ixAll();
+    return `<div class="ix">${ixProgress()}${ixTargets()}${all.length ? ixNumbers(all)+ixActivity(all)+ixMonths(all)+ixMix(all)+ixWrapped() : ixEmpty()}</div>`;
+  }
+  function ixAfter(){ const sc=document.querySelector('#w-insights .ix-heat-sc.scroll'); if(sc) sc.scrollLeft=sc.scrollWidth; }   // the full year opens at this week
+  function ixRedraw(focusKey){
+    const host=document.querySelector('#w-insights .ix'); if(!host) return;
+    host.outerHTML=insightsHTML(); ixAfter();
+    if(focusKey){ try{ document.querySelector(`#w-insights [data-ix="${focusKey}"]`)?.focus({preventScroll:true}); }catch(e){} }
+  }
+  window.wIx = function(what, v){
+    if(what==='filter'){ IX.filter=v; ixRedraw('filter:'+v); }
+    else if(what==='month'){ IX.month=v; ixRedraw('month:'+v); }
+    else if(what==='full'){ IX.full=!IX.full; ixRedraw('full'); }
+    else if(what==='targets'){ IX.allTargets=!IX.allTargets; ixRedraw('targets'); }
+  };
+  window.wIxDay = function(ev){ const c=ev.target.closest('[data-d]'); if(!c) return; IX.day=c.dataset.d; const sc=document.querySelector('#w-insights .ix-heat-sc'), x=sc?sc.scrollLeft:0; ixRedraw(); const s2=document.querySelector('#w-insights .ix-heat-sc'); if(s2) s2.scrollLeft=x; };
+  window.wIxGo = function(scope){ setTab(scope==='spec'?'specialty':'gim'); window.scrollTo(0,0); };
 
   // ═══ ARCP ready checklist: the last things to line up before the panel ═══
   // Opens from the ARCP screen as a walkthrough, one item at a time. After that (or after "Finish later") it
@@ -8285,7 +8603,10 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         { k:'cip_gen',  t:'Generic CiPs', d:cip('each generic CiP') } ]},
       { g:'In your ePortfolio library', items:[
         { k:'form_r', doc:'form_r', t:'Form R (Part B)', d:'Complete this year’s Form R (Part B) and save a copy in your ePortfolio library.' },
-        { k:'firth',  doc:'firth',  t:'Updated Firth calculator', act:'firth', d:'Bring the Firth calculator up to date with your acute take numbers and upload it to your ePortfolio library. Outcome1 can build it from your acute take entries.' },
+        { k:'logbook', doc:'logbook', t:'Logbook and summaries', s:`Logbook report, ${sp} and GIM summaries`, tools:[['print','Logbook report','logbook'],['file',`${sp} summary`,'sum_spec'],['file','GIM summary','sum_gim']],
+          d:`Add this year’s logbook report and your ${sp} and GIM summaries to your ePortfolio library. Outcome1 makes all three, ready to save as a PDF.` },
+        { k:'cpd',    doc:'cpd',    t:'CPD diary', tools:[['book','CPD diary','cpd']], d:'Add this year’s CPD diary, with your reflections, to your ePortfolio library. Outcome1 makes it, ready to save as a PDF.' },
+        { k:'firth',  doc:'firth',  t:'Updated Firth calculator', tools:[['table','Firth calculator','firth']], d:'Bring the Firth calculator up to date with your acute take numbers and upload it to your ePortfolio library. Outcome1 can build it from your acute take entries.' },
         { k:'cct',    doc:'cct',    t:'CCT calculator', s:'If LTFT or time out of training', optional:true, d:'If you’re less than full time or have had time out of training, update your CCT calculator and upload it to your ePortfolio library.' } ]}
     ];
   }
@@ -8324,8 +8645,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       const all=readyFlat(), it=queue[qi], n=all.findIndex(x=>x.k===it.k)+1;
       card.innerHTML=`<div class="w-sus-k">Ready checklist · Step ${n} of ${all.length}</div>
         <div class="w-rdy-seg" aria-hidden="true">${all.map(x=>`<i class="${readyOn(x)?'on':''}${readyNa(x)?' na':''}${x.k===it.k?' cur':''}"></i>`).join('')}</div>
-        <div class="w-rdy-step"><div class="w-rdy-gk">${safe(it.group)}</div><div class="w-ask-t" id="w-rdy-t">${safe(it.t)}</div><div class="w-ask-s">${safe(it.d)}</div></div>
-        <div class="w-sus-acts"><button class="w-sus-go" data-w="done">Done</button>${it.act==='firth'?'<button class="w-sus-alt" data-act="firth">Open the Firth calculator</button>':''}<button class="w-sus-alt" data-w="skip">Not yet</button>${it.optional?'<button class="w-sus-alt" data-w="na">Doesn’t apply to me</button>':''}</div>
+        <div class="w-rdy-step"><div class="w-rdy-gk">${safe(it.group)}</div><div class="w-ask-t" id="w-rdy-t">${safe(it.t)}</div><div class="w-ask-s">${safe(it.d)}</div>${it.tools?`<div class="w-rdy-tools"><span>Open in Outcome1</span>${it.tools.map(([ic,l,id])=>`<button class="w-rdy-tool" data-tool="${id}">${I(ic,16)}${safe(l)}</button>`).join('')}</div>`:''}</div>
+        <div class="w-sus-acts"><button class="w-sus-go" data-w="done">Done</button><button class="w-sus-alt" data-w="skip">Not yet</button>${it.optional?'<button class="w-sus-alt" data-w="na">Doesn’t apply to me</button>':''}</div>
         <div class="w-rdy-foot"><button class="w-ask-x" data-w="list">See full list</button><button class="w-ask-x" data-x="1">Finish later</button></div>`;
       card.scrollTop=0;
     };
@@ -8337,21 +8658,29 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         <div class="w-rdy-p"><div class="w-su-bar" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="${c.total}" aria-valuenow="${c.done}"><i style="width:${c.done?Math.max(6,Math.round(c.done/c.total*100)):0}%"></i></div><span>${all?`${I('check',16)}All set`:`${c.done} of ${c.total} ready`}</span></div>
         ${readyGroups().map(g=>`<div class="w-rdy-g" style="--i:${i}">${safe(g.g)}</div>`+g.items.map(it=>{
           const on=readyOn(it), na=readyNa(it); i++;
-          const extra=it.act==='firth' ? `<button class="w-rdy-x" data-act="firth">Open</button>`
+          const extra=it.tools ? (it.tools.length===1 ? `<button class="w-rdy-x" data-tool="${it.tools[0][2]}">Open</button>` : `<button class="w-rdy-x" data-open="${it.k}">Open</button>`)
             : it.optional && !on ? `<button class="w-rdy-x" data-na="${it.k}">${na?'It applies':'Not for me'}</button>` : '';
           return `<div class="w-rdy-row${na?' na':''}" style="--i:${i}"><button class="w-rdy-i${on?' on':''}${popKey===it.k?' pop':''}" data-k="${it.k}" aria-pressed="${on}"${na?' disabled':''}><span class="w-rdy-box">${I('check',17)}</span><span class="w-rdy-m"><b>${safe(it.t)}</b>${it.s||na?`<span>${na?'Doesn’t apply to you':safe(it.s)}</span>`:''}</span></button>${extra}</div>`;
         }).join('')).join('')}
-        <div class="w-sus-acts">${all?'<button class="w-sus-go" data-x="1">Done</button>':`<button class="w-sus-go" data-w="start">${r._walked?'Continue walkthrough':'Start walkthrough'}</button>`}</div>${all?'':'<button class="w-ask-x" data-x="1">Close</button>'}`;
+        <div class="w-rdy-ft"><div class="w-sus-acts">${all?'<button class="w-sus-go" data-x="1">Done</button>':`<button class="w-sus-go" data-w="start">${r._walked?'Continue walkthrough':'Start walkthrough'}</button>`}</div>${all?'':'<button class="w-ask-x" data-x="1">Close</button>'}</div>`;
       card.scrollTop=top;
     };
     const draw=popKey=>{ wrap.classList.toggle('walk',mode==='walk'); if(mode==='walk') drawWalk(); else drawList(popKey); };
     const stopAt=()=>{ if(mode==='walk' && queue[qi]){ readyData()._at=queue[qi].k; saveState(); } };   // where "Continue walkthrough" picks up
     const close=()=>{ stopAt(); wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
-    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
+    const onKey=e=>{ if(e.key==='Escape' && !document.getElementById('w-ask')){ e.preventDefault(); e.stopPropagation(); close(); } };
+    // Reports open in a new tab and the checklist stays put, ready for "Done". The Firth calculator lives on the ARCP screen, so that one closes the checklist.
+    const runTool=id=>{
+      if(id==='firth'){ close(); arcpFirthOpen=true; render(); setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'}),80); }
+      else if(id==='sum_spec') wSummary('spec');
+      else if(id==='sum_gim') wSummary('gim');
+      else arcpGenerate(id);   // logbook report, CPD diary
+    };
     wrap.addEventListener('click',e=>{
       if(e.target===wrap || e.target.closest('[data-x]')){ close(); return; }
-      const act=e.target.closest('[data-act]'), w=e.target.closest('[data-w]'), na=e.target.closest('[data-na]'), row=e.target.closest('[data-k]');
-      if(act){ close(); arcpFirthOpen=true; render(); setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'}),80); return; }
+      const tool=e.target.closest('[data-tool]'), open=e.target.closest('[data-open]'), w=e.target.closest('[data-w]'), na=e.target.closest('[data-na]'), row=e.target.closest('[data-k]');
+      if(tool){ runTool(tool.dataset.tool); return; }
+      if(open){ const it=readyFlat().find(x=>x.k===open.dataset.open); if(it){ wrap.classList.remove('intro'); queue=[it]; qi=0; mode='walk'; draw(); try{ card.focus({preventScroll:true}); }catch(err){} } return; }
       if(w){
         const it=queue[qi], how=w.dataset.w;
         if(how==='start'){ wrap.classList.remove('intro'); startWalk(); }
@@ -8380,7 +8709,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   // Opening: the tapped card's colour grows into the section header while the other cards drop away. The header's
   // contents appear with the rest of the screen, the summary card tucked over the "Add…" card; as the colour
   // settles, the summary card slides down to reveal it.
-  // Closing is quieter: Home is already in place and the header simply shrinks back into its card in the stack.
+  // Closing is quick and quiet: Home is already in place and the header's colour snaps back into its card in the stack.
   // The screen itself switches straight away underneath; the movement is drawn on top. Off with Reduce Motion.
   const ANIM_TABS=['arcp','specialty','gim','cpd','logbook','admin'];
   const EASE='cubic-bezier(.2,.8,.2,1)';
@@ -8442,25 +8771,28 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const fromTab=currentTab, head=main().querySelector('.w-head');
     if(animBusy || reduceMotion() || !ANIM_TABS.includes(fromTab) || !head || typeof Element.prototype.animate!=='function') return __wHomeAnim.apply(this,arguments);
     animBusy=true;
-    const hs=shape(head), layer=animLayer(1500);
-    // the header as it looks now, drawn on top; its contents fade straight away so only the colour moves
-    const hc=head.cloneNode(true); hc.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id')); hc.classList.add('w-ghost');
-    hc.style.borderColor=hs.bc; Object.assign(hc.style, frame(hs,{borderRadius:'0px', margin:'0', padding:getComputedStyle(head).padding}));
-    layer.appendChild(hc);
-    let card=null, done=false;
-    const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; layer.remove(); animBusy=false; };
+    const hs=shape(head);
+    let card=null, layer=null, done=false;
+    const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; if(layer) layer.remove(); animBusy=false; };
     try{
       __wHomeAnim.apply(this,arguments); window.scrollTo(0,0);
       card=homeSource(fromTab); if(!card){ finish(); return; }
-      card.style.visibility='hidden';
       const to=shape(card);
-      [...hc.children].forEach(ch=>ch.animate([{opacity:1},{opacity:0}],{duration:80,fill:'forwards'}));
-      const a=hc.animate([frame(hs,{borderRadius:'0px'}),frame(to)],{duration:270,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+      layer=animLayer(1500);
+      // One plain colour block, already the size and shape of the card, starting stretched over where the header
+      // was. Only its transform and opacity move, which the graphics chip does without re-laying anything out,
+      // so the shrink stays smooth on a phone.
+      const g=document.createElement('div'); g.className='w-ghost w-ghost-t';
+      Object.assign(g.style, frame(to), { borderColor:to.bc, transformOrigin:'0 0' });
+      layer.appendChild(g); card.style.visibility='hidden';
+      const sx=hs.r.width/to.r.width, sy=hs.r.height/to.r.height, dx=hs.r.left-to.r.left, dy=hs.r.top-to.r.top;
+      const a=g.animate([{ transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`, borderRadius:'0px', borderColor:'transparent' },
+                         { transform:'none', borderRadius:to.rad, borderColor:to.bc }], { duration:180, easing:'cubic-bezier(.25,.9,.3,1)', fill:'both' });
       a.onfinish=()=>{   // the card takes its place underneath, and the colour block fades off it
         if(card) card.style.visibility='';
-        const f=hc.animate([{opacity:1},{opacity:0}],{duration:90,fill:'forwards'}); f.onfinish=f.oncancel=finish;
+        const f=g.animate([{opacity:1},{opacity:0}],{duration:50,fill:'forwards'}); f.onfinish=f.oncancel=finish;
       };
-      setTimeout(finish,1500);
+      setTimeout(finish,1200);
     }catch(err){ console.warn('[Outcome1] close transition skipped', err); finish(); }
   };
 
@@ -8629,6 +8961,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         <div class="w-kd-f"><label class="w-sus-l" for="w-kd-arcp">${safe(cy)} ARCP</label><input class="input w-sus-in" id="w-kd-arcp" type="date" value="${safe(v||'')}"><div class="w-sus-note" id="w-kd-lock">${lockTxt(v)}</div></div>
         <div class="w-kd-f"><label class="w-sus-l" for="w-kd-als">ALS expiry</label><input class="input w-sus-in" id="w-kd-als" type="date" value="${safe(state.als||'')}"><div class="w-sus-note">Shown on your ARCP card, with a reminder before it runs out.</div></div>
         ${req?`<div class="w-kd-f"><label class="w-sus-l" for="w-kd-sce">SCE exam${named}</label><input class="input w-sus-in" id="w-kd-sce" type="date" value="${safe(state.sceDate||'')}" ${passed?'disabled':''}><label class="w-kd-chk"><input type="checkbox" id="w-kd-passed" ${passed?'checked':''}><span>I’ve already passed it</span></label></div>`:''}
+        <div class="w-kd-f"><label class="w-sus-l" for="w-kd-cct">Expected CCT date</label><input class="input w-sus-in" id="w-kd-cct" type="date" value="${safe(state.profile?.cctDate||'')}"><div class="w-sus-note">Printed on your reports. Leave it blank if you’re not sure yet.</div></div>
       </div>`,
       onOpen:w=>{
         const a=w.querySelector('#w-kd-arcp'), n=w.querySelector('#w-kd-lock'), up=()=>{ n.textContent=lockTxt(a.value); };
@@ -8640,6 +8973,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
             const a=w.querySelector('#w-kd-arcp').value, l=w.querySelector('#w-kd-als').value;
             if(a && a!==v){ state.arcpDates[cy]=a; if(state.arcpAuto) delete state.arcpAuto[cy]; }
             if(l) state.als=l;
+            const c=w.querySelector('#w-kd-cct').value; if(c && state.profile) state.profile.cctDate=c;
             if(req){ const pc=w.querySelector('#w-kd-passed').checked, sd=w.querySelector('#w-kd-sce').value;
               if(pc!==passed) setReqVal('spec_sce', req, pc);
               if(!pc && sd) state.sceDate=sd; }
@@ -8651,7 +8985,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const gone=new Set([...(state.deletedHospitals||[]),...(state.hiddenHospitals||[])]);
     const others=[...new Set([...dean,...(state.hospitals||[])])].filter(h=>h && h!==base && h!=='Other / not listed').sort((a,b)=>a.localeCompare(b));
     const item=(h,on,isBase)=>`<label class="w-sus-chk"><input type="checkbox" value="${safe(h)}" ${on?'checked':''} ${isBase?'disabled':''}><span>${safe(h)}</span>${isBase?'<em>Base</em>':''}</label>`;
-    suSheet({ title:'Hospitals you rotate through', sub:'These fill the hospital box on every entry. Untick the ones you won’t work in.',
+    suSheet({ title:'Hospitals you rotate through', sub:'Untick the ones you won’t work in.',
       body:`<div class="w-sus-tools"><button type="button" class="w-sus-link" data-all="0">Untick all</button><button type="button" class="w-sus-link" data-all="1">Tick all</button></div>
         <div class="w-sus-scroll" id="w-sus-hosp">${base?item(base,true,true):''}${others.map(h=>item(h,!gone.has(h),false)).join('')}</div>
         <div class="w-sus-add"><input class="input" id="w-sus-newh" placeholder="Add another hospital" aria-label="Add another hospital"><button type="button" class="btn small" id="w-sus-addh">Add</button></div>`,
@@ -8711,7 +9045,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     suSheet({ title:'Install on your phone', sub, actions:acts });
   }
   function suImport(){
-    suSheet({ title:'Bring in your old logbook', sub:'Kept your logbook in a spreadsheet? Bring it in so your totals start in the right place. You’ll see a preview before anything is saved.',
+    suSheet({ title:'Bring in your old logbook', sub:'Kept your logbook in a spreadsheet? Bring it in so your totals start in the right place.',
       actions:[ { label:'Import a spreadsheet', primary:true, on:()=>{ suPause(); setTimeout(()=>wImport(),0); } },
                 { label:'Download the template', on:()=>{ wImportTemplate(); return false; } },
                 { label:'I’m starting fresh', on:()=>suMark('import') } ]});
@@ -8720,12 +9054,27 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   function suCompanion(){
     const sp=safe(specCfg().short);
     suSheet({ title:'Your ePortfolio companion',
-      sub:`Outcome1 works alongside your JRCPTB ePortfolio. It keeps track of the ${sp} and GIM requirements from the ARCP decision aid, so you can see what’s left at a glance. When something is done in the ePortfolio, record it here too.`,
-      body:`<div class="w-cmp">
-        <div class="w-cmp-r"><span class="w-cmp-m"><b>${sp} MCRs</b><small>Add 1 each time one is completed</small></span><span class="w-cmp-step" aria-hidden="true"><i>−</i><b>2</b><i>+</i></span></div>
-        <div class="w-cmp-r"><span class="w-cmp-m"><b>Educational Supervisor Report</b><small>Tick it once it’s signed off</small></span><span class="w-cmp-tog" aria-hidden="true">Mark done</span></div>
-        <div class="w-cmp-r"><span class="w-cmp-m"><b>GIM clinics</b><small>Logbook totals count themselves</small></span><span class="w-cmp-auto" aria-hidden="true"><b>12</b> / 20</span></div>
-      </div><p class="w-sus-note">These are on the ${sp} and GIM screens. Your ePortfolio stays the official record; Outcome1 is your running tally.</p>`,
+      sub:`Outcome1 works alongside your JRCPTB ePortfolio. It helps you keep track of the ${sp} and GIM requirements from the ARCP decision aid.`,
+      body:`<div class="w-cmp" aria-hidden="true">
+        <div class="w-cmp-r"><span class="w-cmp-m"><b>${sp} MCRs</b></span><span class="w-cmp-step"><i>−</i><b data-n>2</b><i data-plus>+</i></span></div>
+        <div class="w-cmp-r"><span class="w-cmp-m"><b>Educational Supervisor Report</b></span><span class="w-cmp-tog" data-tog>Mark done</span></div>
+      </div><p class="w-sr">For example: when an MCR is completed in your ePortfolio, add one to the ${sp} MCRs count here. When your Educational Supervisor Report is signed off, mark it done.</p>`,
+      onOpen:w=>{   // act it out on a loop: tap +, the count goes up; tap Mark done, it's done
+        const n=w.querySelector('[data-n]'), plus=w.querySelector('[data-plus]'), tog=w.querySelector('[data-tog]'); if(!n||!plus||!tog) return;
+        const set=(count,done)=>{ n.textContent=count; tog.classList.toggle('on',done); tog.innerHTML=done?`${I('check',15)}Done`:'Mark done'; };
+        if(reduceMotion()){ set(3,true); return; }
+        const tap=el=>{ el.classList.remove('tap'); void el.offsetWidth; el.classList.add('tap'); };
+        const T=[], at=(ms,fn)=>T.push(setTimeout(()=>{ if(w.isConnected) fn(); },ms));
+        const run=()=>{
+          set(2,false);
+          at(900, ()=>tap(plus));
+          at(1150,()=>{ set(3,false); n.classList.remove('bump'); void n.offsetWidth; n.classList.add('bump'); });
+          at(2400,()=>tap(tog));
+          at(2650,()=>set(3,true));
+          at(5600,()=>{ if(w.isConnected) run(); });
+        };
+        run();
+      },
       actions:[ { label:`Show me on the ${sp} screen`, primary:true, on:()=>{ suPause(); suMark('companion'); setTimeout(wShowCounter,60); } },
                 { label:'Got it', on:()=>suMark('companion') } ]});
   }
@@ -8738,11 +9087,11 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   // Teaching and feedback in one step: log a session, then get its QR code
   function suTeach(){
     const list=entries('teaching').slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-    const how=`<ol class="w-sus-how"><li><span><b>Log the session.</b> Date, type, topic and who it was for.</span></li><li><span><b>Get a QR code.</b> Outcome1 offers one as soon as you save, or later from the session in your logbook.</span></li><li><span><b>Attendees give feedback</b> on their phones using the teaching evaluation form. It’s anonymous, with no sign-in, and the answers come back to you.</span></li></ol>`;
+    const how=`<ol class="w-sus-how"><li><span><b>Log the session.</b></span></li><li><span><b>Get a QR code.</b> Outcome1 offers one as soon as you save, or later from the session in your logbook.</span></li><li><span><b>Attendees give feedback</b> on their phones, anonymously.</span></li></ol>`;
     const log={ label:list.length?'Log another session':'Log a teaching session', primary:!list.length, on:()=>{ suPause(); setTimeout(()=>wQuick('teaching','spec'),0); } };
     const flowStep=SG.opening;
     const pick={ label:'Collect feedback on a session', primary:true, on:()=>{ setTimeout(()=>suPickSession(list, flowStep),0); } };
-    suSheet({ title:'Teaching and feedback', sub:'Teaching you give counts towards your portfolio: tutorials, bedside teaching, journal clubs and talks. Outcome1 collects feedback on each session for you.',
+    suSheet({ title:'Teaching and feedback', sub:'Outcome1 collects feedback on each teaching session for you.',
       body:how, actions:list.length?[pick, log, { label:'Not now', on:()=>suLater('teach') }]:[log, { label:'Not now', on:()=>suLater('teach') }] });
   }
   function suPickSession(list, flowStep){
@@ -8814,17 +9163,22 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         <div class="w-hello">
           <div class="w-hello-card" style="--c:var(--c-spec)"><span class="w-hello-k">${safe(cy)} · ${safe(specCfg().label||sp)} and GIM</span><h2 id="w-hello-t">Welcome${nm?`, ${safe(nm)}`:''}</h2><p>Your portfolio is ready to use.</p></div>
           <dl class="w-hello-facts">${facts.map(([k,v])=>`<div><dt>${safe(k)}</dt><dd>${safe(v)}</dd></div>`).join('')}</dl>
-          <div class="w-hello-next"><b>Next, a quick setup</b><p>${n} short steps, about 3 minutes: your key dates, hospitals, your old logbook and more. Stop whenever you like, and Continue setup on Home picks up where you left off.</p></div>
+          <div class="w-hello-next"><b>Next, a quick setup</b><p>${n} short steps, about 3 minutes.</p></div>
         </div>
         <div class="w-wel-foot hello"><button class="w-wel-next" data-start="1">Start setup${I('chev',20)}</button><button class="w-wel-alt" data-look="1">I’ll look around first</button></div>`;
       el.setAttribute('aria-labelledby','w-hello-t'); el.removeAttribute('aria-label');
       try{ el.querySelector('[data-start]').focus({preventScroll:true}); }catch(e){}
     };
     const close=start=>{
-      el.remove(); document.removeEventListener('keydown',onKey,true);
+      document.removeEventListener('keydown',onKey,true);
       if(state.setup && !state.setup.welcomed){ state.setup.welcomed=true; saveState(); }
       if(currentTab!=='home') setTab('home'); else render();
-      if(start) setTimeout(()=>{ if(state.setup && !state.setup.completedAt && !state.setup.dismissed) suStartFlow(); },250);
+      if(!start || reduceMotion()){ el.remove(); if(start && state.setup && !state.setup.completedAt && !state.setup.dismissed) suStartFlow(); return; }
+      // the first step opens underneath while the welcome page fades off it
+      el.style.pointerEvents='none';
+      if(state.setup && !state.setup.completedAt && !state.setup.dismissed) suStartFlow();
+      const a=el.animate([{opacity:1},{opacity:0}],{duration:260,easing:'ease-out',fill:'forwards'});
+      a.onfinish=a.oncancel=()=>el.remove(); setTimeout(()=>el.remove(),600);
     };
     const onKey=e=>{
       const f=[...el.querySelectorAll('button')].filter(b=>b.style.visibility!=='hidden');
