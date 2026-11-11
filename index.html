@@ -1362,6 +1362,45 @@ body.focus .w-su-bar{border-color:var(--line-strong)}
 .w-wel-alt{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;font:700 16px var(--font);color:var(--dim);padding:13px}
 .w-wel-alt:hover{color:var(--text)}
 .w-wel-alt:focus-visible{outline:3px solid var(--text);outline-offset:2px;border-radius:12px}
+/* ARCP ready checklist */
+.w-rdy .w-ask-card{max-width:460px}
+.w-rdy .w-sus-acts{margin-top:16px}
+.w-rdy-p{display:flex;align-items:center;gap:12px;margin:16px 0 2px}
+.w-rdy-p .w-su-bar{flex:1;margin:0}
+.w-rdy-p>span{flex:none;display:inline-flex;align-items:center;gap:5px;font:700 14.5px var(--font);color:var(--text)}
+.w-rdy-g{font:700 12.5px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:16px 0 2px}
+.w-rdy-row{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.w-rdy-i{all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:flex;align-items:center;gap:13px;padding:9px 0;border-radius:12px}
+.w-rdy-i[disabled]{cursor:default}
+.w-rdy-i:focus-visible,.w-rdy-x:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.w-rdy-box{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--line-strong);box-sizing:border-box;display:grid;place-items:center;color:transparent;transition:background .18s,border-color .18s}
+.w-rdy-i.on .w-rdy-box{background:var(--ink);border-color:var(--ink);color:var(--ink-fg)}
+.w-rdy-i.pop .w-rdy-box{animation:wRdyPop .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes wRdyPop{0%{transform:scale(.6)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
+.w-rdy-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.w-rdy-m b{font:700 16.5px/1.25 var(--font);letter-spacing:-.01em}
+.w-rdy-m span{font:500 14px/1.3 var(--font);color:var(--dim)}
+.w-rdy-i.on .w-rdy-m b{color:var(--dim)}
+.w-rdy-row.na .w-rdy-m b{color:var(--dim);text-decoration:line-through}
+.w-rdy-row.na .w-rdy-box{border-style:dashed}
+.w-rdy-x{all:unset;box-sizing:border-box;cursor:pointer;flex:none;font:700 13.5px var(--font);color:var(--text);border:1.5px solid var(--line-strong);border-radius:99px;padding:8px 13px;white-space:nowrap}
+.w-rdy-x:hover{border-color:var(--text)}
+/* walkthrough: one item at a time */
+.w-rdy-seg{display:flex;gap:5px;margin:4px 0 18px}
+.w-rdy-seg i{flex:1;height:6px;border-radius:99px;background:var(--bg4)}
+.w-rdy-seg i.on{background:var(--text)}
+.w-rdy-seg i.na{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line-strong)}
+.w-rdy-seg i.cur{background:var(--c-quick);box-shadow:0 0 0 1.5px var(--text)}
+.w-rdy-step{min-height:136px;animation:wvUp .32s cubic-bezier(.2,.8,.2,1) both}
+.w-rdy-gk{display:inline-block;font:700 13px var(--font);color:var(--text);background:var(--bg4);border-radius:99px;padding:5px 12px;margin-bottom:12px}
+.w-rdy-step .w-ask-t{font-size:29px}
+.w-rdy-step .w-ask-s{font-size:16.5px;line-height:1.45;margin-top:10px}
+.w-rdy.walk .w-sus-acts{margin-top:14px}
+.w-rdy-foot{display:flex;gap:6px;margin-top:6px}
+.w-rdy-foot .w-ask-x{flex:1;width:auto;margin-top:0}
+@media (prefers-reduced-motion:reduce){.w-rdy-step{animation:none}}
+.w-rdy.intro .w-rdy-g,.w-rdy.intro .w-rdy-row{animation:wvUp .42s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 38ms + 80ms)}
+@media (prefers-reduced-motion:reduce){.w-rdy.intro .w-rdy-g,.w-rdy.intro .w-rdy-row,.w-rdy-i.pop .w-rdy-box{animation:none}}
 /* Setup card: pick the guided setup up where it stopped */
 .w-su-go{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;margin:14px 0 6px;background:var(--ink);color:var(--ink-fg);border-radius:999px;padding:11px 14px 11px 22px}
 .w-su-go-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
@@ -6711,6 +6750,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',
     reset:'<path d="M4 12a8 8 0 108-8M4 4v5h5"/>', door:'<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/>',
     list:'<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>',
+    ticks:'<path d="M3.5 6.5l1.6 1.6L8 5.2M3.5 12.5l1.6 1.6L8 11.2M3.5 18.5l1.6 1.6L8 17.2M12 6.5h8.5M12 12.5h8.5M12 18.5h8.5"/>',
     file:'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>'
   };
   const I = (name, s=22) => `<svg class="w-i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[name]||''}</svg>`;
@@ -7543,7 +7583,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     prepend(head({ title:'ARCP', color:'var(--c-arcp)', dark:true, kicker:`Panel · ${panelLong}`, big:String(Math.max(0,p.days)), unit:p.days===1?' day':' days',
       sub:`${p.lockTxt} · ${yearPct()}% of ${currentYear} gone`,
       tab:{icon:'flag', label:`Next: ${nx.title}`, right:arcpFmt(nx.date), on:"wScroll('w-countdown')"},
-      acts:[['table','Firth',"arcpGenerate('firth')"],['print','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['plus','Add doc','arcpAddDoc()']] }));
+      acts:[['table','Firth',"arcpGenerate('firth')"],['print','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['ticks','Checklist','wReady()']] }));
     }
     const ns=needsSection(); if(ns) main().querySelector('.w-head')?.insertAdjacentHTML('afterend', ns);
     if(tl) append(`<section class="z-sec" style="padding-top:88px"><div class="arcp-sec-head"><div><h2 class="arcp-h2">Road to CCT</h2><span class="z-script">${YEARS[0]} to ${YEARS[YEARS.length-1]}</span></div></div>${tl}</section>`);
@@ -7551,7 +7591,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   function renderAdminScreen(){
     const pr=state.profile||{}, sp=specCfg(), dark=document.body.classList.contains('focus');
     O.admin();
-    prepend(head({ title:'Account', color:'var(--c-admin)', kicker:window.ARCP_FB?.user?.email||pr.email||'Profile', big:pr.name||'Your profile', bigText:true,
+    prepend(head({ title:'Account', color:'var(--c-admin)', dark, kicker:window.ARCP_FB?.user?.email||pr.email||'Profile', big:pr.name||'Your profile', bigText:true,
       sub:`${safe(sp.label)} + GIM · ${safe(pr.deanery||'')}${pr.baseHospital?' · '+safe(pr.baseHospital):''}`,
       acts:[['sliders','Profile','openSettings()'],['moon',dark?'Light':'Dark','toggleFocus();render()'],['dl','Excel','exportLogbook()'],['print','Report','showPrintStylePicker()']] }));
     const row=(ic,t,s,on,btn,danger)=>`<div class="w-row"><span class="w-tile">${I(ic,22)}</span><span class="w-row-m"><span class="w-row-t">${t}</span><span class="w-row-s">${s}</span></span><span class="w-row-r"><button class="btn small ${danger?'danger':''}" onclick="${on}">${btn}</button></span></div>`;
@@ -8226,6 +8266,115 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   window.render=function(){ try{ wRenameHospital(); }catch(e){} const r=__renderFb.apply(this,arguments); try{ wWatchFeedback(); }catch(e){} return r; };
   ['firebase-signed-in','firebase-load'].forEach(ev=>window.addEventListener(ev, ()=>setTimeout(()=>{ try{ wWatchFeedback(); }catch(e){} },800)));
   window.addEventListener('firebase-signed-out', ()=>{ fbWatch.forEach(off=>{ try{ off(); }catch(e){} }); fbWatch.clear(); });
+
+  // ═══ ARCP ready checklist: the last things to line up before the panel ═══
+  // Opens from the ARCP screen as a walkthrough, one item at a time. After that (or after "Finish later") it
+  // opens as the full list, with a button that carries the walkthrough on from where it stopped.
+  // Ticks are kept per training year. The three library items share their state with "Upload to your
+  // portfolio" further down the ARCP screen, so they never disagree.
+  function readyGroups(){
+    const sp=specCfg().short, y=currentYear;
+    const cip=what=>`Rate yourself against ${what} on your ePortfolio, then ask your educational supervisor to add their ratings.`;
+    return [
+      { g:'Educational supervisor reports', items:[
+        { k:'es_spec', t:`ES report: ${sp}`, d:`Your educational supervisor’s ${sp} report for ${y}, completed on your ePortfolio. Book the meeting in good time so it’s there before the portfolio locks.` },
+        { k:'es_gim',  t:'ES report: GIM', d:`Your educational supervisor’s GIM report for ${y}, completed on your ePortfolio.` } ]},
+      { g:'CiPs rated by you and your ES', items:[
+        { k:'cip_spec', t:`${sp} CiPs`, d:cip(`each ${sp} specialty CiP`) },
+        { k:'cip_gim',  t:'GIM CiPs', d:cip('each GIM clinical CiP') },
+        { k:'cip_gen',  t:'Generic CiPs', d:cip('each generic CiP') } ]},
+      { g:'In your ePortfolio library', items:[
+        { k:'form_r', doc:'form_r', t:'Form R (Part B)', d:'Complete this year’s Form R (Part B) and save a copy in your ePortfolio library.' },
+        { k:'firth',  doc:'firth',  t:'Updated Firth calculator', act:'firth', d:'Bring the Firth calculator up to date with your acute take numbers and upload it to your ePortfolio library. Outcome1 can build it from your acute take entries.' },
+        { k:'cct',    doc:'cct',    t:'CCT calculator', s:'If LTFT or time out of training', optional:true, d:'If you’re less than full time or have had time out of training, update your CCT calculator and upload it to your ePortfolio library.' } ]}
+    ];
+  }
+  function readyData(){ const y=arcpData(); y.ready=y.ready||{}; return y.ready; }
+  const readyOn = it => it.doc ? arcpDocState(it.doc).status==='up' : !!readyData()[it.k];
+  const readyNa = it => !!it.optional && !!readyData()[it.k+'_na'] && !readyOn(it);
+  const readyFlat = () => readyGroups().flatMap(g=>g.items.map(it=>Object.assign({group:g.g}, it)));
+  function readyCount(){
+    const all=readyFlat().filter(it=>!readyNa(it));
+    return { done:all.filter(readyOn).length, total:all.length };
+  }
+  window.wReady = function(opts){
+    opts=opts||{};
+    document.getElementById('w-ready')?.remove();
+    const prev=document.activeElement, p=panelInfo();
+    const wrap=document.createElement('div'); wrap.id='w-ready'; wrap.className='w-ask w-su-sheet w-rdy';
+    wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-rdy-t" tabindex="-1"></div>`;
+    const card=wrap.firstElementChild;
+    const left=()=>readyFlat().filter(it=>!readyOn(it) && !readyNa(it));
+    let mode='list', queue=[], qi=0;
+    const setOn=(it,on)=>{
+      if(readyOn(it)===on) return;
+      if(it.doc) arcpToggleUploaded(it.doc);   // same state as "Upload to your portfolio"; saves and redraws the screen
+      else { const r=readyData(); if(on) r[it.k]=arcpToday(); else delete r[it.k]; saveState(); }
+    };
+    // Walkthrough: what's left, starting from where it stopped last time
+    const startWalk=()=>{
+      const all=readyFlat(), open=left(), r=readyData(); if(!open.length){ showList(); return; }
+      const pos=k=>all.findIndex(x=>x.k===k), from=r._at?pos(r._at):-1;
+      queue = from>0 ? open.filter(x=>pos(x.k)>=from).concat(open.filter(x=>pos(x.k)<from)) : open;
+      qi=0; mode='walk'; r._walked=true; delete r._at; saveState(); draw();
+    };
+    const showList=()=>{ mode='list'; wrap.classList.add('intro'); draw(); };
+    const next=()=>{ qi++; if(qi>=queue.length) showList(); else draw(); };
+    const drawWalk=()=>{
+      const all=readyFlat(), it=queue[qi], n=all.findIndex(x=>x.k===it.k)+1;
+      card.innerHTML=`<div class="w-sus-k">Ready checklist · Step ${n} of ${all.length}</div>
+        <div class="w-rdy-seg" aria-hidden="true">${all.map(x=>`<i class="${readyOn(x)?'on':''}${readyNa(x)?' na':''}${x.k===it.k?' cur':''}"></i>`).join('')}</div>
+        <div class="w-rdy-step"><div class="w-rdy-gk">${safe(it.group)}</div><div class="w-ask-t" id="w-rdy-t">${safe(it.t)}</div><div class="w-ask-s">${safe(it.d)}</div></div>
+        <div class="w-sus-acts"><button class="w-sus-go" data-w="done">Done</button>${it.act==='firth'?'<button class="w-sus-alt" data-act="firth">Open the Firth calculator</button>':''}<button class="w-sus-alt" data-w="skip">Not yet</button>${it.optional?'<button class="w-sus-alt" data-w="na">Doesn’t apply to me</button>':''}</div>
+        <div class="w-rdy-foot"><button class="w-ask-x" data-w="list">See full list</button><button class="w-ask-x" data-x="1">Finish later</button></div>`;
+      card.scrollTop=0;
+    };
+    const drawList=popKey=>{
+      const top=card.scrollTop, c=readyCount(), all=c.done===c.total, r=readyData(); let i=0;
+      card.innerHTML=`<div class="w-sus-k">${safe(currentYear)} · ${safe(p.lockTxt)}</div>
+        <div class="w-ask-t" id="w-rdy-t">ARCP ready checklist</div>
+        <div class="w-ask-s">${all?'Everything on the list is ready for your ARCP.':'Tick these off as you get ready for your ARCP. The list starts fresh each training year.'}</div>
+        <div class="w-rdy-p"><div class="w-su-bar" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="${c.total}" aria-valuenow="${c.done}"><i style="width:${c.done?Math.max(6,Math.round(c.done/c.total*100)):0}%"></i></div><span>${all?`${I('check',16)}All set`:`${c.done} of ${c.total} ready`}</span></div>
+        ${readyGroups().map(g=>`<div class="w-rdy-g" style="--i:${i}">${safe(g.g)}</div>`+g.items.map(it=>{
+          const on=readyOn(it), na=readyNa(it); i++;
+          const extra=it.act==='firth' ? `<button class="w-rdy-x" data-act="firth">Open</button>`
+            : it.optional && !on ? `<button class="w-rdy-x" data-na="${it.k}">${na?'It applies':'Not for me'}</button>` : '';
+          return `<div class="w-rdy-row${na?' na':''}" style="--i:${i}"><button class="w-rdy-i${on?' on':''}${popKey===it.k?' pop':''}" data-k="${it.k}" aria-pressed="${on}"${na?' disabled':''}><span class="w-rdy-box">${I('check',17)}</span><span class="w-rdy-m"><b>${safe(it.t)}</b>${it.s||na?`<span>${na?'Doesn’t apply to you':safe(it.s)}</span>`:''}</span></button>${extra}</div>`;
+        }).join('')).join('')}
+        <div class="w-sus-acts">${all?'<button class="w-sus-go" data-x="1">Done</button>':`<button class="w-sus-go" data-w="start">${r._walked?'Continue walkthrough':'Start walkthrough'}</button>`}</div>${all?'':'<button class="w-ask-x" data-x="1">Close</button>'}`;
+      card.scrollTop=top;
+    };
+    const draw=popKey=>{ wrap.classList.toggle('walk',mode==='walk'); if(mode==='walk') drawWalk(); else drawList(popKey); };
+    const stopAt=()=>{ if(mode==='walk' && queue[qi]){ readyData()._at=queue[qi].k; saveState(); } };   // where "Continue walkthrough" picks up
+    const close=()=>{ stopAt(); wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
+    wrap.addEventListener('click',e=>{
+      if(e.target===wrap || e.target.closest('[data-x]')){ close(); return; }
+      const act=e.target.closest('[data-act]'), w=e.target.closest('[data-w]'), na=e.target.closest('[data-na]'), row=e.target.closest('[data-k]');
+      if(act){ close(); arcpFirthOpen=true; render(); setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'}),80); return; }
+      if(w){
+        const it=queue[qi], how=w.dataset.w;
+        if(how==='start'){ wrap.classList.remove('intro'); startWalk(); }
+        else if(how==='list'){ stopAt(); showList(); }
+        else if(how==='done'){ setOn(it,true); next(); }
+        else if(how==='na'){ readyData()[it.k+'_na']=true; saveState(); next(); }
+        else next();
+        try{ card.focus({preventScroll:true}); }catch(err){}
+        return;
+      }
+      wrap.classList.remove('intro');
+      if(na){ const r=readyData(), k=na.dataset.na+'_na'; if(r[k]) delete r[k]; else r[k]=true; saveState(); draw(); return; }
+      if(!row) return;
+      const it=readyFlat().find(x=>x.k===row.dataset.k); if(!it) return;
+      const was=readyOn(it); setOn(it,!was); draw(was?null:it.k);
+      try{ card.querySelector(`[data-k="${it.k}"]`)?.focus({preventScroll:true}); }catch(err){}
+    });
+    document.addEventListener('keydown',onKey,true);
+    document.body.appendChild(wrap);
+    // First time this training year it plays as a walkthrough; after that it opens as the list
+    if(!opts.list && !readyData()._walked && left().length) startWalk(); else showList();
+    try{ card.focus({preventScroll:true}); }catch(e){}
+  };
 
   // ═══ Card ↔ section transition ═══
   // Opening: the tapped card's colour grows into the section header while the other cards drop away. The header's
