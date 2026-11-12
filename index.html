@@ -7060,7 +7060,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     KINDS.forEach(k=>(state.logbook?.[k]||[]).forEach(e=>{ const t=Number(e.createdAt||e.id||0); if(e && (!best || t>best.t)) best={k,e,t}; }));
     if(!best) return null;
     const {k,e}=best, sp=specCfg().short, sc=e.scope==='gim'?'GIM':sp;
-    const what={ clinics:`${sc} clinic`, procedures:normProcName(e.type||'Procedure'), cpd:e.title||e.type||'CPD', simulation:e.title||e.course||'Simulation', teaching:e.topic||e.type||'Teaching' }[k]||'Entry';
+    const what={ clinics:`${sc} clinic`, procedures:`${sc} procedure`, cpd:`${sc} CPD`, simulation:'Sim', teaching:'Teach' }[k]||'Entry';   // short, so the pill fits
     const d=/^\d{4}-\d{2}-\d{2}/.test(String(e.date||'')) ? new Date(String(e.date).slice(0,10)+'T00:00:00') : null;
     const diff=d?Math.round((today0()-d)/DAY):null;
     const when=!d?'' : diff===0 ? 'today' : diff===1 ? 'yesterday' : d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
@@ -7138,7 +7138,12 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         </aside>
       </div>
     </div>`;
-    wQSync();
+    wQSync(); qlFitPill();
+  }
+  // "Renal procedure" doesn't fit beside the title on narrower phones: shorten to "Renal proc" only when it overflows
+  function qlFitPill(){
+    const sp=document.querySelector('.w-qcard .w-qlast > span'); if(!sp) return;
+    if(sp.scrollWidth>sp.clientWidth+1) sp.textContent=sp.textContent.replace(/procedure/,'proc');
   }
   window.wQSync = function(){
     const t=document.getElementById('w-qtype')?.value, s=document.getElementById('w-qscope')?.value;
