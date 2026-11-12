@@ -1711,6 +1711,59 @@ body.w-cont-on .w-toast{bottom:calc(max(14px,env(safe-area-inset-bottom)) + 74px
 .w-ghost-t{will-change:transform,opacity}
 /* ARCP › Upload to your portfolio: no status pill; the button already says whether it's uploaded */
 @media (min-width:761px){.arcp-doc{grid-template-columns:minmax(0,1fr) 150px 270px}}
+
+/* iPhone: an empty date box collapses to a thin strip. Hold it at the height of every other field. */
+input.input[type=date],input.input[type=time],input.input[type=month],input.input[type=datetime-local]{box-sizing:border-box;min-height:calc(1.3em + 26px)}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value,input[type=month]::-webkit-date-and-time-value,input[type=datetime-local]::-webkit-date-and-time-value{min-height:1.3em;text-align:left}
+
+/* Setup: teaching feedback demo (session -> Feedback -> QR -> responses) */
+.w-tfd .w-cmp-tog svg{flex:none}
+.w-tfd[data-s="1"] .w-cmp-tog,.w-tfd[data-s="2"] .w-cmp-tog,.w-tfd[data-s="3"] .w-cmp-tog{background:var(--ink);color:var(--ink-fg);border-color:var(--ink)}
+.w-tfd-p{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1)}
+.w-tfd[data-s="2"] .w-tfd-p,.w-tfd[data-s="3"] .w-tfd-p{grid-template-rows:1fr}
+.w-tfd-in{overflow:hidden;min-height:0;display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:center}
+.w-tfd-qr{margin:2px 0 14px;width:96px;height:96px;border-radius:12px;background:#fff;padding:8px;border:1px solid var(--line);opacity:0;transform:scale(.86);transition:opacity .35s .1s,transform .45s .1s cubic-bezier(.2,.8,.2,1)}
+.w-tfd-qr svg{display:block;width:100%;height:100%;fill:#1E1E1E}
+.w-tfd[data-s="2"] .w-tfd-qr,.w-tfd[data-s="3"] .w-tfd-qr{opacity:1;transform:none}
+.w-tfd-res{display:grid;gap:3px;min-width:0;padding-bottom:12px}
+.w-tfd-res>span{font:600 14px/1.3 var(--font);color:var(--dim);transition:opacity .3s}
+.w-tfd-scan{color:var(--text)!important;font-weight:700!important}
+.w-tfd-n b{font:800 20px var(--font);color:var(--text);display:inline-block}
+.w-tfd-n b.bump{animation:wCmpBump .3s cubic-bezier(.2,.8,.2,1)}
+.w-tfd-st{color:var(--text)!important;letter-spacing:1px}.w-tfd-st i{font-style:normal;font-weight:800;letter-spacing:0;margin-left:4px}
+.w-tfd-q{font-style:italic}
+.w-tfd-n,.w-tfd-st,.w-tfd-q{opacity:0}
+.w-tfd[data-s="3"] .w-tfd-n{opacity:1}
+.w-tfd[data-s="3"] .w-tfd-st{opacity:1;transition-delay:1.5s}
+.w-tfd[data-s="3"] .w-tfd-q{opacity:1;transition-delay:1.9s}
+.w-tfd[data-s="3"] .w-tfd-scan{opacity:.45}
+.w-tfd-cap{margin:12px 2px 0;font:600 14.5px/1.4 var(--font);color:var(--text);min-height:2.8em}
+
+/* ARCP deck visuals + the checklist card on Home */
+.w-rv-flow{display:flex;align-items:center;gap:8px;width:min(340px,84vw)}
+.w-rv-box{flex:1;min-width:0;background:var(--c);color:#1E1E1E;border:2px solid #1E1E1E;border-radius:24px;padding:22px 14px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box}
+.w-rv-box.dk{color:#F4F3EE}
+.w-rv-box b{font:800 21px/1 var(--font);letter-spacing:-.035em}
+.w-rv-box small{font:600 13px/1.3 var(--font);opacity:.85}
+.w-rv-arrow{flex:none;color:var(--text);display:grid;place-items:center}
+.w-rv-card{width:min(300px,76vw);background:var(--bg2);color:var(--text);border:2px solid var(--line-ink);border-radius:28px;padding:10px 20px;box-sizing:border-box;display:flex;flex-direction:column}
+.w-rv-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line);font:700 16.5px/1.2 var(--font)}
+.w-rv-row:first-child{border-top:0}
+.w-rv-row i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#1E1E1E;border:2px solid #1E1E1E;box-sizing:border-box}
+.w-rv-card.lib{padding:20px}
+.w-rv-lk{font:800 24px/1 var(--font);letter-spacing:-.04em}
+.w-rv-card.lib .w-wv-docs{margin-top:16px}
+.w-rv-card.lib .w-wv-docs i:nth-child(4){background:var(--c-gim)}.w-rv-card.lib .w-wv-docs i:nth-child(5){background:var(--c-log)}
+#w-ready-intro .w-wel-next{padding-left:24px;font-size:17px}
+
+/* Quick log v2: I did a | For on one row, Log entry right under them */
+.w-qv2 .w-qgrid{display:flex;align-items:flex-end;gap:10px;margin-top:22px}
+.w-qv2 .w-qcol{flex:0 1 auto;min-width:0}
+.w-qv2 .w-qlabel{margin:0 0 9px;font-size:17px}
+.w-qv2 .w-sel{width:100%;max-width:none;font-size:17px;padding:13px 32px 13px 14px;background-position:right 11px center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.w-qv2 .w-go{margin-top:20px}
+@media (max-width:379px){.w-qv2 .w-sel{font-size:16px;padding:12px 29px 12px 13px;background-position:right 9px center}.w-qv2 .w-qgrid{gap:8px}}
+@media (max-width:339px){.w-qv2 .w-qgrid{flex-wrap:wrap}}
 </style>
 
 </head>
@@ -1945,7 +1998,7 @@ const GIM_REQS = {
   gim_survey:{label:"Patient Survey",type:"checkbox",deadline:"ST5",note:"Completed by the ST5 specialty patient survey — no separate GIM survey needed",linkedFrom:"spec_survey_st5"},
   gim_teaching:{label:"Teaching observation",type:"checkbox",deadline:"ST7",note:"Shared evidence accepted"}
 };
-const GIM_LOGBOOK = { clinics:["GIM outpatient clinic","Medical SDEC","Community clinic","Other"], procedures:["Advanced CPR","DC cardioversion","Temporary cardiac pacing","Central venous cannulation","Femoral / IO access","Pleural aspiration","Intercostal drain","NG tube","Ascitic tap","Abdominal paracentesis","Lumbar puncture","Other"], cpd:["Regional GIM training day","RCP / RSM / BMA approved course","Online CPD","Grand round","Departmental teaching","Journal club","Other external CPD","Other"] };
+const GIM_LOGBOOK = { clinics:["Specialty clinic","Medical SDEC"], procedures:["Advanced CPR","DC cardioversion","Temporary cardiac pacing","Central venous cannulation","Femoral / IO access","Pleural aspiration","Intercostal drain","NG tube","Ascitic tap","Abdominal paracentesis","Lumbar puncture","Other"], cpd:["Regional GIM training day","RCP / RSM / BMA approved course","Online CPD","Grand round","Departmental teaching","Journal club","Other external CPD","Other"] };
 
 const CPD_DIARY_TYPES = [
   "Course / workshop","Conference","E-learning / online module","Journal club",
@@ -3781,8 +3834,8 @@ function addEntry(k, data){ if(yearLocked()) return alert('This year is locked. 
 function deleteEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); if(!confirm('Delete this entry?')) return; state.tombstones=state.tombstones||{}; state.tombstones[k]=state.tombstones[k]||{}; state.tombstones[k][String(id)]=Date.now(); saveEntries(k, entries(k).filter(e=>e.id!==id)); render(); }
 function editEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); const arr=entries(k); const idx=arr.findIndex(e=>e.id===id); if(idx<0) return; const e=arr[idx]; if(!canEditEntry(e)) return alert('Editing closes 7 days after an entry is added. You can still delete it.'); const editable=Object.keys(e).filter(x=>!['id','createdAt','updatedAt'].includes(x)); for(const field of editable){ const current=e[field]??''; const next=prompt(`Edit ${field}`, current); if(next===null) return; e[field]=next; } e.updatedAt=Date.now(); arr[idx]=e; saveEntries(k,arr); render(); }
 function logSummaryCards(items){ return `<div class="summary-grid" style="margin-bottom:16px;">${items.map(it=>`<div class="summary"><div class="big ${it.cls||'primary'}">${it.value}</div><div class="hint">${it.label}</div></div>`).join('')}</div>`; }
-function otherClinicControl(id, list){ return `<select class="input" id="${id}" onchange="document.getElementById('${id}-other-wrap').style.display=this.value==='Other'?'flex':'none'">${optionsHtml(list)}</select><div class="field" id="${id}-other-wrap" style="display:none;margin-top:6px"><label>Specify clinic type</label><input class="input" id="${id}-other" placeholder="Type clinic name"></div>`; }
-function clinicTypeValue(id){ const v=val(id); return v==='Other' ? val(id+'-other') : v; }
+function otherClinicControl(id, list){ const sc=list[0]==='Specialty clinic'; return `<select class="input" id="${id}" onchange="document.getElementById('${id}-other-wrap').style.display=(this.value==='Other'||this.value==='Specialty clinic')?'flex':'none'">${optionsHtml(list)}</select><div class="field" id="${id}-other-wrap" style="display:${sc?'flex':'none'};margin-top:6px"><label>${sc?'Clinic name':'Specify clinic type'}</label><input class="input" id="${id}-other" placeholder="Type clinic name"></div>`; }
+function clinicTypeValue(id){ const v=val(id); if(v==='Specialty clinic'){ const n=String(val(id+'-other')||'').trim(); return n ? (/clinic/i.test(n)?n:n+' clinic') : v; } return v==='Other' ? val(id+'-other') : v; }
 function renderLogClinics(){
   const sp=specCfg();
   const specEntriesAll=entries('clinics').filter(e=>e.scope!=='gim');
@@ -7079,14 +7132,14 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const logN=KINDS.reduce((a,k)=>a+yearEntries(k).length,0);
     const card=(tab,c,l,lsub,r,rsub,dark,lp,rp)=>`<div class="w-card ${dark?'dark':''}" style="--c:${c}"><button class="w-cardlink" aria-label="Open ${l}" onclick="wOpenCard(this,'${tab}')"></button><span class="l"><span class="w-lrow"><b>${l}</b>${lp||''}</span>${lsub?`<small>${lsub}</small>`:''}</span><span class="r"><span class="w-rrow"><b>${r}</b>${rp||''}</span><small>${rsub}</small></span></div>`;
     const ql=qlLoad(), qt=KINDS.includes(ql.type)?ql.type:'clinics', qs=ql.scope==='gim'?'gim':'spec';
-    const tOpts=[['clinics','Clinic'],['procedures','Procedure'],['cpd','CPD session'],['simulation','Simulation'],['teaching','Teaching session']].map(([v,l])=>`<option value="${v}" ${v===qt?'selected':''}>${l}</option>`).join('');
+    const tOpts=[['clinics','Clinic'],['procedures','Procedure'],['cpd','CPD'],['simulation','Simulation'],['teaching','Teaching']].map(([v,l])=>`<option value="${v}" ${v===qt?'selected':''}>${l}</option>`).join('');
     const last=qlLast();
-    const front=`<div class="w-card w-front w-qcard" style="--c:var(--c-quick)">
+    const front=`<div class="w-card w-front w-qcard w-qv2" style="--c:var(--c-quick)">
       <div class="w-qhead"><span class="w-qt">Quick log</span>${last?`<button class="w-lock w-qlast" onclick="wEntry('${last.k}','${last.id}')" aria-label="Last entry: ${safe(last.txt.replace(/^Last: /,''))}. Open it" title="Your last entry">${I('reset',15)}<span>${safe(last.txt.replace(/^Last: /,''))}</span></button>`:`<span class="w-lock w-qlast none"><span>Nothing logged yet</span></span>`}</div>
-      <label class="w-qlabel" for="w-qtype">I did a</label>
-      <div class="w-qrow"><select id="w-qtype" class="w-sel" onchange="wQSync()">${tOpts}</select><span class="w-qbig">Today</span></div>
-      <div id="w-qscope-wrap"><label class="w-qlabel" for="w-qscope">For</label>
-      <div class="w-qrow"><select id="w-qscope" class="w-sel" onchange="wQSync()"><option value="spec" ${qs==='spec'?'selected':''}>${safe(sp.short)}</option><option value="gim" ${qs==='gim'?'selected':''}>GIM</option></select><button class="w-qnew" onclick="wQuickGo(this)" aria-label="New entry"><span class="w-qplus">${I('plus',28)}</span><span>New entry</span></button></div></div>
+      <div class="w-qgrid">
+        <div class="w-qcol"><label class="w-qlabel" for="w-qtype">I did a</label><select id="w-qtype" class="w-sel" onchange="wQSync()">${tOpts}</select></div>
+        <div class="w-qcol" id="w-qscope-wrap"><label class="w-qlabel" for="w-qscope">For</label><select id="w-qscope" class="w-sel" onchange="wQSync()"><option value="spec" ${qs==='spec'?'selected':''}>${safe(sp.short)}</option><option value="gim" ${qs==='gim'?'selected':''}>GIM</option></select></div>
+      </div>
       <button class="w-go" onclick="wQuickGo(this)">Log entry</button>
     </div>`;
     const stack=
@@ -7133,7 +7186,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         </div>
       </div>
       <div class="w-homegrid">
-        <div>${setupCardHTML()}<div class="w-stack">${stack}</div><div class="w-foot"><b>● ${safe(sync)}</b> · ${safe(sp.label)} + GIM · ${safe(state.profile?.deanery||'')}</div></div>
+        <div>${setupCardHTML()}${readyCardHTML()}<div class="w-stack">${stack}</div><div class="w-foot"><b>● ${safe(sync)}</b> · ${safe(sp.label)} + GIM · ${safe(state.profile?.deanery||'')}</div></div>
         <aside class="w-side">
           <div class="w-h2">Still to close <small>${yearLocked()?(outcome()?`${currentYear} · Outcome ${outcome()}`:`${currentYear} locked`):`${open.length} open in ${currentYear}`}</small></div>
           <div class="w-list">${openRows}</div>
@@ -7152,7 +7205,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   window.wQSync = function(){
     const t=document.getElementById('w-qtype')?.value, s=document.getElementById('w-qscope')?.value;
     const wrap=document.getElementById('w-qscope-wrap'); if(wrap) wrap.style.display=(t==='simulation'||t==='teaching')?'none':'';
-    const nw=document.querySelector('.w-qcard .w-qnew'); if(nw && wrap) wrap.style.display='';   // the + stays; only the Renal/GIM choice goes
+    if(wrap) wrap.style.display='';   // keep the column: For just fades out for Simulation and Teaching
     const sel=document.getElementById('w-qscope'); if(sel) sel.style.visibility=(t==='simulation'||t==='teaching')?'hidden':'';
     if(wrap) wrap.querySelector('.w-qlabel').style.visibility=(t==='simulation'||t==='teaching')?'hidden':'';
     try{ if(t) localStorage.setItem('w_quicklog', JSON.stringify({type:t,scope:s})); }catch(e){}
@@ -8686,6 +8739,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   }
   window.wReady = function(opts){
     opts=opts||{};
+    // First tap each training year: a short deck on preparing for ARCP, then the checklist moves to Home
+    if(!opts.list && !opts.k && !opts.noIntro && !readyData()._intro && readyFlat().some(it=>!readyOn(it) && !readyNa(it))){ wReadyIntro(); return; }
     document.getElementById('w-ready')?.remove();
     const prev=document.activeElement, p=panelInfo();
     const wrap=document.createElement('div'); wrap.id='w-ready'; wrap.className='w-ask w-su-sheet w-rdy';
@@ -8734,11 +8789,11 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     };
     const draw=popKey=>{ wrap.classList.toggle('walk',mode==='walk'); if(mode==='walk') drawWalk(); else drawList(popKey); };
     const stopAt=()=>{ if(mode==='walk' && queue[qi]){ readyData()._at=queue[qi].k; saveState(); } };   // where "Continue walkthrough" picks up
-    const close=()=>{ stopAt(); wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const close=()=>{ stopAt(); wrap.remove(); document.removeEventListener('keydown',onKey,true); if(currentTab==='home'){ try{ render(); }catch(e){} } try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
     const onKey=e=>{ if(e.key==='Escape' && !document.getElementById('w-ask')){ e.preventDefault(); e.stopPropagation(); close(); } };
     // Reports open in a new tab and the checklist stays put, ready for "Done". The Firth calculator lives on the ARCP screen, so that one closes the checklist.
     const runTool=id=>{
-      if(id==='firth'){ close(); arcpFirthOpen=true; render(); setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'}),80); }
+      if(id==='firth'){ close(); arcpFirthOpen=true; if(currentTab!=='arcp') setTab('arcp'); else render(); setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'}),80); }
       else arcpGenerate(id);   // logbook spreadsheet, Renal and GIM summaries, CPD diary
     };
     wrap.addEventListener('click',e=>{
@@ -8766,8 +8821,98 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     document.addEventListener('keydown',onKey,true);
     document.body.appendChild(wrap);
     // First time this training year it plays as a walkthrough; after that it opens as the list
-    if(!opts.list && !readyData()._walked && left().length) startWalk(); else showList();
+    const one=opts.k && readyFlat().find(x=>x.k===opts.k);
+    if(one){ queue=[one]; qi=0; mode='walk'; draw(); }
+    else if(!opts.list && (opts.walk || !readyData()._walked) && left().length) startWalk(); else showList();
     try{ card.focus({preventScroll:true}); }catch(e){}
+  };
+
+  // The checklist on Home, where the setup guide sits: progress, the next step, and a way back into the walkthrough.
+  // It appears once the ARCP deck has been seen and goes when everything is ticked (or it is hidden).
+  function readyCardHTML(){
+    const r=state.arcpPrep?.[currentYear]?.ready;   // read only: Home never creates ARCP state
+    if(!r || !r._home || r._hide || !state.profile) return '';
+    const all=readyFlat(), c=readyCount(); if(c.done>=c.total) return '';
+    const open=all.filter(it=>!readyOn(it) && !readyNa(it)), p=panelInfo();
+    const nx=(r._at && open.find(x=>x.k===r._at)) || open[0];
+    const ic=it=>it.tools?it.tools[0][0]:it.doc?'file':/^es_/.test(it.k)?'user':'ticks';
+    const rows=open.slice(0,3).map(it=>`<button class="w-su-row" onclick="wReady({k:'${it.k}'})">
+        <span class="w-su-ic">${I(ic(it),20)}</span>
+        <span class="w-su-m"><span class="w-su-t">${safe(it.t)}</span><span class="w-su-s">${safe(it.s||it.group)}</span></span>${I('chev',18)}</button>`).join('');
+    return `<section class="w-su w-rdyc" aria-labelledby="w-rdyc-t">
+      <div class="w-su-head"><div><div class="w-su-k">${c.done} of ${c.total} ready · ${safe(p.lockTxt)}</div><h2 class="w-su-h" id="w-rdyc-t">ARCP ready</h2></div>
+        <button class="w-su-x" onclick="wReadyHide()" aria-label="Hide the ARCP checklist" title="Hide">${I('x',18)}</button></div>
+      <div class="w-su-bar" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="${c.total}" aria-valuenow="${c.done}"><i style="width:${Math.max(4,Math.round(c.done/c.total*100))}%"></i></div>
+      <button class="w-su-go" onclick="wReady({walk:true})"><span class="w-su-go-t"><b>${r._walked?'Continue walkthrough':'Start walkthrough'}</b><span>Next: ${safe(nx.t)}</span></span>${I('chev',20)}</button>
+      <div class="w-su-list">${rows}</div>
+      <button class="w-su-more" onclick="wReady({list:true})">See all ${all.length} steps</button>
+    </section>`;
+  }
+  window.wReadyHide = function(){ const r=readyData(); r._hide=true; saveState(); render(); wToast('Checklist hidden. Find it on the ARCP card'); };
+
+  // The deck: how to get ready for ARCP, in four cards. It ends on Home with the checklist card and the walkthrough open.
+  window.wReadyIntro = function(){
+    document.getElementById('w-ready-intro')?.remove();
+    const sp=safe(specCfg().short), p=panelInfo(), prev=document.activeElement;
+    const row=(l,c)=>`<span class="w-rv-row"><i style="background:${c}">${I('check',15)}</i>${l}</span>`;
+    const slides=[
+      { vis:`<div class="w-wv-arcp"><span class="w-wv-k">ARCP</span><b>${p.days<0?'Set a date':p.days===0?'Today':p.days===1?'1 day':`${p.days} days`}</b><span class="w-wv-lock">${I('lock',15)}${safe(p.lockTxt)}</span></div>`,
+        t:'Work back from the lock', p:'Your portfolio locks two weeks before your ARCP. Everything the panel needs has to be in your ePortfolio by then.' },
+      { vis:`<div class="w-rv-flow"><span class="w-rv-box" style="--c:var(--c-quick)"><b>Outcome1</b><small>Your tally and documents</small></span><span class="w-rv-arrow">${I('chev',26)}</span><span class="w-rv-box dk" style="--c:var(--c-arcp)"><b>ePortfolio</b><small>What the panel reads</small></span></div>`,
+        t:'The panel reads your ePortfolio', p:'Outcome1 keeps count and makes your documents. The evidence itself has to be in your JRCPTB ePortfolio.' },
+      { vis:`<div class="w-rv-card">${row(`ES report: ${sp}`,'var(--c-spec)')}${row('ES report: GIM','var(--c-gim)')}${row('CiPs rated by you both','var(--c-cpd)')}</div>`,
+        t:'Start with your supervisor', p:`Rate yourself on your CiPs first. Then meet your educational supervisor for their ratings and your ${sp} and GIM reports. Book the meeting early.` },
+      { vis:`<div class="w-rv-card lib"><span class="w-rv-lk">ePortfolio library</span><span class="w-wv-docs"><i>${I('file',15)}Form R</i><i>${I('dl',15)}Logbook</i><i>${I('book',15)}CPD diary</i><i>${I('table',15)}Firth</i><i>${I('file',15)}Summaries</i></span></div>`,
+        t:'Then fill your library', p:'Form R, your logbook and summaries, CPD diary and Firth calculator all go in your ePortfolio library. Outcome1 makes most of them for you.' }
+    ];
+    const total=readyFlat().length;
+    const el=document.createElement('div'); el.id='w-ready-intro'; el.className='w-wel';
+    el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Getting ready for your ARCP');
+    el.innerHTML=`<div class="w-wel-top"><span class="w-wel-brand">Getting ARCP ready</span><button class="w-wel-skip" data-skip="1">Skip</button></div>
+      <div class="w-wel-view"><div class="w-wel-track">${slides.map((s,i)=>`<section class="w-wel-slide" aria-hidden="${i?'true':'false'}"><div class="w-wel-vis">${s.vis}</div><h2>${s.t}</h2><p>${s.p}</p></section>`).join('')}</div></div>
+      <div class="w-wel-foot"><div class="w-wel-dots" aria-hidden="true">${slides.map(()=>'<i></i>').join('')}</div><button class="w-wel-next" data-next="1"></button></div>`;
+    let i=0;
+    const track=el.querySelector('.w-wel-track'), next=el.querySelector('.w-wel-next'), skip=el.querySelector('.w-wel-skip'), last=slides.length-1;
+    const show=n=>{
+      i=Math.max(0,Math.min(last,n));
+      track.style.transform=`translateX(${-i*100}%)`;
+      el.querySelectorAll('.w-wel-slide').forEach((s,k)=>{ s.classList.toggle('on',k===i); s.setAttribute('aria-hidden',k===i?'false':'true'); });
+      el.querySelectorAll('.w-wel-dots i').forEach((d,k)=>d.classList.toggle('on',k===i));
+      next.innerHTML=`${i===last?`Start the ${total}-step checklist`:'Next'}${I('chev',20)}`; skip.style.visibility=i===last?'hidden':'visible';
+    };
+    const off=()=>{ document.removeEventListener('keydown',onKey,true); };
+    const cancel=()=>{ off(); el.remove(); try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    // Done: the checklist card takes its place on Home and the walkthrough opens over it while the deck fades off
+    const finish=()=>{
+      off();
+      const r=readyData(); r._intro=true; r._home=true; delete r._hide; saveState();
+      if(currentTab!=='home') setTab('home'); else render();
+      wReady({ walk:true, noIntro:true });
+      if(reduceMotion()){ el.remove(); return; }
+      el.style.pointerEvents='none';
+      const a=el.animate([{opacity:1},{opacity:0}],{duration:260,easing:'ease-out',fill:'forwards'});
+      a.onfinish=a.oncancel=()=>el.remove(); setTimeout(()=>el.remove(),600);
+    };
+    const onKey=e=>{
+      if(!el.isConnected){ off(); return; }
+      const f=[...el.querySelectorAll('button')].filter(b=>b.style.visibility!=='hidden');
+      if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); cancel(); }
+      else if(e.key==='ArrowRight'){ e.preventDefault(); if(i<last) show(i+1); }
+      else if(e.key==='ArrowLeft'){ e.preventDefault(); show(i-1); }
+      else if(e.key==='Tab'){ e.preventDefault(); const k=f.indexOf(document.activeElement); f[(k+(e.shiftKey?-1:1)+f.length)%f.length]?.focus(); }
+    };
+    el.addEventListener('click',e=>{
+      if(e.target.closest('[data-skip]')) finish();
+      else if(e.target.closest('[data-next]')){ if(i>=last) finish(); else show(i+1); }
+    });
+    let x0=null;
+    const view=el.querySelector('.w-wel-view');
+    view.addEventListener('pointerdown',e=>{ x0=e.clientX; });
+    view.addEventListener('pointerup',e=>{ if(x0===null) return; const dx=e.clientX-x0; x0=null; if(Math.abs(dx)>40) show(i+(dx<0?1:-1)); });
+    document.addEventListener('keydown',onKey,true);
+    el.tabIndex=-1; el.style.outline='none';
+    document.body.appendChild(el); show(0);
+    try{ el.focus({preventScroll:true}); }catch(e){}
   };
 
   // ═══ Card ↔ section transition ═══
@@ -8896,10 +9041,10 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         sub: s.done.hosp?`${hospitalOptions().length} in your list`:'Trim the list to your sites', open:suHosp },
       { k:'import', icon:'ul', t:'Bring in your old logbook', done:!!s.done.import,
         sub: s.done.import?'Done':'From a spreadsheet, with our template', open:suImport },
+      { k:'teach', icon:'qr', t:'Teaching and feedback', done:!!s.done.teach || teachFb,
+        sub: teachFb?'Feedback link ready':'See how a QR code collects feedback for you', open:suTeach },
       { k:'first', icon:'plus', t:'Log your first entry', done:suAnyEntry(),
         sub:'Clinic, procedure, CPD and more', open:suFirst },
-      { k:'teach', icon:'qr', t:'Teaching and feedback', done:teachFb,
-        sub: teachFb?'Feedback link ready':teachN?'Now collect feedback on a session':'Log a session, then collect feedback with a QR code', open:suTeach },
       { k:'install', icon:'phone', t:'Install on your phone', done:isStandalone() || !!s.done.install,
         sub: isStandalone()?'Installed':'Opens like an app, works offline', open:suInstall }
     ];
@@ -9155,13 +9300,39 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   }
   // Teaching and feedback in one step: log a session, then get its QR code
   function suTeach(){
-    const list=entries('teaching').slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-    const how=`<ol class="w-sus-how"><li><span><b>Log the session.</b></span></li><li><span><b>Get a QR code.</b> Outcome1 offers one as soon as you save, or later from the session in your logbook.</span></li><li><span><b>Attendees give feedback</b> on their phones, anonymously.</span></li></ol>`;
-    const log={ label:list.length?'Log another session':'Log a teaching session', primary:!list.length, on:()=>{ suPause(); setTimeout(()=>wQuick('teaching','spec'),0); } };
-    const flowStep=SG.opening;
-    const pick={ label:'Collect feedback on a session', primary:true, on:()=>{ setTimeout(()=>suPickSession(list, flowStep),0); } };
+    // Demo only: nothing is logged. Session -> Feedback -> QR code -> responses, acted out on a loop.
+    const cells=(()=>{ let s=7, out=''; const fin=(x,y)=>(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);
+      const ring=(x,y,ox,oy)=>{ const a=x-ox,b=y-oy; return a>=0&&a<7&&b>=0&&b<7 && (a===0||a===6||b===0||b===6||(a>1&&a<5&&b>1&&b<5)); };
+      for(let y=0;y<21;y++) for(let x=0;x<21;x++){ s=(s*73+41)%997; const on=fin(x,y)?(ring(x,y,0,0)||ring(x,y,14,0)||ring(x,y,0,14)):(s%5<2);
+        if(on) out+=`<rect x="${x}" y="${y}" width="1.02" height="1.02"/>`; } return out; })();
+    const caps=['Log your teaching session as usual.','Tap Feedback on the session to get its QR code.','Show the QR on your last slide. Attendees scan it.','Responses come back here, ready to print for your portfolio.'];
     suSheet({ title:'Teaching and feedback', sub:'Outcome1 collects feedback on each teaching session for you.',
-      body:how, actions:list.length?[pick, log, { label:'Not now', on:()=>suLater('teach') }]:[log, { label:'Not now', on:()=>suLater('teach') }] });
+      body:`<div class="w-cmp w-tfd" data-s="0" aria-hidden="true">
+        <div class="w-cmp-r"><span class="w-cmp-m"><b>AKI for the take team</b><small>Teaching · Today · FY1s</small></span><span class="w-cmp-tog" data-fb>${I('qr',15)}Feedback</span></div>
+        <div class="w-tfd-p"><div class="w-tfd-in">
+          <div class="w-tfd-qr"><svg viewBox="0 0 21 21" shape-rendering="crispEdges">${cells}</svg></div>
+          <div class="w-tfd-res"><span class="w-tfd-scan">Scan to give feedback</span>
+            <span class="w-tfd-n"><b data-n>0</b> responses</span>
+            <span class="w-tfd-st">★★★★★ <i>4.8</i></span><span class="w-tfd-q">“Clear and practical”</span></div>
+        </div></div>
+      </div><p class="w-tfd-cap" data-cap aria-hidden="true">${caps[0]}</p>
+      <p class="w-sr">How it works: log your teaching session, tap Feedback on it to get a QR code, show the QR code on your last slide, and attendees’ anonymous responses come back to Outcome1, ready to print for your portfolio.</p>`,
+      onOpen:w=>{
+        const box=w.querySelector('.w-tfd'), fb=w.querySelector('[data-fb]'), n=w.querySelector('[data-n]'), cap=w.querySelector('[data-cap]'); if(!box||!fb||!n||!cap) return;
+        const scene=i=>{ box.dataset.s=i; cap.textContent=caps[i]; };
+        if(reduceMotion()){ n.textContent='6'; scene(3); return; }
+        const T=[], at=(ms,fn)=>T.push(setTimeout(()=>{ if(w.isConnected) fn(); },ms));
+        const run=()=>{
+          n.textContent='0'; scene(0);
+          at(1500,()=>{ scene(1); fb.classList.remove('tap'); void fb.offsetWidth; fb.classList.add('tap'); });
+          at(2100,()=>scene(2));
+          at(4300,()=>scene(3));
+          [1,2,3,4,5,6].forEach((v,i)=>at(4500+i*260,()=>{ n.textContent=v; n.classList.remove('bump'); void n.offsetWidth; n.classList.add('bump'); }));
+          at(9600,()=>{ if(w.isConnected) run(); });
+        };
+        run();
+      },
+      actions:[ { label:'Got it', primary:true, on:()=>suMark('teach') } ]});
   }
   function suPickSession(list, flowStep){
     wAsk({ kicker:flowStep&&SG.on?suStepLabel(flowStep):'', onCancel:()=>suPause(), title:'Which session?', sub:'Each session gets its own QR code and link. Put the QR on your last slide or send the link. Responses come back here and print as a summary for your portfolio.', many:true,
