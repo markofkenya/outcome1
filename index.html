@@ -1940,7 +1940,7 @@ const GIM_REQS = {
   gim_sim_st7:{label:"Final-year simulation hours",type:"number",target:4,unit:"hours",deadline:"ST7",cumulative:true,note:"At least 4h must be completed in ST7"},
   gim_acute:{label:"Acute GIM patients",type:"number",target:750,unit:"patients",deadline:"ST7",cumulative:true,note:"Firth-style estimate"},
   gim_acute_st7:{label:"Final-year acute GIM patients",type:"number",target:100,unit:"patients",deadline:"ST7",cumulative:true,note:"At least 100 patients must be seen in ST7"},
-  gim_ward:{label:"IM ward cover",type:"number",target:12,unit:"months",deadline:"ST7",cumulative:true,note:"Cumulative"},
+  gim_ward:{label:"GIM Ward Cover",type:"number",target:12,unit:"months",deadline:"ST7",cumulative:true,note:"Cumulative"},
   gim_qip:{label:"GIM QIP + QIPAT",type:"checkbox",deadline:"ST7",note:"One-off"},
   gim_survey:{label:"Patient Survey",type:"checkbox",deadline:"ST5",note:"Completed by the ST5 specialty patient survey — no separate GIM survey needed",linkedFrom:"spec_survey_st5"},
   gim_teaching:{label:"Teaching observation",type:"checkbox",deadline:"ST7",note:"Shared evidence accepted"}
@@ -2989,7 +2989,9 @@ const ARCP_DOCS=[
   {id:'form_r',  name:'Form R (Part B)', hint:'Required each year · completed on your deanery form'},
   {id:'cct',     name:'CCT calculator',  hint:'Update each year, especially if LTFT'},
   {id:'firth',   name:'Firth calculator',hint:'Acute medical take experience · Excel', gen:'firth'},
-  {id:'logbook', name:'Logbook',         hint:'Clinics, procedures, CPD, simulation, teaching, acute take', gen:'logbook'},
+  {id:'logbook', name:'Logbook spreadsheet', hint:'Excel · clinics, procedures, CPD, simulation, teaching, acute take', gen:'logbook'},
+  {id:'sum_spec', get name(){ return specCfg().short+' summary'; }, hint:'Summary of training for your specialty', gen:'sum_spec'},
+  {id:'sum_gim',  name:'GIM summary',     hint:'Summary of training for GIM', gen:'sum_gim'},
   {id:'cpd',     name:'CPD diary',       hint:'This year’s CPD with reflections', gen:'cpd'}
 ];
 const ARCP_STEPS=[
@@ -3020,7 +3022,9 @@ function arcpToggleUploaded(id){ const y=arcpData(); const cur=y.docs[id]||{}; i
 function arcpGenerate(id){
   const d=arcpAllDocs().find(x=>x.id===id); if(!d) return;
   if(d.gen==='firth'){ arcpFirthOpen=!arcpFirthOpen; render(); if(arcpFirthOpen) setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:'smooth',block:'start'}),60); return; }
-  if(d.gen==='logbook') showPrintStylePicker();
+  if(d.gen==='logbook') exportLogbook();
+  if(d.gen==='sum_spec') wSummary('spec');
+  if(d.gen==='sum_gim') wSummary('gim');
   if(d.gen==='cpd') exportCpdDiary();
   arcpMarkReady(id); render();
 }
@@ -7719,7 +7723,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const hd=head({ title:'Logbook', color:'var(--c-log)', kicker:`${currentYear} · All entries`, big:String(n), unit:'',
       sub:`${c} clinic${c===1?'':'s'} · ${p} procedure${p===1?'':'s'} · ${t} teaching`,
       tab:{label:'New entry', right:'5 types', on:"openLogbookForm(logSubTab&&logSubTab!=='all'?logSubTab:'clinics')"},
-      acts:[['plus','Add',"openLogbookForm(logSubTab&&logSubTab!=='all'?logSubTab:'clinics')"],['print','Report','showPrintStylePicker()'],['chart','Insights',"wScroll('w-insights')"],['ul','Import','wImport()'],['dl','Excel','exportLogbook()']] });
+      acts:[['plus','Add',"openLogbookForm(logSubTab&&logSubTab!=='all'?logSubTab:'clinics')"],['chart','Insights',"wScroll('w-insights')"],['ul','Import','wImport()'],['dl','Excel','exportLogbook()']] });
     O.lbv2(); tagLogRows();
     const first=main().firstElementChild; if(first && first.querySelector('button[onclick="exportLogbook()"]')) first.remove();
     const list=main().innerHTML;
@@ -7745,19 +7749,19 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       prepend(head({ title:'ARCP', color:om.col, dark:oc==='4', kicker:`${y} · signed off ${fmtD(signedOff(y),{day:'numeric',month:'short',year:'numeric'})}`, big:`Outcome ${oc}`, bigText:true,
         sub:safe(ocShort(oc)),
         tab:{icon:'spark', label:oc==='6'?'Your training Wrapped':`Your ${y} Wrapped`, right:'Open', on:`wYearWrapped('${oc==='6'?'all':y}')`},
-        acts:[['spark','Celebrate',`wCelebrate('${y}','${oc}')`],['print','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['plus','Add doc','arcpAddDoc()']] }));
+        acts:[['spark','Celebrate',`wCelebrate('${y}','${oc}')`],['dl','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['plus','Add doc','arcpAddDoc()']] }));
     } else if(om){
       const rd=state.years?.[y]?.reviewDate, dd=rd?Math.round((new Date(rd+'T00:00:00')-today0())/DAY):null;
       prepend(head({ title:'ARCP', color:om.col, kicker:rd?`Review panel · ${fmtD(new Date(rd+'T00:00:00'),{weekday:'short',day:'numeric',month:'short',year:'numeric'})}`:`${y} · Outcome ${oc}`,
         big:rd?String(Math.max(0,dd)):`Outcome ${oc}`, unit:rd?(dd===1?' day':' days'):'', bigText:!rd,
         sub:`Outcome ${oc} · ${safe(ocShort(oc))}`,
         tab:{icon:'flag', label:rd?'Edit your plan':'Add your review date and plan', right:'', on:`wCelebrate('${y}','${oc}',true)`},
-        acts:[['table','Firth',"arcpGenerate('firth')"],['print','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['flag','Plan',`wCelebrate('${y}','${oc}',true)`]] }));
+        acts:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['flag','Plan',`wCelebrate('${y}','${oc}',true)`]] }));
     } else {
     prepend(head({ title:'ARCP', color:'var(--c-arcp)', dark:true, kicker:`Panel · ${panelLong}`, big:String(Math.max(0,p.days)), unit:p.days===1?' day':' days',
       sub:`${p.lockTxt} · ${yearPct()}% of ${currentYear} gone`,
       tab:{icon:'flag', label:`Next: ${nx.title}`, right:arcpFmt(nx.date), on:"wScroll('w-countdown')"},
-      acts:[['table','Firth',"arcpGenerate('firth')"],['print','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['ticks','Checklist','wReady()']] }));
+      acts:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['book','CPD diary',"arcpGenerate('cpd')"],['ticks','Checklist','wReady()']] }));
     }
     const ns=needsSection(); if(ns) main().querySelector('.w-head')?.insertAdjacentHTML('afterend', ns);
     if(tl) append(`<section class="z-sec" style="padding-top:88px"><div class="arcp-sec-head"><div><h2 class="arcp-h2">Road to CCT</h2><span class="z-script">${YEARS[0]} to ${YEARS[YEARS.length-1]}</span></div></div>${tl}</section>`);
@@ -8659,21 +8663,21 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       { g:'Educational supervisor reports', items:[
         { k:'es_spec', t:`ES report: ${sp}`, d:`Your educational supervisor’s ${sp} report for ${y}, completed on your ePortfolio. Book the meeting in good time so it’s there before the portfolio locks.` },
         { k:'es_gim',  t:'ES report: GIM', d:`Your educational supervisor’s GIM report for ${y}, completed on your ePortfolio.` } ]},
-      { g:'CiPs rated by you and your ES', items:[
+      { g:'CiPs rated by you', items:[
+        { k:'cip_gen',  t:'Generic CiPs', d:cip('each generic CiP') },
         { k:'cip_spec', t:`${sp} CiPs`, d:cip(`each ${sp} specialty CiP`) },
-        { k:'cip_gim',  t:'GIM CiPs', d:cip('each GIM clinical CiP') },
-        { k:'cip_gen',  t:'Generic CiPs', d:cip('each generic CiP') } ]},
+        { k:'cip_gim',  t:'GIM CiPs', d:cip('each GIM clinical CiP') } ]},
       { g:'In your ePortfolio library', items:[
         { k:'form_r', doc:'form_r', t:'Form R (Part B)', d:'Complete this year’s Form R (Part B) and save a copy in your ePortfolio library.' },
-        { k:'logbook', doc:'logbook', t:'Logbook and summaries', s:`Logbook report, ${sp} and GIM summaries`, tools:[['print','Logbook report','logbook'],['file',`${sp} summary`,'sum_spec'],['file','GIM summary','sum_gim']],
-          d:`Add this year’s logbook report and your ${sp} and GIM summaries to your ePortfolio library. Outcome1 makes all three, ready to save as a PDF.` },
+        { k:'logbook', docs:['logbook','sum_spec','sum_gim'], t:'Logbook and summaries', tools:[['dl','Logbook spreadsheet','logbook'],['file',`${sp} summary`,'sum_spec'],['file','GIM summary','sum_gim']],
+          d:`Add this year’s logbook spreadsheet and your ${sp} and GIM summaries to your ePortfolio library. Outcome1 makes all three.` },
         { k:'cpd',    doc:'cpd',    t:'CPD diary', tools:[['book','CPD diary','cpd']], d:'Add this year’s CPD diary, with your reflections, to your ePortfolio library. Outcome1 makes it, ready to save as a PDF.' },
         { k:'firth',  doc:'firth',  t:'Updated Firth calculator', tools:[['table','Firth calculator','firth']], d:'Bring the Firth calculator up to date with your acute take numbers and upload it to your ePortfolio library. Outcome1 can build it from your acute take entries.' },
         { k:'cct',    doc:'cct',    t:'CCT calculator', s:'If LTFT or time out of training', optional:true, d:'If you’re less than full time or have had time out of training, update your CCT calculator and upload it to your ePortfolio library.' } ]}
     ];
   }
   function readyData(){ const y=arcpData(); y.ready=y.ready||{}; return y.ready; }
-  const readyOn = it => it.doc ? arcpDocState(it.doc).status==='up' : !!readyData()[it.k];
+  const readyOn = it => it.docs ? it.docs.every(d=>arcpDocState(d).status==='up') : it.doc ? arcpDocState(it.doc).status==='up' : !!readyData()[it.k];
   const readyNa = it => !!it.optional && !!readyData()[it.k+'_na'] && !readyOn(it);
   const readyFlat = () => readyGroups().flatMap(g=>g.items.map(it=>Object.assign({group:g.g}, it)));
   function readyCount(){
@@ -8691,7 +8695,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     let mode='list', queue=[], qi=0;
     const setOn=(it,on)=>{
       if(readyOn(it)===on) return;
-      if(it.doc) arcpToggleUploaded(it.doc);   // same state as "Upload to your portfolio"; saves and redraws the screen
+      if(it.docs) it.docs.forEach(d=>{ if((arcpDocState(d).status==='up')!==on) arcpToggleUploaded(d); });   // all three together
+      else if(it.doc) arcpToggleUploaded(it.doc);   // same state as "Upload to your portfolio"; saves and redraws the screen
       else { const r=readyData(); if(on) r[it.k]=arcpToday(); else delete r[it.k]; saveState(); }
     };
     // Walkthrough: what's left, starting from where it stopped last time
@@ -8734,9 +8739,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     // Reports open in a new tab and the checklist stays put, ready for "Done". The Firth calculator lives on the ARCP screen, so that one closes the checklist.
     const runTool=id=>{
       if(id==='firth'){ close(); arcpFirthOpen=true; render(); setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'}),80); }
-      else if(id==='sum_spec') wSummary('spec');
-      else if(id==='sum_gim') wSummary('gim');
-      else arcpGenerate(id);   // logbook report, CPD diary
+      else arcpGenerate(id);   // logbook spreadsheet, Renal and GIM summaries, CPD diary
     };
     wrap.addEventListener('click',e=>{
       if(e.target===wrap || e.target.closest('[data-x]')){ close(); return; }
