@@ -1362,6 +1362,15 @@ body.focus .w-su-bar{border-color:var(--line-strong)}
 .w-wel-alt{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;font:700 16px var(--font);color:var(--dim);padding:13px}
 .w-wel-alt:hover{color:var(--text)}
 .w-wel-alt:focus-visible{outline:3px solid var(--text);outline-offset:2px;border-radius:12px}
+/* Quick log: a card at the front of the stack that opens into the New entry screen */
+.w-qplus{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#1E1E1E;color:var(--c-quick)}
+.w-card[style*="c-quick"]{min-height:118px}
+.w-qpick{display:flex;gap:12px;margin-top:16px;padding-bottom:4px}
+.w-qf{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.w-qpick .w-qlabel{font:600 15px var(--font);color:#1E1E1E;margin:0}
+.w-qpick .w-sel{width:100%;max-width:none}
+details.w-qform>summary{cursor:default}
+details.w-qform>summary .form-plus,details.w-qform>summary .form-hint{display:none}
 /* ═══ Insights (Logbook screen) ═══ */
 .ix{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;font-family:var(--font);color:var(--text)}
 .ix *{box-sizing:border-box}
@@ -7037,6 +7046,18 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     return `<button class="w-cpill todo" onclick="wGoSce()" title="${safe(req.label)} not passed yet${when?' · sitting '+when:''} · open"><span class="w-ring"></span>SCE${when?' '+when:''}</button>`;
   }
   function qlLoad(){ try{ return JSON.parse(localStorage.getItem('w_quicklog')||'{}'); }catch(e){ return {}; } }
+  function qlSave(type, scope){ try{ localStorage.setItem('w_quicklog', JSON.stringify({type, scope})); }catch(e){} }
+  // "Last: Renal clinic · Tue 10 Nov" — the most recently added entry
+  function qlLastTxt(){
+    let best=null;
+    KINDS.forEach(k=>(state.logbook?.[k]||[]).forEach(e=>{ const t=Number(e.createdAt||e.id||0); if(e && (!best || t>best.t)) best={k,e,t}; }));
+    if(!best) return 'Nothing logged yet';
+    const {k,e}=best, sp=specCfg().short, sc=e.scope==='gim'?'GIM':sp;
+    const what={ clinics:`${sc} clinic`, procedures:normProcName(e.type||'Procedure'), cpd:e.title||e.type||'CPD', simulation:e.title||e.course||'Simulation', teaching:e.topic||e.type||'Teaching' }[k]||'Entry';
+    const d=/^\d{4}-\d{2}-\d{2}/.test(String(e.date||'')) ? new Date(String(e.date).slice(0,10)+'T00:00:00') : null;
+    const when=!d?'' : arcpIso(d)===arcpIso(new Date()) ? 'today' : d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    return `Last: ${safe(what)}${when?' · '+when:''}`;
+  }
   function renderHome(){
     const sp=specCfg();
     const spec=calcReqsWithExtra(specReqs(),specDopsStats());
@@ -7047,14 +7068,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const card=(tab,c,l,lsub,r,rsub,dark,lp,rp)=>`<div class="w-card ${dark?'dark':''}" style="--c:${c}"><button class="w-cardlink" aria-label="Open ${l}" onclick="wOpenCard(this,'${tab}')"></button><span class="l"><span class="w-lrow"><b>${l}</b>${lp||''}</span>${lsub?`<small>${lsub}</small>`:''}</span><span class="r"><span class="w-rrow"><b>${r}</b>${rp||''}</span><small>${rsub}</small></span></div>`;
     const ql=qlLoad(), qt=KINDS.includes(ql.type)?ql.type:'clinics', qs=ql.scope==='gim'?'gim':'spec';
     const tOpts=[['clinics','Clinic'],['procedures','Procedure'],['cpd','CPD session'],['simulation','Simulation'],['teaching','Teaching session']].map(([v,l])=>`<option value="${v}" ${v===qt?'selected':''}>${l}</option>`).join('');
-    const front=`<div class="w-card w-front" style="--c:var(--c-quick)">
-      <div class="w-qhead"><span class="w-qt">Quick log</span><button class="w-lock" onclick="setTab('arcp')">${I('lock',16)}<span>${safe(p.pill)}</span>${I('chev',16)}</button></div>
-      <label class="w-qlabel" for="w-qtype">I did a</label>
-      <div class="w-qrow"><select id="w-qtype" class="w-sel" onchange="wQSync()">${tOpts}</select><span class="w-qbig">Today</span></div>
-      <div id="w-qscope-wrap"><label class="w-qlabel" for="w-qscope">For</label>
-      <div class="w-qrow"><select id="w-qscope" class="w-sel" onchange="wQSync()"><option value="spec" ${qs==='spec'?'selected':''}>${safe(sp.short)}</option><option value="gim" ${qs==='gim'?'selected':''}>GIM</option></select><span class="w-qbig" id="w-qbig">+1</span></div></div>
-      <button class="w-go" onclick="wQuickGo()">Log entry</button>
-    </div>`;
+    const front=card('logbook-form','var(--c-quick)','Quick log', qlLastTxt(), `<span class="w-qplus">${I('plus',30)}</span>`, 'New entry');
     const stack=
       (outcomeArcpCard(card)||card('arcp','var(--c-arcp)','ARCP',`${currentYear} · ${yearPct()}% through`, p.days>=0?`${p.days} day${p.days===1?'':'s'}`:'Done', p.lockTxt, true, alsPill()))+
       card('specialty','var(--c-spec)',safe(sp.short),'',`${spec.pct}%`,`${spec.met} of ${spec.total} met`, false, scePill())+
@@ -7127,11 +7141,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   function openForm(id){ const d=document.getElementById(id); if(!d) return false; d.open=true; setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'start'}),40); return true; }
   window.wQuick = function(type, scope){
     if(!KINDS.includes(type)) type='clinics';
-    const id=formId(formTitle(type,scope)); __openForms.add(id);
-    if(openForm(id)) return;
-    logSubTab=type;
-    setTab(type==='cpd'?'cpd':'logbook-form');
-    setTimeout(()=>openForm(id),60);
+    window.__wQScope=scope==='gim'?'gim':'spec'; logSubTab=type;
+    if(currentTab==='logbook-form') render(); else setTab('logbook-form');
   };
   window.wGoLog = function(k){ logSubTab=k; if(currentTab==='logbook') render(); else setTab('logbook'); };
   window.wAdminTo = function(id){ setTab('admin'); setTimeout(()=>{ const el=document.getElementById(id); if(el) (el.closest('section')||el).scrollIntoView({behavior:'smooth',block:'start'}); },60); };
@@ -7746,11 +7757,33 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   }
   function renderFormScreen(){
     if(!KINDS.includes(logSubTab)) logSubTab='clinics';
+    const type=logSubTab, scope=(type==='simulation'||type==='teaching') ? 'spec' : (window.__wQScope || qlLoad().scope || 'spec')==='gim' ? 'gim' : 'spec';
+    qlSave(type, scope);
+    const id=formId(formTitle(type,scope)); __openForms.add(id);
     O.lb();
-    const back=window.__wPrev&&window.__wPrev!=='logbook-form'?window.__wPrev:'home';
-    prepend(head({ title:'New entry', color:'var(--c-quick)', compact:true, back:`setTab('${back}')`, backLabel:'Back',
-      right:{icon:'list',label:'Open logbook',on:"setTab('logbook')"} }));
+    const prev=window.__wPrev&&window.__wPrev!=='logbook-form'?window.__wPrev:'home', back=prev==='home'?'wHome()':`setTab('${prev}')`;
+    const sp=specCfg().short;
+    const tOpts=[['clinics','Clinic'],['procedures','Procedure'],['cpd','CPD session'],['simulation','Simulation'],['teaching','Teaching session']].map(([v,l])=>`<option value="${v}" ${v===type?'selected':''}>${l}</option>`).join('');
+    prepend(head({ title:'Quick log', color:'var(--c-quick)', compact:true, back, backLabel:'Close', right:{icon:'list',label:'Open logbook',on:"setTab('logbook')"} }));
+    main().querySelector('.w-head .w-head-in').insertAdjacentHTML('beforeend', `<div class="w-qpick">
+        <div class="w-qf"><label class="w-qlabel" for="w-qtype">I did a</label><select id="w-qtype" class="w-sel" onchange="wQPick()">${tOpts}</select></div>
+        ${type==='simulation'||type==='teaching'?'':`<div class="w-qf"><label class="w-qlabel" for="w-qscope">For</label><select id="w-qscope" class="w-sel" onchange="wQPick()"><option value="spec" ${scope==='spec'?'selected':''}>${safe(sp)}</option><option value="gim" ${scope==='gim'?'selected':''}>GIM</option></select></div>`}
+      </div>`);
+    // only the chosen form, open, straight under the header; the rest of the logbook page is kept but hidden
+    const d=document.getElementById(id), lc=document.getElementById('log-content');
+    main().querySelectorAll(':scope > .subtabs, :scope > .row').forEach(e=>e.style.display='none');
+    if(d && lc){
+      d.open=true; d.classList.add('w-qform');
+      for(let n=d; n && n!==lc; n=n.parentElement) [...n.parentElement.children].forEach(sib=>{ if(sib!==n && !/^(SCRIPT|DATALIST|INPUT)$/.test(sib.tagName)) sib.style.display='none'; });
+      const cancel=d.querySelector('.form-actions .btn:not(.primary)'); if(cancel){ cancel.textContent='Close'; cancel.setAttribute('onclick', back); }
+      d.querySelector('summary')?.addEventListener('click', ev=>ev.preventDefault());   // stays open here
+    }
   }
+  window.wQPick = function(){
+    const t=document.getElementById('w-qtype')?.value||'clinics', sc=document.getElementById('w-qscope')?.value||window.__wQScope||qlLoad().scope||'spec';
+    logSubTab=KINDS.includes(t)?t:'clinics'; window.__wQScope=sc; render();
+    try{ document.getElementById(document.activeElement?.id||'w-qtype')?.focus({preventScroll:true}); }catch(e){}
+  };
   const SCREENS = { home:renderHome, specialty:renderSpecScreen, gim:renderGimScreen, cpd:renderCpdScreen, logbook:renderLogScreen, arcp:renderArcpScreen, admin:renderAdminScreen, 'logbook-form':renderFormScreen };
   const SCREEN_TINT = { specialty:'#C8BFF1', gim:'#F4B683', cpd:'#A3EEF2', logbook:'#EE9F98', arcp:'#1E1E1E', admin:'#E2DED2', 'logbook-form':'#D3F69C' };
   const normTab = t => (t==='roadmap'||t==='today'||!t) ? 'home' : (t==='overview' ? 'logbook' : t);
@@ -7759,7 +7792,8 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   window.setTheme = function(){
     const dark=document.body.classList.contains('focus'), scr=document.body.dataset.screen||'home';
     const meta=document.querySelector('meta[name="theme-color"]');
-    if(meta) meta.setAttribute('content', SCREEN_TINT[scr] || (dark?'#121212':'#F4F3EE'));
+    // During a card transition the top bar keeps the colour that is actually under it, then changes once the colour arrives or leaves
+    if(meta) meta.setAttribute('content', window.__wTintHold || SCREEN_TINT[scr] || (dark?'#121212':'#F4F3EE'));
     document.documentElement.classList.toggle('dark-boot', dark);
   };
   window.setTab = function(t){
@@ -8711,7 +8745,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   // settles, the summary card slides down to reveal it.
   // Closing is quick and quiet: Home is already in place and the header's colour snaps back into its card in the stack.
   // The screen itself switches straight away underneath; the movement is drawn on top. Off with Reduce Motion.
-  const ANIM_TABS=['arcp','specialty','gim','cpd','logbook','admin'];
+  const ANIM_TABS=['arcp','specialty','gim','cpd','logbook','admin','logbook-form'];
   const EASE='cubic-bezier(.2,.8,.2,1)';
   let animBusy=false;
   const reduceMotion=()=>{ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } };
@@ -8725,7 +8759,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     borderTopWidth:sh.bt, borderLeftWidth:sh.bs, borderRightWidth:sh.bs, borderBottomWidth:sh.bb }, over||{});
   function animLayer(z){ const l=document.createElement('div'); l.className='w-anim'; l.style.zIndex=String(z); document.body.appendChild(l); return l; }
   function pocket(head){ const tab=head.querySelector('.w-pocket .w-tab'), bal=head.querySelector('.w-pocket .w-bal'); if(!bal) return null; return { tab, bal, dy: tab ? bal.getBoundingClientRect().top - tab.getBoundingClientRect().top : 0 }; }
-  function goTab(tab){ if(tab==='logbook') logSubTab='all'; setTab(tab); }
+  function goTab(tab){ if(tab==='logbook') logSubTab='all'; if(tab==='logbook-form'){ const q=qlLoad(); logSubTab=KINDS.includes(q.type)?q.type:'clinics'; window.__wQScope=q.scope; } setTab(tab); }
   function homeSource(tab){ return tab==='admin' ? main().querySelector('.w-avatar') : main().querySelector(`.w-cardlink[onclick*="'${tab}'"]`)?.closest('.w-card'); }
   window.wOpenCard = function(src, tab){
     const card=src.classList.contains('w-avatar') ? src : (src.closest('.w-card')||src);
@@ -8740,8 +8774,9 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     if(top){ const r=box(top); topClone=top.cloneNode(true); Object.assign(topClone.style,{ position:'fixed', top:r.top+'px', left:r.left+'px', width:r.width+'px', margin:'0', zIndex:'1' }); layer.appendChild(topClone); }
     let done=false, head=null, pk=null;
     const restore=()=>{ if(head) Object.assign(head.style,{ background:'', borderBottomColor:'', position:'', zIndex:'', pointerEvents:'' }); };
-    const finish=()=>{ if(done) return; done=true; restore(); layer.remove(); animBusy=false; };
+    const finish=()=>{ if(done) return; done=true; restore(); layer.remove(); animBusy=false; window.__wTintHold=null; setTheme(); };
     try{
+      window.__wTintHold=document.querySelector('meta[name="theme-color"]')?.getAttribute('content')||null;
       goTab(tab); window.scrollTo(0,0);
       head=main().querySelector('.w-head'); if(!head){ finish(); return; }
       const to=shape(head);
@@ -8758,6 +8793,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
         k.animate([{opacity:1},{opacity:0}],{duration:130,delay:i*12,easing:'ease-out',fill:'forwards'}); });
       if(topClone) topClone.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'});
       const grow=g.animate([frame(from),frame(to,{borderRadius:'0px'})],{duration:360,easing:EASE,fill:'forwards'});
+      setTimeout(()=>{ window.__wTintHold=null; setTheme(); },130);   // by now the colour fills the top of the screen
       grow.onfinish=()=>{
         done=true; restore(); layer.remove();
         if(!pk) animBusy=false;
@@ -8773,9 +8809,11 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     animBusy=true;
     const hs=shape(head);
     let card=null, layer=null, done=false;
-    const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; if(layer) layer.remove(); animBusy=false; };
+    const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; if(layer) layer.remove(); animBusy=false; window.__wTintHold=null; setTheme(); };
     try{
+      window.__wTintHold=SCREEN_TINT[fromTab]||null;
       __wHomeAnim.apply(this,arguments); window.scrollTo(0,0);
+      setTimeout(()=>{ window.__wTintHold=null; setTheme(); },40);
       card=homeSource(fromTab); if(!card){ finish(); return; }
       const to=shape(card);
       layer=animLayer(1500);
@@ -8783,11 +8821,11 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
       // was. Only its transform and opacity move, which the graphics chip does without re-laying anything out,
       // so the shrink stays smooth on a phone.
       const g=document.createElement('div'); g.className='w-ghost w-ghost-t';
-      Object.assign(g.style, frame(to), { borderColor:to.bc, transformOrigin:'0 0' });
+      Object.assign(g.style, frame(to), { borderWidth:'0', transformOrigin:'0 0' });   // a border would stretch with the scale into a thick dark band
       layer.appendChild(g); card.style.visibility='hidden';
       const sx=hs.r.width/to.r.width, sy=hs.r.height/to.r.height, dx=hs.r.left-to.r.left, dy=hs.r.top-to.r.top;
-      const a=g.animate([{ transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`, borderRadius:'0px', borderColor:'transparent' },
-                         { transform:'none', borderRadius:to.rad, borderColor:to.bc }], { duration:180, easing:'cubic-bezier(.25,.9,.3,1)', fill:'both' });
+      const a=g.animate([{ transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`, borderRadius:'0px' },
+                         { transform:'none', borderRadius:to.rad }], { duration:180, easing:'cubic-bezier(.25,.9,.3,1)', fill:'both' });
       a.onfinish=()=>{   // the card takes its place underneath, and the colour block fades off it
         if(card) card.style.visibility='';
         const f=g.animate([{opacity:1},{opacity:0}],{duration:50,fill:'forwards'}); f.onfinish=f.oncancel=finish;
