@@ -1764,6 +1764,15 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
 .w-qv2 .w-go{margin-top:20px}
 @media (max-width:379px){.w-qv2 .w-sel{font-size:16px;padding:12px 29px 12px 13px;background-position:right 9px center}.w-qv2 .w-qgrid{gap:8px}}
 @media (max-width:339px){.w-qv2 .w-qgrid{flex-wrap:wrap}}
+
+/* Setup run: one backdrop for the whole run, cards swap on it */
+.w-ask.w-hold{animation:none}
+.w-ask.w-hold .w-ask-card{animation:wSuOut .15s ease-in forwards}
+.w-ask.w-swap{animation:none}
+.w-ask.w-swap .w-ask-card{animation:wSuIn .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes wSuOut{to{opacity:0;transform:translateY(10px) scale(.985)}}
+@keyframes wSuIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.w-ask.w-hold .w-ask-card,.w-ask.w-swap .w-ask-card{animation:none}}
 </style>
 
 </head>
@@ -7255,6 +7264,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     document.getElementById('w-ask')?.remove();
     const prev=document.activeElement;
     const wrap=document.createElement('div'); wrap.id='w-ask'; wrap.className='w-ask';
+    suHoldTake(wrap);
     wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-ask-t">
       ${o.kicker?`<div class="w-sus-k">${o.kicker}</div>`:''}<div class="w-ask-t" id="w-ask-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
       <div class="w-ask-opts ${o.many?'many':''}">${o.options.map((x,i)=>`<button class="w-ask-opt" data-i="${i}"><span><b>${x.label}</b>${x.sub?`<small>${x.sub}</small>`:''}</span>${I('chev',20)}</button>`).join('')}</div>
@@ -9080,6 +9090,19 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
   // Guided flow: after the welcome, each step opens the next one. Steps that take you elsewhere pause it
   // and a Continue bar picks it up again. "Finish later" ends it; after that the card opens one step at a time.
   const SG={ on:false, paused:false, k:null, opening:null };
+  // Between steps the old sheet's dimmed backdrop stays up (its card slides away) until the next step
+  // takes it over, so Home never shows through. If nothing takes it over, it fades out on its own.
+  var suHold=null;
+  function suHoldTake(wrap){
+    const h=suHold; suHold=null; if(!h) return; clearTimeout(h._t);
+    if(h.isConnected){ h.remove(); wrap.classList.add('w-swap'); }
+  }
+  function suHoldRelease(){
+    const h=suHold; suHold=null; if(!h) return; clearTimeout(h._t); if(!h.isConnected) return;
+    if(reduceMotion()){ h.remove(); return; }
+    const a=h.animate([{opacity:1},{opacity:0}],{duration:140,easing:'ease-out',fill:'forwards'});
+    a.onfinish=a.oncancel=()=>h.remove(); setTimeout(()=>h.remove(),400);
+  }
   function suNextKey(after){
     const steps=suSteps(), i=after?steps.findIndex(x=>x.k===after):-1;
     return (steps.slice(i+1).find(x=>!x.done && !x.later)||{}).k || null;
@@ -9088,7 +9111,7 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const st=suSteps().find(x=>x.k===k); if(!st) return;
     if(SG.on){ SG.k=k; SG.paused=false; wContBar(); }
     SG.opening=SG.on?k:null;
-    try{ st.open(); } finally { SG.opening=null; }
+    try{ st.open(); } finally { SG.opening=null; if(suHold) suHoldRelease(); }
   }
   function suStartFlow(){ const k=suNextKey(null); if(!k) return; const s=suState(); s.flowed=true; delete s.at; saveState(); SG.on=true; suOpen(k); }
   // Where "Continue setup" picks up: the step they stopped on (or the next one not done), else whatever is left
@@ -9102,12 +9125,12 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     const k=suResumeKey(); if(!k) return;
     const s=suState(); s.flowed=true; saveState(); SG.on=true; suOpen(k);
   };
-  function suAdvance(){ const k=suNextKey(SG.k); if(k) setTimeout(()=>{ if(SG.on && !SG.paused) suOpen(k); },200); else suFlowDone(); }
+  function suAdvance(){ const k=suNextKey(SG.k); if(k) setTimeout(()=>{ if(SG.on && !SG.paused) suOpen(k); else suHoldRelease(); },170); else suFlowDone(); }
   function suFlowDone(){ suEndFlow(); if(state.setup){ delete state.setup.at; saveState(); } if(currentTab!=='home') setTab('home'); else render(); }   // end of the run: back to Home, where the card shows what's left
   function suPause(){ if(!SG.on) return; SG.paused=true; setTimeout(wContBar,0); }
   function suEndFlow(){
     if(SG.on && SG.k && state.setup){ state.setup.at=SG.k; saveState(); }   // remember where they stopped for "Continue setup"
-    SG.on=false; SG.paused=false; SG.k=null; wContBar(); render();
+    SG.on=false; SG.paused=false; SG.k=null; suHoldRelease(); wContBar(); render();
   }
   function suStepLabel(k){ const steps=suSteps(), i=steps.findIndex(x=>x.k===k); return i<0?'':`Step ${i+1} of ${steps.length}`; }
   window.wSetupContinue = function(){ const k=suNextKey(SG.k); if(k) suOpen(k); else suFlowDone(); };
@@ -9145,14 +9168,25 @@ try{ render(); forceLiveStatus(); }catch(e){ console.warn('V13 refresh skipped',
     document.getElementById('w-su-sheet')?.remove();
     const prev=document.activeElement;
     const wrap=document.createElement('div'); wrap.id='w-su-sheet'; wrap.className='w-ask w-su-sheet';
+    suHoldTake(wrap);
     wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-sus-t" tabindex="-1">
       ${o.kicker?`<div class="w-sus-k">${o.kicker}</div>`:''}<div class="w-ask-t" id="w-sus-t">${o.title}</div>${o.sub?`<div class="w-ask-s">${o.sub}</div>`:''}
       ${o.body?`<div class="w-sus-body">${o.body}</div>`:''}
       <div class="w-sus-acts">${o.actions.map((a,i)=>`<button class="${a.cls||(a.primary?'w-sus-go':'w-sus-alt')}" data-i="${i}">${a.label}</button>`).join('')}</div>
       <button class="w-ask-x" data-x="1">${o.closeLabel||'Close'}</button></div>`;
-    const close=dismissed=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} if(dismissed && o.onDismiss) o.onDismiss(); };
+    const close=dismissed=>{
+      document.removeEventListener('keydown',onKey,true);
+      // Still in the guided run and another step is on its way: keep the backdrop up for it
+      if(!dismissed && SG.on && !SG.paused && !reduceMotion()){
+        suHoldRelease(); wrap._held=true; wrap.removeAttribute('id'); wrap.classList.add('w-hold');
+        suHold=wrap; wrap._t=setTimeout(suHoldRelease,900);
+      } else wrap.remove();
+      try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){}
+      if(dismissed && o.onDismiss) o.onDismiss();
+    };
     const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(true); } };
     wrap.addEventListener('click',e=>{
+      if(wrap._held) return;
       if(e.target===wrap||e.target.closest('[data-x]')){ close(true); return; }
       const b=e.target.closest('[data-i]'); if(!b) return;
       if(o.actions[+b.dataset.i].on(wrap)!==false) close(false);
