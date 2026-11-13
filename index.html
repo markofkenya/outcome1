@@ -1864,6 +1864,23 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
 #wrapped-overlay .wr-close{top:calc(22px + env(safe-area-inset-top))}
 #fb-modal{padding-top:max(40px,calc(env(safe-area-inset-top) + 12px))}
 #fb-qr-full{padding-top:max(24px,env(safe-area-inset-top))}
+
+/* ARCP checklist: Show on Home, and the all-done moment */
+.w-rdy-links{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.w-rdy-links .w-ask-x{display:inline-flex;align-items:center;gap:6px}
+.w-rdy-done{text-align:center;padding:10px 4px 2px;display:flex;flex-direction:column;align-items:center}
+.w-rdy-done .w-ask-t{font-size:30px;margin-top:4px}
+.w-rdy-done .w-ask-s{max-width:30ch}
+.w-rdy-done .w-sus-acts{width:100%}
+.w-rdy-medal{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--c-quick);color:#1E1E1E;border:2px solid #1E1E1E;margin:6px 0 16px;
+  box-shadow:0 0 0 8px color-mix(in srgb,var(--c-quick) 35%,transparent);animation:wRdyMedal .6s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes wRdyMedal{from{transform:scale(.4) rotate(-20deg);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.w-rdy-medal{animation:none}}
+
+/* "ARCP ready" on the Home ARCP card */
+.w-card small:has(.w-rdybadge){margin-top:9px}
+.w-card .w-cpill.w-rdybadge,.w-card.dark .w-cpill.w-rdybadge{background:var(--c-quick);color:#1E1E1E;border-color:var(--c-quick);padding:0 12px 0 9px}
+@media (hover:hover){.w-card.dark button.w-cpill.w-rdybadge:hover{background:var(--c-quick)}}
 </style>
 
 </head>
@@ -7205,6 +7222,11 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
 
   // ── HOME: the card stack ──
   // Reminder pills on the home stack: ALS expiry year (ARCP card) and SCE pass (specialty card)
+  // Everything on this year's ARCP checklist is ticked: the ARCP card says so until the panel (reads only; never creates ARCP state)
+  function arcpReadyHome(){
+    if(!state.arcpPrep?.[currentYear]?.ready || yearLocked() || panelInfo().days<0) return false;
+    const c=readyCount(); return c.total>0 && c.done>=c.total;
+  }
   function alsPill(){
     const v=state.als;
     if(!v) return `<button class="w-cpill" onclick="wGoAls()" title="Add your ALS expiry date">ALS not set</button>`;
@@ -7258,7 +7280,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       <button class="w-go" onclick="wQuickGo(this)">Log entry</button>
     </div>`;
     const stack=
-      (outcomeArcpCard(card)||card('arcp','var(--c-arcp)','ARCP',`${currentYear} · ${yearPct()}% through`, p.days>=0?`${p.days} day${p.days===1?'':'s'}`:'Done', p.lockTxt, true, alsPill()))+
+      (outcomeArcpCard(card)||card('arcp','var(--c-arcp)','ARCP',arcpReadyHome()?`<button class="w-cpill w-rdybadge" onclick="wReady({list:true})" title="Everything on your ARCP checklist is ticked. Open the list">${I('check',15)}ARCP ready</button>`:`${currentYear} · ${yearPct()}% through`, p.days>=0?`${p.days} day${p.days===1?'':'s'}`:'Done', p.lockTxt, true, alsPill()))+
       card('specialty','var(--c-spec)',safe(sp.short),'',`${spec.pct}%`,`${spec.met} of ${spec.total} met`, false, scePill())+
       card('gim','var(--c-gim)','GIM','',`${gim.pct}%`,`${gim.met} of ${gim.total} met`)+
       card('cpd','var(--c-cpd)','CPD','',`${cpdH}h`,`GIM external ${gimExt} of 100h`)+
@@ -8900,10 +8922,22 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
             : it.optional && !on ? `<button class="w-rdy-x" data-na="${it.k}">${na?'It applies':'Not for me'}</button>` : '';
           return `<div class="w-rdy-row${na?' na':''}" style="--i:${i}"><button class="w-rdy-i${on?' on':''}${popKey===it.k?' pop':''}" data-k="${it.k}" aria-pressed="${on}"${na?' disabled':''}><span class="w-rdy-box">${I('check',17)}</span><span class="w-rdy-m"><b>${safe(it.t)}</b>${it.s||na?`<span>${na?'Doesn’t apply to you':safe(it.s)}</span>`:''}</span></button>${extra}</div>`;
         }).join('')).join('')}
-        <div class="w-rdy-ft"><div class="w-sus-acts">${all?'<button class="w-sus-go" data-x="1">Done</button>':`<button class="w-sus-go" data-w="start">${r._walked?'Continue walkthrough':'Start walkthrough'}</button>`}</div>${all?'':'<button class="w-ask-x" data-x="1">Close</button>'}</div>`;
+        <div class="w-rdy-ft"><div class="w-sus-acts">${all?'<button class="w-sus-go" data-x="1">Done</button>':`<button class="w-sus-go" data-w="start">${r._walked?'Continue walkthrough':'Start walkthrough'}</button>`}</div>${all?'':`<div class="w-rdy-links">${(!r._home||r._hide)?`<button class="w-ask-x" data-home="1">${I('pin',15)}Show on Home</button>`:''}<button class="w-ask-x" data-x="1">Close</button></div>`}</div>`;
       card.scrollTop=top;
     };
-    const draw=popKey=>{ wrap.classList.toggle('walk',mode==='walk'); if(mode==='walk') drawWalk(); else drawList(popKey); };
+    // The moment the last thing is ticked: a short celebration, then back to the list or out
+    const drawDone=()=>{
+      const pd=p.panel.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}), lk=p.lock.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+      card.innerHTML=`<div class="w-rdy-done"><div class="w-rdy-medal" aria-hidden="true">${I('check',46)}</div>
+        <div class="w-sus-k">${safe(currentYear)} · ARCP</div>
+        <div class="w-ask-t" id="w-rdy-t">You’re ARCP ready</div>
+        <div class="w-ask-s">${p.days>=0?`Everything on the list is in place for your panel on ${pd}.${p.lockDays>=0?` Your portfolio locks on ${lk}.`:''}`:'Everything on the list is in place for your panel.'}</div>
+        <div class="w-sus-acts"><button class="w-sus-go" data-x="1">Done</button><button class="w-sus-alt" data-w="list">See the list</button></div></div>`;
+      card.scrollTop=0;
+    };
+    const allReady=()=>{ const c=readyCount(); return c.total>0 && c.done>=c.total; };
+    const celebrate=wasAll=>{ if(wasAll || !allReady()) return false; readyData()._doneAt=Date.now(); saveState(); mode='done'; draw(); confetti(wrap,'party'); return true; };
+    const draw=popKey=>{ wrap.classList.toggle('walk',mode!=='list'); if(mode==='walk') drawWalk(); else if(mode==='done') drawDone(); else drawList(popKey); };
     const stopAt=()=>{ if(mode==='walk' && queue[qi]){ readyData()._at=queue[qi].k; saveState(); } };   // where "Continue walkthrough" picks up
     const close=()=>{ stopAt(); wrap.remove(); document.removeEventListener('keydown',onKey,true); if(currentTab==='home'){ try{ render(); }catch(e){} } try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
     const onKey=e=>{ if(e.key==='Escape' && !document.getElementById('w-ask')){ e.preventDefault(); e.stopPropagation(); close(); } };
@@ -8922,17 +8956,18 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
         const it=queue[qi], how=w.dataset.w;
         if(how==='start'){ wrap.classList.remove('intro'); startWalk(); }
         else if(how==='list'){ stopAt(); showList(); }
-        else if(how==='done'){ setOn(it,true); next(); }
-        else if(how==='na'){ readyData()[it.k+'_na']=true; saveState(); next(); }
+        else if(how==='done'){ const was=allReady(); setOn(it,true); if(!celebrate(was)) next(); }
+        else if(how==='na'){ const was=allReady(); readyData()[it.k+'_na']=true; saveState(); if(!celebrate(was)) next(); }
         else next();
         try{ card.focus({preventScroll:true}); }catch(err){}
         return;
       }
       wrap.classList.remove('intro');
-      if(na){ const r=readyData(), k=na.dataset.na+'_na'; if(r[k]) delete r[k]; else r[k]=true; saveState(); draw(); return; }
+      if(e.target.closest('[data-home]')){ const r=readyData(); r._home=true; r._intro=true; delete r._hide; saveState(); draw(); wToast('Checklist is back on Home'); return; }
+      if(na){ const was=allReady(), r=readyData(), k=na.dataset.na+'_na'; if(r[k]) delete r[k]; else r[k]=true; saveState(); if(!celebrate(was)) draw(); return; }
       if(!row) return;
       const it=readyFlat().find(x=>x.k===row.dataset.k); if(!it) return;
-      const was=readyOn(it); setOn(it,!was); draw(was?null:it.k);
+      const was=readyOn(it), wasAll=allReady(); setOn(it,!was); if(!was && celebrate(wasAll)) return; draw(was?null:it.k);
       try{ card.querySelector(`[data-k="${it.k}"]`)?.focus({preventScroll:true}); }catch(err){}
     });
     document.addEventListener('keydown',onKey,true);
