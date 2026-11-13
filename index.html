@@ -27,8 +27,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet" />
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getDatabase, ref, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider, verifyBeforeUpdateEmail, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getDatabase, ref, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
   import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -85,6 +85,20 @@
       await verifyBeforeUpdateEmail(u, newEmail);
     },
     currentEmail: () => auth.currentUser?.email || '',
+    // Everything goes: uploaded certificates, teaching-feedback sessions, the user's data, then the account.
+    // The password is checked first so nothing is removed unless the sign-in can be removed too.
+    deleteAccount: async (password, extra) => {
+      const u = auth.currentUser;
+      if (!u) throw Object.assign(new Error('Not signed in'), { code: 'auth/no-current-user' });
+      await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, password));
+      const left = [];
+      for (const p of (extra?.certPaths || [])) { try { await deleteObject(sRef(storage, p)); } catch (e) { if (e?.code !== 'storage/object-not-found') left.push('certificate'); } }
+      for (const id of (extra?.feedbackIds || [])) { try { await remove(ref(db, 'arcpFeedback/' + id)); } catch (e) { left.push('feedback'); } }
+      await remove(ref(db, 'arcpV2/users/' + u.uid));
+      await deleteUser(u);
+      try { Object.keys(localStorage).filter(k=>k.startsWith('arcp_v2_')||k==='w_quicklog').forEach(k=>localStorage.removeItem(k)); } catch {}
+      return { left };
+    },
     errMsg: authErrMsg
   };
 
@@ -1881,6 +1895,19 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
 .w-card small:has(.w-rdybadge){margin-top:9px}
 .w-card .w-cpill.w-rdybadge,.w-card.dark .w-cpill.w-rdybadge{background:var(--c-quick);color:#1E1E1E;border-color:var(--c-quick);padding:0 12px 0 9px}
 @media (hover:hover){.w-card.dark button.w-cpill.w-rdybadge:hover{background:var(--c-quick)}}
+
+/* Audit fixes */
+/* ARCP on narrow phones: cards and the Road to CCT no longer run off the right edge */
+.arcp-ev,.arcp-last{grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.z-timeline>div>div{min-width:0}
+.z-timeline [style*="minmax(280px"]{grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr))!important}
+/* bigger tap targets on touch screens */
+@media (pointer:coarse){
+  .btn.tiny{min-height:40px;min-width:40px;display:inline-flex;align-items:center;justify-content:center}
+  .w-link,.ix-link{display:inline-block;padding:13px 0;margin:-13px 0}
+}
+.w-del-bk{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;margin:4px 0 14px}
+.w-del-go{background:var(--red)!important;color:#fff!important;border-color:var(--red)!important}
 </style>
 
 </head>
@@ -2230,10 +2257,11 @@ syncSnapshot();
 function loadState(){ try { return Object.assign(blankState(), JSON.parse(localStorage.getItem(STATE_KEY)||"{}")); } catch { return blankState(); } }
 function saveState(push=true){
   try{ stampChanges(); }catch(e){ console.warn('[Outcome1] stamp failed', e); }
-  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); window.__o1SaveFailed=false; }
+  catch(e){ console.error('[Outcome1] could not save on this device', e); if(!window.__o1SaveFailed){ window.__o1SaveFailed=true; try{ (window.wToast||alert)('Couldn’t save on this phone. Its storage may be full. Stay online so your changes reach your account.'); }catch(_){} } }
   // Bump the local "remote sync" timestamp so the Firebase round-trip from this save doesn't
   // trigger a stale-feeling re-render (the round-trip will have updatedAt <= this value).
-  if(push){ localStorage.setItem('arcp_v2_remote_ts', String(Date.now())); fbSave(); }
+  if(push){ try{ localStorage.setItem('arcp_v2_remote_ts', String(Date.now())); }catch(e){} fbSave(); }
 }
 function fbSave(){
   if(suppressRemote) return;
@@ -2314,6 +2342,7 @@ function setTheme(){
      Per-specialty colour application via state.profile.theme is intentionally retired. */
   document.querySelector('meta[name="theme-color"]').setAttribute('content', document.body.classList.contains('focus')?'#121212':'#F7F4F2'); document.documentElement.classList.toggle('dark-boot', document.body.classList.contains('focus'));
 }
+function jsq(s){ return safe(String(s??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'")); }
 function safe(s){ return String(s??"").replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function fmtDate(d){ if(!d) return "—"; const p=String(d).split('-'); return p.length===3 ? `${p[2]}/${p[1]}/${p[0]}` : d; }
 
@@ -3483,7 +3512,7 @@ function fbRenderModal(){
       ${link?`<div class="fb-share">
         <div id="fb-qr" class="fb-qr" aria-label="QR code for the feedback link"></div>
         <div class="fb-share-side">
-          <div class="row" style="flex-wrap:nowrap;gap:8px"><input class="input" readonly value="${safe(link)}" aria-label="Feedback link" onclick="this.select()"><button class="btn" onclick="fbCopy('${safe(link)}',this)">Copy</button></div>
+          <div class="row" style="flex-wrap:nowrap;gap:8px"><input class="input" readonly value="${safe(link)}" aria-label="Feedback link" onclick="this.select()"><button class="btn" onclick="fbCopy('${jsq(link)}',this)">Copy</button></div>
           <div class="row" style="gap:8px;margin-top:10px"><button class="btn action" onclick="fbShowQrFull()">Show QR full screen</button>
             <button class="btn ${e.feedbackOpen===false?'':'good'}" onclick="fbToggleOpen()" aria-pressed="${e.feedbackOpen!==false}">${e.feedbackOpen===false?'Closed · reopen':'Accepting responses'}</button></div>
           <div class="hint" style="margin-top:10px">Put the QR on your last slide, or send the link. Answers are anonymous and only you can read them.</div>
@@ -3494,7 +3523,7 @@ function fbRenderModal(){
       <textarea id="fb-paste" class="input" rows="3" placeholder="name@nhs.net; Dr A Smith &lt;a.smith@nhs.net&gt; …" onpaste="setTimeout(()=>fbAddEmails(this.value),0)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();fbAddEmails(this.value)}"></textarea>
       <div class="row" style="gap:8px;margin-top:8px"><button class="btn" onclick="fbAddEmails(document.getElementById('fb-paste').value)">Add</button>
         ${fbState.emails.length?`<button class="btn" onclick="fbCopy('${fbState.emails.join(', ')}',this)">Copy addresses</button><button class="btn small danger" onclick="fbState.emails=[];fbSaveEmails();fbRenderModal()">Clear all</button>`:''}</div>
-      ${fbState.emails.length?`<div class="fb-chips">${fbState.emails.map(a=>`<span class="fb-chip">${safe(a)}<button onclick="fbRemoveEmail('${safe(a)}')" aria-label="Remove ${safe(a)}">×</button></span>`).join('')}</div>`:''}
+      ${fbState.emails.length?`<div class="fb-chips">${fbState.emails.map(a=>`<span class="fb-chip">${safe(a)}<button onclick="fbRemoveEmail('${jsq(a)}')" aria-label="Remove ${safe(a)}">×</button></span>`).join('')}</div>`:''}
       <div class="row" style="justify-content:space-between;margin-top:12px;gap:8px"><span class="hint">${fbState.emails.length} recipient${fbState.emails.length===1?'':'s'} · sent as BCC from your own email${e.feedbackSentAt?` · last opened ${new Date(e.feedbackSentAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`:''}</span>
         <button class="btn action" ${fbState.emails.length&&link?'':'disabled'} onclick="fbMailto()">Open in email app</button></div>
     </section>
@@ -3894,7 +3923,7 @@ function renderRespProcedureProgression(){
     const ok=respProcMet(proc,currentYear);
     return `<div class="resp-proc-card ${ok?'ontrack':''}">
       <div class="resp-proc-top"><div><div class="resp-proc-title">${safe(proc)}</div><div class="resp-target">${currentYear} target: <strong style="color:${ok?'var(--green)':'var(--amber)'}">${safe(target)}</strong></div></div><div class="resp-status-pill ${ok?'good':'warn'}">${ok?'✓ on track':'not yet'}</div></div>
-      <div class="field"><label>Current ${currentYear} status</label><select class="input" onchange="setRespProc('${safe(proc)}','${currentYear}',this.value)">${RESP_LEVELS.map(l=>`<option value="${l}" ${val===l?'selected':''}>${l||'— not assessed —'}</option>`).join('')}</select></div>
+      <div class="field"><label>Current ${currentYear} status</label><select class="input" onchange="setRespProc('${jsq(proc)}','${currentYear}',this.value)">${RESP_LEVELS.map(l=>`<option value="${l}" ${val===l?'selected':''}>${l||'— not assessed —'}</option>`).join('')}</select></div>
     </div>`;
   }).join('');
   return `<section class="section"><div class="sec-head"><span class="sec-title">Respiratory procedures</span><span class="sec-rule"></span><span class="sec-note">Current-year target and status</span></div><div class="grid">${cards}</div></section>`;
@@ -3911,7 +3940,7 @@ function renderGIM(){
   const doneCount=GIM_DOPS_PROCEDURES.filter(p=>!!state.req['dops.'+p]).length;
   const dopsRows=GIM_DOPS_PROCEDURES.map(p=>{
     const done=!!state.req['dops.'+p];
-    return `<div class="dops-row ${done?'done':''}"><button class="check ${done?'checked':''}" onclick="toggleGimDops('${safe(p)}')">${done?'✓':''}</button><span class="dops-label">${safe(p)}</span><span class="dops-note">${done?'signed off':'not yet'}</span></div>`;
+    return `<div class="dops-row ${done?'done':''}"><button class="check ${done?'checked':''}" onclick="toggleGimDops('${jsq(p)}')">${done?'✓':''}</button><span class="dops-label">${safe(p)}</span><span class="dops-note">${done?'signed off':'not yet'}</span></div>`;
   });
   document.getElementById('main').innerHTML=renderOutcomeSelector()+section('GIM annual requirements',`For ${currentYear}`,annual)+section('GIM cumulative targets','End-of-training totals; ST7 minimums grey out until final year',cumulative)+section('GIM DOPS procedures',`${doneCount} / ${GIM_DOPS_PROCEDURES.length} completed`,[`<div class="dops-list">${dopsRows.join('')}</div>`])+section('GIM milestones','One-off items',milestones);
 }
@@ -3991,12 +4020,12 @@ function renderLogCPD(){
   const sp=specCfg();
   const specEntries=entries('cpd').filter(e=>e.scope!=='gim');
   const gimEntries=entries('cpd').filter(e=>e.scope==='gim');
-  const specHours=Math.round(specEntries.reduce((a,e)=>a+Number(e.hours||0),0)*10)/10;
+  const specHours=Math.round(specEntries.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10;
   const gimHours=gimExternalCpdHours(); // cumulative — the 100h ARCP target counts across all years
   // Diary totals are per training year (annual view for ARCP review)
   const allCpd=entries('cpd').filter(inCurrentYear);
-  const totalHours=Math.round(allCpd.reduce((a,e)=>a+Number(e.hours||0),0)*10)/10;
-  const internalHrs=Math.round(allCpd.filter(e=>(e.category||cpdCategoryFor(e.type))==='Internal').reduce((a,e)=>a+Number(e.hours||0),0)*10)/10;
+  const totalHours=Math.round(allCpd.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10;
+  const internalHrs=Math.round(allCpd.filter(e=>(e.category||cpdCategoryFor(e.type))==='Internal').reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10;
   const externalHrs=Math.round((totalHours-internalHrs)*10)/10;
 
   const typeOpts = CPD_DIARY_TYPES.map(t=>`<option>${t}</option>`).join('');
@@ -4085,11 +4114,11 @@ function exportCpdDiary(){
   const name = (state.profile && state.profile.name) || '';
   const sp = (typeof specCfg==='function'?specCfg().label:'Renal Medicine');
   const deanery = (state.profile && state.profile.deanery) || '';
-  const totalHours = Math.round(all.reduce((a,e)=>a+Number(e.hours||0),0)*10)/10;
-  const internalHrs = Math.round(all.filter(e=>(e.category||cpdCategoryFor(e.type))==='Internal').reduce((a,e)=>a+Number(e.hours||0),0)*10)/10;
+  const totalHours = Math.round(all.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10;
+  const internalHrs = Math.round(all.filter(e=>(e.category||cpdCategoryFor(e.type))==='Internal').reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10;
   const externalHrs = Math.round((totalHours-internalHrs)*10)/10;
   // GIM External — entries on the GIM scope that count as external (matches the cumulative ARCP logic)
-  const gimExternalHrs = Math.round(all.filter(e=>e.scope==='gim' && (typeof cpdIsExternal==='function' ? cpdIsExternal(e) : (e.category||cpdCategoryFor(e.type))==='External')).reduce((a,e)=>a+Number(e.hours||0),0)*10)/10;
+  const gimExternalHrs = Math.round(all.filter(e=>e.scope==='gim' && (typeof cpdIsExternal==='function' ? cpdIsExternal(e) : (e.category||cpdCategoryFor(e.type))==='External')).reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10;
   const gen = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
 
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -4113,7 +4142,7 @@ function exportCpdDiary(){
   };
 
   const yearsHtml = Object.keys(byYear).sort().map(y=>`
-    <h2 class="yr">${esc(y)} <span class="yr-n">${byYear[y].length} entr${byYear[y].length===1?'y':'ies'} · ${Math.round(byYear[y].reduce((a,e)=>a+Number(e.hours||0),0)*10)/10} h</span></h2>
+    <h2 class="yr">${esc(y)} <span class="yr-n">${byYear[y].length} entr${byYear[y].length===1?'y':'ies'} · ${Math.round(byYear[y].reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10} h</span></h2>
     ${byYear[y].map(entryBlock).join('')}`).join('');
 
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CPD Diary — ${esc(name)}</title>
@@ -4359,7 +4388,7 @@ const EXTERNAL_GIM_CPD_TYPES = new Set(['Regional GIM training day','RCP / RSM /
   function gimExternalCpdHours(filter=()=>true){
   const gim=entries('cpd').filter(e => e.scope==='gim').filter(filter);
   const online=e=>e.type==='E-learning / online module' || e.type==='Online CPD';
-  const hrs=a=>a.reduce((s,e)=>s+Number(e.hours||0),0);
+  const hrs=a=>a.reduce((s,e)=>s+(Number(e.hours)||0),0);
   return Math.round((hrs(gim.filter(e=>cpdIsExternal(e) && !online(e))) + Math.min(15, hrs(gim.filter(online))))*10)/10;
 }
 // External = explicit category if set, else derive from type (covers legacy + new entries)
@@ -4370,8 +4399,8 @@ function cpdIsExternal(e){
   return cpdCategoryFor(e.type) === 'External';              // new diary types
 }
 
-function syncLogbookTargets(){ const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=gimExternalCpdHours(); state.req['cum.gim_cpd_st7']=gimExternalCpdHours(e=>e.year==='ST7'); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+Number(e.hours||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.hours||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
-function renderAdmin(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const hosp=hospitalOptions(); document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${safe(h)}')">Delete from list</button></div>`).join('')}</div></section>`; }
+function syncLogbookTargets(){ const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=gimExternalCpdHours(); state.req['cum.gim_cpd_st7']=gimExternalCpdHours(e=>e.year==='ST7'); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
+function renderAdmin(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const hosp=hospitalOptions(); document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${jsq(h)}')">Delete from list</button></div>`).join('')}</div></section>`; }
 function addAdminHospital(){ const h=val('new-hospital'); if(!h)return; addHospitalIfNew(h); renderAdmin(); }
 function removeHospital(h){ state.hospitals=(state.hospitals||[]).filter(x=>x!==h); saveState(); renderAdmin(); }
 function renderOverview(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const spec=calcReqs(specReqs()), gim=calcReqs(GIM_REQS); const outstanding=[...Object.entries(specReqs()).filter(([id,r])=>['unmet','partial'].includes(reqStatus(id,r))).map(([id,r])=>makeReqCard(id,r,'spec')),...Object.entries(GIM_REQS).filter(([id,r])=>['unmet','partial'].includes(reqStatus(id,r))).map(([id,r])=>makeReqCard(id,r,'gim'))]; document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Overview — ${currentYear}</span><span class="sec-rule"></span></div><div class="summary-grid"><div class="summary"><div class="big green">${spec.met}</div><div class="hint">${specCfg().short} complete</div></div><div class="summary"><div class="big red">${spec.open}</div><div class="hint">${specCfg().short} outstanding</div></div><div class="summary"><div class="big green">${gim.met}</div><div class="hint">GIM complete</div></div><div class="summary"><div class="big red">${gim.open}</div><div class="hint">GIM outstanding</div></div><div class="summary"><div class="big primary">${entries('clinics').length+entries('procedures').length+entries('cpd').length+entries('simulation').length+entries('teaching').length}</div><div class="hint">logbook entries</div></div></div></section>${outstanding.length?section('Outstanding / in progress','Editable unless year locked',outstanding):'<div class="panel green">✓ All visible requirements met for this year.</div>'}`; }
@@ -4381,7 +4410,7 @@ function resetYearData(){ if(yearLocked()) return alert('This year is locked. Un
 function toggleFocus(){ document.body.classList.toggle('focus'); localStorage.setItem('arcp_v2_dark', document.body.classList.contains('focus')?'1':'0'); updateModeButton(); setTheme(); }
 function updateModeButton(){ const b=document.getElementById('mode-toggle'); if(b) b.textContent=document.body.classList.contains('focus')?'LIGHT':'DARK'; }
 function countByYear(arr){ return arr.filter(e=>!e.year || e.year===currentYear).length; }
-function sumHours(arr, filter=()=>true){ return Math.round(arr.filter(filter).reduce((a,e)=>a+Number(e.hours||0),0)*10)/10; }
+function sumHours(arr, filter=()=>true){ return Math.round(arr.filter(filter).reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; }
 function REPORT_CSS(style){
   const THEMES = {};
   THEMES.zero = `
@@ -5323,7 +5352,7 @@ function runBulkImport(){
 function renderAdmin(){
   if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; }
   const hosp=hospitalOptions();
-  document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${safe(h)}')">Delete from list</button></div>`).join('')}</div></section>${bulkImportPanel()}`;
+  document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${jsq(h)}')">Delete from list</button></div>`).join('')}</div></section>${bulkImportPanel()}`;
 }
 
 window.saveOnboarding=saveOnboarding; window.dismissBetaBanner=dismissBetaBanner; window.openSettings=openSettings; window.startFreshProfile=startFreshProfile; window.setTab=setTab; window.setYear=setYear; window.setOutcome=setOutcome; window.unlockYear=unlockYear; window.setReqVal=setReqVal; window.render=render; window.renderLogbook=renderLogbook; window.saveClinic=saveClinic; window.saveProc=saveProc; window.saveCPD=saveCPD; window.saveSimple=saveSimple; window.calcAcute=calcAcute; window.saveAcute=saveAcute; window.calcWard=calcWard; window.saveWard=saveWard; window.deleteEntry=deleteEntry; window.editEntry=editEntry; window.addAdminHospital=addAdminHospital; window.removeHospital=removeHospital; window.hideHospital=hideHospital; window.deleteHospital=deleteHospital; window.restoreDeaneryHospitals=restoreDeaneryHospitals; window.toggleGimDops=toggleGimDops; window.updateModeButton=updateModeButton; window.printReport=printReport; window.previewBulkImport=previewBulkImport; window.runBulkImport=runBulkImport; window.bulkImportTemplate=bulkImportTemplate; window.toggleFocus=toggleFocus; window.resetYearData=resetYearData; window.openSettings=openSettings;
@@ -5382,7 +5411,7 @@ function renderRespProcedureProgression(){
     const ok=respProcMet(proc,currentYear);
     return `<div class="resp-proc-card ${ok?'ontrack':''}">
       <div class="resp-proc-top"><div><div class="resp-proc-title">${safe(proc)}</div><div class="resp-target">${currentYear} target: <strong style="color:${ok?'var(--green)':'var(--amber)'}">${safe(target)}</strong></div></div><div class="resp-status-pill ${ok?'good':'warn'}">${ok?'✓ on track':'not yet'}</div></div>
-      <div class="field"><label>Current ${currentYear} status</label><select class="input" onchange="setRespProc('${safe(proc)}','${currentYear}',this.value)">${RESP_LEVELS.map(l=>`<option value="${l}" ${val===l?'selected':''}>${l||'— not assessed —'}</option>`).join('')}</select></div>
+      <div class="field"><label>Current ${currentYear} status</label><select class="input" onchange="setRespProc('${jsq(proc)}','${currentYear}',this.value)">${RESP_LEVELS.map(l=>`<option value="${l}" ${val===l?'selected':''}>${l||'— not assessed —'}</option>`).join('')}</select></div>
     </div>`;
   }).join('');
   return `<section class="section"><div class="sec-head"><span class="sec-title">Respiratory procedures</span><span class="sec-rule"></span><span class="sec-note">Current-year target and on-track status</span></div><div class="grid">${cards}</div></section>`;
@@ -5439,7 +5468,7 @@ function renderGIM(){
   const dopsRows=GIM_DOPS_PROCEDURES.map(p=>{
     const done=!!state.req['dops.'+p];
     return `<div class="dops-row ${done?'done':''}">
-      <button class="check ${done?'checked':''}" onclick="toggleGimDops('${safe(p)}')">${done?'✓':''}</button>
+      <button class="check ${done?'checked':''}" onclick="toggleGimDops('${jsq(p)}')">${done?'✓':''}</button>
       <span class="dops-label">${safe(p)}</span>
       <span class="dops-note">${done?'signed off':'not yet'}</span>
     </div>`;
@@ -5463,7 +5492,7 @@ function renderRespProcedureProgression(){
     return `<div class="resp-dops-row ${ok?'done':''}">
       <div class="resp-dops-name">${safe(proc)}</div>
       <div class="resp-dops-target">${currentYear} target: <strong>${safe(target)}</strong></div>
-      <select class="input resp-dops-select" onchange="setRespProc('${safe(proc)}','${currentYear}',this.value)">
+      <select class="input resp-dops-select" onchange="setRespProc('${jsq(proc)}','${currentYear}',this.value)">
         ${RESP_LEVELS.map(l=>`<option value="${l}" ${val===l?'selected':''}>${l||'— not assessed —'}</option>`).join('')}
       </select>
       <div class="resp-dops-status ${ok?'good':'warn'}">${ok?'✓ on track':'not yet'}</div>
@@ -5644,7 +5673,7 @@ function updateReadiness(){
 function dopsCardGrid(){
   const rows=GIM_DOPS_PROCEDURES.map(p=>{
     const done=!!state.req['dops.'+p];
-    return `<div class="dops-card ${done?'done':''}"><button class="chk ${done?'checked':''}" onclick="toggleGimDops('${safe(p)}')">${done?'✓':''}</button><span class="dops-label">${safe(p)}</span></div>`;
+    return `<div class="dops-card ${done?'done':''}"><button class="chk ${done?'checked':''}" onclick="toggleGimDops('${jsq(p)}')">${done?'✓':''}</button><span class="dops-label">${safe(p)}</span></div>`;
   }).join('');
   return `<div class="dops-grid">${rows}</div>`;
 }
@@ -5756,7 +5785,7 @@ function renderAdmin(){
   const hosp=hospitalOptions();
   const userEmail = window.ARCP_FB?.user?.email || '\u2014';
   const accountBlock = `<section class="section"><div class="sec-head"><span class="sec-title">Account</span><span class="sec-rule"></span><span class="sec-note">Signed in across devices</span></div><div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap"><div><div style="font-size:11px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-mono);margin-bottom:6px">Signed in as</div><div style="font-size:15px;color:var(--text);font-weight:500;word-break:break-all">${safe(userEmail)}</div></div><button class="btn small danger" onclick="signOutUser()">Sign out</button></div></div></section>`;
-  document.getElementById('main').innerHTML=accountBlock+`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field"><label>Expected CCT date</label><div class="row" style="gap:10px;align-items:center;flex-wrap:nowrap"><span class="input" style="flex:1;display:flex;align-items:center;min-height:44px;box-sizing:border-box">${state.profile?.cctDate?new Date(state.profile.cctDate+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Not worked out yet'}</span><button class="btn" onclick="wCct()">CCT calculator</button></div></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${safe(h)}')">Delete from list</button></div>`).join('')}</div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM acute take</span><span class="sec-rule"></span><span class="sec-note">Firth-style placement records</span></div><div id="acute-admin-content"></div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM ward cover</span><span class="sec-rule"></span><span class="sec-note">Months of dedicated GIM ward cover</span></div><div id="ward-admin-content"></div></section>`+
+  document.getElementById('main').innerHTML=accountBlock+`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field"><label>Expected CCT date</label><div class="row" style="gap:10px;align-items:center;flex-wrap:nowrap"><span class="input" style="flex:1;display:flex;align-items:center;min-height:44px;box-sizing:border-box">${state.profile?.cctDate?new Date(state.profile.cctDate+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Not worked out yet'}</span><button class="btn" onclick="wCct()">CCT calculator</button></div></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${jsq(h)}')">Delete from list</button></div>`).join('')}</div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM acute take</span><span class="sec-rule"></span><span class="sec-note">Firth-style placement records</span></div><div id="acute-admin-content"></div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM ward cover</span><span class="sec-rule"></span><span class="sec-note">Months of dedicated GIM ward cover</span></div><div id="ward-admin-content"></div></section>`+
     `<section class="section"><div class="sec-head" style="cursor:pointer" onclick="toggleBridgeSection()"><span class="sec-title">Advanced <span id="bridge-caret" style="color:var(--dim)">\u25B8</span></span><span class="sec-rule"></span><span class="sec-note">Data bridge</span></div><div id="bridge-body" style="display:none"><div class="panel"><div style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:12px">Move your whole logbook between this app and your personal ARCP app. Export writes a bridge file; import merges it in without duplicates (matches by entry, newest wins).</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" onclick="bridgeExport()">\u21E9 Export logbook (bridge)</button><button class="btn small" onclick="bridgeImport()">\u21E7 Import logbook (bridge)</button></div></div></div></section>`;
   renderAcute('acute-admin-content');
   renderWard('ward-admin-content');
@@ -7968,6 +7997,12 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     append(`<section class="section"><div class="sec-head"><span class="sec-title">Sign-in</span></div><div class="w-list">
       ${row('user','Sign-in email', signEmail?safe(signEmail):'Not connected yet', 'wChangeEmail()', 'Change')}
     </div></section>`);
+    const lb=Number(localStorage.getItem('arcp_v2_last_backup')||0);
+    append(`<section class="section"><div class="sec-head"><span class="sec-title">Your data</span></div><div class="w-list">
+      ${row('dl','Back up', lb?`Last backup ${new Date(lb).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`:'One file with everything in your account','wBackup()','Download')}
+      ${row('ul','Restore from a backup','Replaces what’s here with a backup file','wRestore()','Restore')}
+      ${signEmail?row('x','Delete my account','Removes your account and all its data for good','wDeleteAccount()','Delete',true):''}
+    </div></section>`);
     append(`<section class="section"><div class="sec-head"><span class="sec-title">App</span></div><div class="w-list">
       ${row('moon','Appearance',dark?'Dark mode':'Light mode','toggleFocus();render()',dark?'Use light':'Use dark')}
       ${isStandalone()?'':row('dl','Install on this phone', installPrompt?'Add Outcome1 as an app':'Home-screen app that works offline','wInstall()','Install')}
@@ -10045,6 +10080,120 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     }catch(err){ console.error('[Outcome1] CCT form failed', err); wToast('Couldn’t make the form. Try again'); }
   }
   window.wCctWorkbook=cctWorkbook;
+
+  // ── Your data: back up, restore, delete the account ──
+  const KINDS_ALL=()=>Object.keys(state.logbook||{}).filter(k=>Array.isArray(state.logbook[k]));
+  const entryCount=s=>Object.values(s?.logbook||{}).reduce((a,v)=>a+(Array.isArray(v)?v.length:0),0);
+  window.wBackup = function(){
+    try{
+      const copy=JSON.parse(JSON.stringify(state));
+      const file={ app:'Outcome1', kind:'backup', version:1, savedAt:new Date().toISOString(), email:window.ARCP_FB?.user?.email||'', year:currentYear, entries:entryCount(copy), state:copy };
+      const blob=new Blob([JSON.stringify(file,null,1)],{type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Outcome1 backup ${arcpIso(new Date())}.json`;
+      document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+      try{ localStorage.setItem('arcp_v2_last_backup', String(Date.now())); }catch(e){}
+      wToast('Backup saved. Keep the file somewhere safe'); if(currentTab==='admin') render();
+      return true;
+    }catch(err){ console.error('[Outcome1] backup failed', err); wToast('Couldn’t make the backup. Try again'); return false; }
+  };
+  // Restore replaces what's here with the file. Entries that aren't in the file are deleted properly (so they don't
+  // come back from another device), and the file's entries are stamped as newest so they win when devices sync.
+  function restoreApply(file){
+    const now=Date.now(), inc=JSON.parse(JSON.stringify(file.state)), cur=state;
+    const tombs=JSON.parse(JSON.stringify(cur.tombstones||{}));
+    const kinds=new Set([...Object.keys(cur.logbook||{}), ...Object.keys(inc.logbook||{})]);
+    kinds.forEach(k=>{
+      const was=Array.isArray(cur.logbook?.[k])?cur.logbook[k]:null, next=Array.isArray(inc.logbook?.[k])?inc.logbook[k]:null;
+      if(!was && !next) return;
+      const keep=new Set((next||[]).map(e=>String(e.id)));
+      (was||[]).forEach(e=>{ if(e && e.id!==undefined && !keep.has(String(e.id))){ tombs[k]=tombs[k]||{}; tombs[k][String(e.id)]=now; } });
+      (next||[]).forEach(e=>{ if(e) e.updatedAt=now+1; if(tombs[k]) delete tombs[k][String(e.id)]; });
+    });
+    const next=Object.assign(blankState(), inc, { tombstones:tombs, fieldTs:cur.fieldTs||{}, reqTs:cur.reqTs||{} });
+    // settings and ticks that exist here but not in the file are cleared, and stamped so the clearing syncs
+    Object.keys(cur).forEach(k=>{ if(!(k in next)) next[k]=Array.isArray(cur[k])?[]:(cur[k]&&typeof cur[k]==='object')?{}:''; });
+    Object.keys(cur.req||{}).forEach(k=>{ if(!(k in (next.req||{}))){ next.req=next.req||{}; next.req[k]=''; } });
+    state=next;
+    if(file.year && YEARS.includes(file.year)){ currentYear=file.year; try{ localStorage.setItem('arcp_v2_current_year', currentYear); }catch(e){} }
+    saveState();
+  }
+  window.wRestore = function(){
+    const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.style.display='none';
+    inp.addEventListener('change', async ()=>{
+      const f=inp.files&&inp.files[0]; inp.remove(); if(!f) return;
+      let file=null;
+      try{ file=JSON.parse(await f.text()); }catch(e){ file=null; }
+      if(!file || file.app!=='Outcome1' || file.kind!=='backup' || !file.state || typeof file.state!=='object' || !file.state.profile){ wToast('That isn’t an Outcome1 backup file'); return; }
+      const when=file.savedAt?new Date(file.savedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'an unknown date';
+      const nIn=entryCount(file.state), nNow=entryCount(state), other=file.email && window.ARCP_FB?.user?.email && file.email.toLowerCase()!==window.ARCP_FB.user.email.toLowerCase();
+      wAsk({ title:'Restore this backup?', sub:`Saved ${safe(when)}${file.email?` from ${safe(file.email)}`:''}, with ${nIn} logbook entr${nIn===1?'y':'ies'}. It replaces everything in this account (${nNow} entr${nNow===1?'y':'ies'} now), on all your devices.${other?' This backup came from a different sign-in.':''}`,
+        options:[ {icon:'dl', label:'Back up what’s here first', sub:'Then choose Restore again', color:'var(--c-cpd)', on:()=>wBackup()},
+                  {icon:'reset', label:'Replace my data with the backup', sub:'This can’t be undone', color:'var(--c-log)', on:()=>{ try{ restoreApply(file); setTab('home'); wToast(`Restored the backup from ${when}`); }catch(err){ console.error('[Outcome1] restore failed', err); wToast('Couldn’t restore that file. Nothing was changed'); } }} ]});
+    });
+    document.body.appendChild(inp); inp.click();
+  };
+  window.wDeleteAccount = function(){
+    const cur=window.ARCP_FB?.user?.email||'';
+    if(!cur || !window.ARCP_AUTH?.deleteAccount){ alert('Connect to the internet and sign in first, then try again.'); return; }
+    document.getElementById('w-ask')?.remove();
+    const prev=document.activeElement;
+    const wrap=document.createElement('div'); wrap.id='w-ask'; wrap.className='w-ask';
+    wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-del-t">
+      <div class="w-ask-t" id="w-del-t">Delete my account</div>
+      <div class="w-ask-s">This permanently deletes <b>${safe(cur)}</b> and everything in it: your logbook, requirements, uploaded certificates and teaching feedback. It can’t be undone.</div>
+      <button class="w-sus-alt w-del-bk" type="button" data-bk="1">${I('dl',17)}Download a backup first</button>
+      <form class="w-em-form" novalidate>
+        <div class="w-cele-field"><label for="w-del-pw">Your password</label><input id="w-del-pw" type="password" autocomplete="current-password"><small>To confirm it’s you.</small></div>
+        <div class="w-em-msg" role="alert" hidden></div>
+        <button class="w-go w-del-go" type="submit">Delete my account and data</button>
+      </form>
+      <button class="w-ask-x" data-x="1">Keep my account</button></div>`;
+    const close=()=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const onKey=e=>{ if(e.key==='Escape' && !wrap.dataset.busy){ e.preventDefault(); e.stopPropagation(); close(); } };
+    const msg=t=>{ const m=wrap.querySelector('.w-em-msg'); m.hidden=false; m.className='w-em-msg'; m.textContent=t; };
+    wrap.addEventListener('click',e=>{ if(wrap.dataset.busy) return; if(e.target.closest('[data-bk]')){ wBackup(); return; } if(e.target===wrap||e.target.closest('[data-x]')) close(); });
+    wrap.querySelector('form').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const pw=wrap.querySelector('#w-del-pw').value, btn=wrap.querySelector('button[type=submit]');
+      if(!pw) return msg('Type your password to confirm it’s you.');
+      btn.disabled=true; btn.textContent='Deleting…'; wrap.dataset.busy='1';
+      const certPaths=[], feedbackIds=[];
+      KINDS_ALL().forEach(k=>state.logbook[k].forEach(en=>{ if(en?.cert?.path) certPaths.push(en.cert.path); if(en?.feedbackId) feedbackIds.push(en.feedbackId); }));
+      const wasSuppressed=suppressRemote;
+      try{
+        suppressRemote=true;   // nothing gets written back while it's being removed
+        await window.ARCP_AUTH.deleteAccount(pw, {certPaths, feedbackIds});
+        wrap.querySelector('.w-ask-card').innerHTML=`<div class="w-ask-t">Account deleted</div><div class="w-ask-s">Your account and data have been removed. Thank you for trying Outcome1.</div>`;
+        setTimeout(()=>location.reload(), 1800);
+      }catch(err){
+        suppressRemote=wasSuppressed; delete wrap.dataset.busy;
+        const c=err?.code||'';
+        msg(c==='auth/invalid-credential'||c==='auth/wrong-password'||c==='auth/invalid-login-credentials' ? 'That password isn’t right. Nothing was deleted.'
+          : c==='auth/too-many-requests' ? 'Too many tries. Wait a few minutes and try again.'
+          : c==='auth/network-request-failed' ? 'No connection. Check your signal and try again.'
+          : /permission/i.test(String(err?.message||c)) ? 'The server refused to delete the data. Nothing was removed from your sign-in. Contact the app maintainer.'
+          : 'Something went wrong and the account was not fully deleted. Try again, or contact the app maintainer.');
+        btn.disabled=false; btn.textContent='Delete my account and data';
+      }
+    });
+    document.addEventListener('keydown',onKey,true);
+    document.body.appendChild(wrap);
+    try{ wrap.querySelector('#w-del-pw').focus({preventScroll:true}); }catch(e){}
+  };
+
+  // ── Labels: tie each visible label to its box, so screen readers announce it and tapping the label focuses the box ──
+  let __lblN=0, __lblT=null;
+  function linkLabels(){
+    document.querySelectorAll('.field > label:not([for]), .w-cele-field > label:not([for])').forEach(l=>{
+      const box=l.parentElement.querySelector('input:not([type=hidden]):not([type=file]),select,textarea'); if(!box) return;
+      if(!box.id) box.id='o1-f'+(++__lblN);
+      if(!document.querySelector(`label[for="${CSS.escape(box.id)}"]`)) l.htmlFor=box.id;
+    });
+    document.querySelectorAll('.dops-card > .chk:not([aria-label])').forEach(b=>{ const t=b.parentElement.querySelector('.dops-label')?.textContent.trim(); if(t){ b.setAttribute('aria-label','DOPS: '+t); b.setAttribute('aria-pressed', b.classList.contains('checked')?'true':'false'); } });
+    document.querySelectorAll('input.input:not([aria-label]):not([type=hidden]):not([type=file]),select.input:not([aria-label]),textarea.input:not([aria-label])').forEach(b=>{
+      if(b.labels&&b.labels.length) return; const prevEl=b.previousElementSibling, t=b.placeholder || b.closest('.field,td,th')?.querySelector('label,.hint')?.textContent.trim() || (prevEl && /^(STRONG|B|SPAN|LABEL)$/.test(prevEl.tagName) ? prevEl.textContent.trim() : ''); if(t) b.setAttribute('aria-label', t.slice(0,80)); });
+  }
+  try{ new MutationObserver(()=>{ clearTimeout(__lblT); __lblT=setTimeout(linkLabels,60); }).observe(document.body,{childList:true,subtree:true}); linkLabels(); }catch(e){}
 
   currentTab=normTab(currentTab);
   try{ render(); }catch(e){ console.error('[Outcome1] wallet render failed', e); }
