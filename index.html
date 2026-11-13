@@ -10,7 +10,8 @@
 <script>try{if(localStorage.getItem('arcp_v2_session')){var o1s=JSON.parse(localStorage.getItem('arcp_v2_state')||'null');if(o1s&&o1s.profile)document.documentElement.classList.add('o1-trusted');}}catch(e){}</script>
 <style>html.o1-trusted #boot-loader,html.o1-trusted #auth-gate{display:none!important}</style>
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<script>try{if(localStorage.getItem('arcp_v2_dark')==='1')document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').setAttribute('content','black');}catch(e){}</script>
 <meta name="mobile-web-app-capable" content="yes" />
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="apple-mobile-web-app-title" content="Outcome1" />
@@ -9068,7 +9069,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const restore=()=>{ if(head) Object.assign(head.style,{ background:'', borderBottomColor:'', position:'', zIndex:'', pointerEvents:'' }); };
     const finish=()=>{ if(done) return; done=true; restore(); layer.remove(); animBusy=false; window.__wTintHold=null; setTheme(); };
     try{
-      window.__wTintHold=document.querySelector('meta[name="theme-color"]')?.getAttribute('content')||null;
+      // The phone's status bar fades to a new colour a moment after it's told, so tell it straight away
+      window.__wTintHold=null;
       goTab(tab); window.scrollTo(0,0);
       head=main().querySelector('.w-head'); if(!head){ finish(); return; }
       const to=shape(head);
@@ -9085,7 +9087,6 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
         k.animate([{opacity:1},{opacity:0}],{duration:130,delay:i*12,easing:'ease-out',fill:'forwards'}); });
       if(topClone) topClone.animate([{opacity:1},{opacity:0}],{duration:120,fill:'forwards'});
       const grow=g.animate([frame(from),frame(to,{borderRadius:'0px'})],{duration:360,easing:EASE,fill:'forwards'});
-      setTimeout(()=>{ window.__wTintHold=null; setTheme(); },130);   // by now the colour fills the top of the screen
       grow.onfinish=()=>{
         done=true; restore(); layer.remove();
         if(!pk) animBusy=false;
@@ -9103,9 +9104,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     let card=null, layer=null, done=false;
     const finish=()=>{ if(done) return; done=true; if(card) card.style.visibility=''; if(layer) layer.remove(); animBusy=false; window.__wTintHold=null; setTheme(); };
     try{
-      window.__wTintHold=SCREEN_TINT[fromTab]||null;
-      __wHomeAnim.apply(this,arguments); window.scrollTo(0,0);
-      setTimeout(()=>{ window.__wTintHold=null; setTheme(); },40);
+      window.__wTintHold=null;   // status bar back to the Home colour straight away (it fades on its own)
+      __wHomeAnim.apply(this,arguments); window.scrollTo(0,0); setTheme();
       card=homeSource(fromTab); if(!card){ finish(); return; }
       const to=shape(card);
       layer=animLayer(1500);
