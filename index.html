@@ -10,8 +10,7 @@
 <script>try{if(localStorage.getItem('arcp_v2_session')){var o1s=JSON.parse(localStorage.getItem('arcp_v2_state')||'null');if(o1s&&o1s.profile)document.documentElement.classList.add('o1-trusted');}}catch(e){}</script>
 <style>html.o1-trusted #boot-loader,html.o1-trusted #auth-gate{display:none!important}</style>
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<script>try{if(localStorage.getItem('arcp_v2_dark')==='1')document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').setAttribute('content','black');}catch(e){}</script>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="mobile-web-app-capable" content="yes" />
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="apple-mobile-web-app-title" content="Outcome1" />
@@ -1847,6 +1846,18 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
 .w-cct-roll{display:flex;align-items:flex-start;gap:10px;margin:0 0 20px;padding:14px 16px;border-radius:20px;background:var(--c-cpd);color:#1E1E1E;border:2px solid #1E1E1E;font:500 14.5px/1.45 var(--font)}
 .w-cct-roll svg{flex:none;margin-top:2px}
 .w-cct-roll b{font-weight:700}
+
+/* iPhone home-screen app with a see-through status bar: colours run up behind the cutout.
+   The time and battery are always white there, so a soft dark fade sits behind them. In Safari the inset is 0 and none of this shows. */
+#w-sbar{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);pointer-events:none;z-index:2147483000;
+  background:linear-gradient(to bottom,rgba(0,0,0,.34),rgba(0,0,0,.16) 70%,rgba(0,0,0,0))}
+/* keep sheets, Wrapped and the feedback screens clear of the cutout */
+@media (max-width:600px){.w-ask{padding-top:max(12px,env(safe-area-inset-top))}.w-ask-card,.w-su-sheet .w-ask-card{max-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)) - 8px)}}
+#wrapped-overlay .wr-segments{padding-top:calc(14px + env(safe-area-inset-top))}
+#wrapped-overlay .wr-brand{top:calc(26px + env(safe-area-inset-top))}
+#wrapped-overlay .wr-close{top:calc(22px + env(safe-area-inset-top))}
+#fb-modal{padding-top:max(40px,calc(env(safe-area-inset-top) + 12px))}
+#fb-qr-full{padding-top:max(24px,env(safe-area-inset-top))}
 </style>
 
 </head>
@@ -9995,6 +10006,9 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   }
   window.wCctWorkbook=cctWorkbook;
 
+  // See-through iPhone status bar (home-screen app): a fade behind the white time and battery so they stay readable
+  try{ if(document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.content==='black-translucent' && !document.getElementById('w-sbar')){
+    const sb=document.createElement('div'); sb.id='w-sbar'; sb.setAttribute('aria-hidden','true'); document.body.appendChild(sb); } }catch(e){}
   currentTab=normTab(currentTab);
   try{ render(); }catch(e){ console.error('[Outcome1] wallet render failed', e); }
 })();
