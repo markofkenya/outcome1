@@ -7358,7 +7358,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const dis=(locked||finalOnly)?'disabled':'';
     const st=finalOnly?'na':reqStatus(id,req);
     const dc=deadlinePast(req.deadline)?'past':req.deadline===currentYear?'soon':'';
-    const sub=`<span class="dl ${dc}">${safe(deadlineText(req))}</span>${req.cumulative?' · Cumulative':''}`;   // the full rule is on the row's card
+    // Yearly ones need no due line (the section already says which year); the rest say when. The full rule is on the row's card.
+    const sub=req.deadline==='annual' ? '' : `<span class="dl ${dc}">${safe(deadlineText(req))}</span>${req.cumulative?' · Cumulative':''}`;
     let tile, right;
     const auto=AUTO_REQ[id];
     if(auto && req.type==='number'){
@@ -7374,7 +7375,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       right = `<div class="w-step"><button ${dis} aria-label="Decrease ${safe(req.label)}" onclick="wStep('${id}',-1)">−</button><input type="number" inputmode="decimal" min="0" value="${v}" ${dis} aria-label="${safe(req.label)}" onfocus="this.select()" onchange="wSet('${id}',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button ${dis} aria-label="Increase ${safe(req.label)}" onclick="wStep('${id}',1)">+</button></div><div class="w-of">of ${t} ${safe(req.unit||'')}${left?` · ${left} to go`:''}</div>`;
     }
     const sce = id==='spec_sce' ? sceDateBlock(v) : '';
-    return `<div class="w-req ${st}" data-req="${id}" onclick="wReqRow(event,'${id}')">${tile}<div class="w-row-m"><button class="w-req-o" onclick="wReqCard('${id}')"><span class="w-row-t">${(()=>{ const w=String(req.label).split(' '), last=w.pop(); return `${w.length?safe(w.join(' '))+' ':''}<span class="w-nw">${safe(last)}<span class="w-req-ch">${I('chev',15)}</span></span>`; })()}</span><span class="w-row-s">${sub}</span></button>${sce}</div><div class="w-row-r">${right}</div></div>`;
+    return `<div class="w-req ${st}" data-req="${id}" onclick="wReqRow(event,'${id}')">${tile}<div class="w-row-m"><button class="w-req-o" onclick="wReqCard('${id}')"><span class="w-row-t">${(()=>{ const w=String(req.label).split(' '), last=w.pop(); return `${w.length?safe(w.join(' '))+' ':''}<span class="w-nw">${safe(last)}<span class="w-req-ch">${I('chev',15)}</span></span>`; })()}</span>${sub?`<span class="w-row-s">${sub}</span>`:''}</button>${sce}</div><div class="w-row-r">${right}</div></div>`;
   };
   // Tapping anywhere on a row, apart from its own controls, opens its card
   window.wReqRow = (e,id) => { if(e.target.closest('button,input,select,textarea,a,label,.sce-date,.w-step')) return; wReqCard(id); };
