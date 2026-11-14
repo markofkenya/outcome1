@@ -1949,73 +1949,89 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
   .o1-stack td.o1-td-acts{justify-content:flex-end;padding-top:9px!important}
 }
 
-/* ── Your ARCP file: the dial and the four sections (Mark's reference, Nov 2026) ── */
-.af{--af-bg:#FBFBFA;--af-tx:#0E0F11;--af-mu:#5F646B;--af-sec:#D5D7DA;--af-row:#E7E8EA;--af-btn:#B4B8BE;--af-acc:#3F6B00;--af-fill:#C6F35E;--af-late:#9A4F00;--af-late-fill:#FFB86B;--af-track:#E2E4E7;--af-lockz:#9A9CA3;--af-lockdot:#9A9CA3;
-  --af-sans:'Inter',var(--font);--af-disp:'Space Grotesk',var(--font);
-  background:var(--af-bg);color:var(--af-tx);font-family:var(--af-sans);margin:0 calc(50% - 50vw);padding:28px max(24px,calc(50vw - 240px)) 28px;display:flex;flex-direction:column;gap:26px}
-body.focus .af{--af-bg:#0B0C0E;--af-tx:#F4F4F1;--af-mu:#9A9CA3;--af-sec:#2E3138;--af-row:#1B1D22;--af-btn:#5A5D66;--af-acc:#C6F35E;--af-late:#FFB86B;--af-track:#26282E;--af-lockz:#6B6E76}
-.w-head+.af{margin-top:-36px}
-.af-hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
-.af-hd h2{margin:0;font:600 12px/1.2 var(--af-sans);letter-spacing:.14em;text-transform:uppercase;color:var(--af-mu)}
-.af-hd span{font:400 13px var(--af-sans);color:var(--af-mu)}
-/* dial */
-.af-dial{width:100%;max-width:310px;align-self:center}
-.af-dial svg{display:block;width:100%;height:auto;overflow:visible}
-.af-track{stroke:var(--af-track);stroke-width:6;stroke-linecap:round}
-.af-knock{stroke:var(--af-bg);stroke-width:8}
-.af-locked{stroke:var(--af-lockz);stroke-width:6;stroke-dasharray:2 7;stroke-linecap:round}
-.af-elapsed{stroke:var(--af-acc);stroke-width:6;stroke-linecap:round}
-.af-m-done{fill:var(--af-acc)}
-.af-m-next{fill:var(--af-bg);stroke:var(--af-acc);stroke-width:3}
-.af-m-next.late{stroke:var(--af-late)}
-.af-m-later{fill:var(--af-bg);stroke:var(--af-mu);stroke-width:2}
-.af-lockdot{fill:var(--af-lockdot)}
-.af-paneldot{fill:var(--af-tx)}
-.af-halo{fill:var(--af-fill);fill-opacity:.25}
-body:not(.focus) .af-halo{fill:var(--af-acc);fill-opacity:.2}
-.af-today{fill:var(--af-tx)}
-.af-lab text{font:400 11px var(--af-sans);fill:var(--af-mu)}
-.af-lab text.af-l-next{font-weight:600;fill:var(--af-acc)}
-.af-lab text.af-l-next.late{fill:var(--af-late)}
-.af-lab text.af-l-panel{font-weight:600;fill:var(--af-tx)}
-.af-big{font:600 84px var(--af-disp);letter-spacing:-.04em;fill:var(--af-tx)}
-.af-big.word{font-size:44px;letter-spacing:-.03em}
-.af-bigsub{font:400 14px var(--af-sans);fill:var(--af-mu)}
-/* sections */
-.af-s{display:flex;flex-direction:column}
-.af-sh{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--af-sec)}
-.af-n{font:600 12px var(--af-sans);color:var(--af-acc)}
-.af-sh h3{flex:1;min-width:0;margin:0;font:600 19px/1.25 var(--af-disp);letter-spacing:-.01em;color:var(--af-tx)}
-.af-c{font:400 13px var(--af-sans);color:var(--af-mu);white-space:nowrap}
-.af-r{display:flex;align-items:center;gap:12px;min-height:56px;border-top:1px solid var(--af-row)}
-.af-sh+.af-r{border-top:0}
-.af-tg{all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;min-height:56px;display:flex;align-items:center;gap:12px;padding:8px 0;-webkit-tap-highlight-color:transparent}
-.af-tg:focus-visible{outline:2px solid var(--af-acc);outline-offset:2px;border-radius:6px}
-.af-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.af-tx b{font:500 15px/1.3 var(--af-sans);color:var(--af-tx)}
-.af-tx small{font:400 12px/1.35 var(--af-sans);color:var(--af-mu)}
-.af-r.on .af-tx b,.af-r.na .af-tx b{color:var(--af-mu)}
-.af-ok{flex:none;display:inline-flex;align-items:center;gap:6px;font:600 13px var(--af-sans);color:var(--af-acc)}
-.af-pill{flex:none;font:600 12px var(--af-sans);color:#0B0C0E;background:var(--af-fill);padding:5px 10px;border-radius:12px;white-space:nowrap}
-.af-pill.late{background:var(--af-late-fill)}
-.af-dt{flex:none;font:400 13px var(--af-sans);color:var(--af-mu);white-space:nowrap}
-.af-ov{font-style:normal;font-weight:600;color:var(--af-late)}
-.af-b{all:unset;box-sizing:border-box;cursor:pointer;flex:none;height:44px;padding:0 16px;border:1px solid var(--af-btn);border-radius:22px;font:500 13px/42px var(--af-sans);color:var(--af-tx)}
-.af-b:hover{border-color:var(--af-tx)}
-.af-b:focus-visible,.af-chg:focus-visible,.af-lk:focus-visible{outline:2px solid var(--af-acc);outline-offset:2px}
-.af-ft{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;border-top:1px solid var(--af-sec)}
-.af-ft span{font:400 13px/1.35 var(--af-sans);color:var(--af-mu)}
-.af-chg{all:unset;box-sizing:border-box;cursor:pointer;flex:none;height:44px;display:inline-flex;align-items:center;font:600 13px var(--af-sans);color:var(--af-acc)}
-.af-more{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:-22px;color:var(--af-mu)}
-.af-lk{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;padding:0 6px;font:500 12.5px var(--af-sans);color:var(--af-mu)}
-.af-lk:hover{color:var(--af-tx)}
-.ar-firth{margin-top:-8px}
-.ar-firth .arcp-firth{margin:0}
+/* ── ARCP: one list, grouped by when it's due ── */
+.ar{padding:26px 16px 8px;max-width:760px;margin:0 auto;font-family:var(--font);color:var(--text)}
+.ar-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 2px}
+.ar-h h2{margin:0;font:800 28px/1.1 var(--font);letter-spacing:-.035em}
+.ar-h span{font:600 14.5px var(--font);color:var(--dim);white-space:nowrap}
+.ar-bar{height:8px;border-radius:9px;background:var(--line-strong);margin:12px 2px 8px;overflow:hidden}
+.ar-bar i{display:block;height:100%;background:var(--ink);border-radius:9px;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.ar-g{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:20px 2px 8px;font:700 12.5px/1.2 var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.ar-g span:last-child{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.ar-g.late{color:var(--red)} .ar-g.next{color:var(--text)}
+.ar-card{background:var(--bg2);border:1px solid var(--line);border-radius:24px;padding:2px 14px}
+.ar-card.next{border:2px solid var(--line-ink)}
+.ar-r{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.ar-r:first-child{border-top:0}
+.ar-o{all:unset;box-sizing:border-box;flex:none;width:44px;height:44px;display:grid;place-items:center;cursor:pointer;border-radius:50%}
+.ar-o svg{width:30px;height:30px;padding:5px;box-sizing:border-box;border-radius:50%;border:2px solid var(--line-strong);color:transparent;transition:background .2s,border-color .2s}
+.ar-r.on .ar-o svg{background:var(--c-quick);border-color:#1E1E1E;color:#1E1E1E}
+.ar-r.na .ar-o svg{border-style:dashed}
+.ar-o:focus-visible svg,.ar-t:focus-visible,.ar-b:focus-visible,.ar-chg:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.ar-t{all:unset;box-sizing:border-box;flex:1;min-width:0;cursor:pointer;padding:4px 0}
+.ar-t b{display:block;font:700 16.5px/1.25 var(--font);color:var(--text)}
+.ar-t small{display:block;font:500 13.5px/1.3 var(--font);color:var(--dim);margin-top:2px}
+.ar-r.on .ar-t b{text-decoration:line-through;color:var(--dim);font-weight:600}
+.ar-r.na .ar-t{opacity:.6}
+.ar-b,.ar-chg{all:unset;box-sizing:border-box;flex:none;cursor:pointer;font:700 13.5px var(--font);padding:9px 14px;min-height:44px;display:inline-flex;align-items:center;border-radius:999px;border:1.5px solid var(--line-strong);color:var(--text);white-space:nowrap}
+.ar-fx{position:relative;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:22px;background:var(--c-arcp);color:#F4F3EE;margin-top:10px;font:700 16px var(--font)}
+.ar-fx>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ar-fx small{font:600 14px var(--font);opacity:.8}
+.ar-chg{border-color:rgba(244,243,238,.5);color:#F4F3EE;min-height:44px;padding:6px 14px}
+.ar .arcp-firth{margin:4px 0 12px}
+.w-rdy-live{margin-top:10px;font:700 15px var(--font);color:var(--text)}
+.w-esn{width:100%;box-sizing:border-box;margin:14px 0 4px;min-height:160px;font:500 16px/1.45 var(--font)}
 .w-road-in{padding-top:14px}
+@media (prefers-reduced-motion:reduce){.ar-bar i{transition:none}}
+/* ── Getting ready: the road, one stop per category ── */
+.ar-firth{margin-top:14px}
+/* B: the road */
+.arB-tl{list-style:none;margin:20px 0 0;padding:0}
+.arB-n{position:relative;display:flex;gap:10px;padding-bottom:20px}
+.arB-n::before{content:'';position:absolute;left:21px;top:44px;bottom:-4px;width:4px;border-radius:2px;background:var(--line-strong)}
+.arB-n.fin::before{background:var(--ink)}
+.arB-n.end::before{display:none}
+.arB-dot{flex:none;position:relative;z-index:1;width:46px;height:46px;box-sizing:border-box;border-radius:50%;background:var(--cc);color:#1E1E1E;border:2px solid var(--line-ink);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.arB-dot b{font:800 19px/1 var(--font);letter-spacing:-.03em}
+.arB-dot small{font:800 9.5px/1 var(--font);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.arB-n.fin .arB-dot{background:var(--c-quick)}
+.arB-n.next .arB-dot{box-shadow:0 0 0 4px var(--bg),0 0 0 7px var(--c-quick);animation:arPulse 2.4s ease-in-out infinite}
+.arB-n.late .arB-dot{box-shadow:0 0 0 4px var(--bg),0 0 0 7px var(--red)}
+.arB-n.fx .arB-dot{background:var(--c-arcp);color:#F4F3EE}
+@keyframes arPulse{50%{box-shadow:0 0 0 4px var(--bg),0 0 0 11px color-mix(in srgb,var(--c-quick) 55%,transparent)}}
+.arB-b{flex:1;min-width:0}
+.arB-h{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:46px;margin:0 2px 6px}
+.arB-h span{font:700 17px/1.2 var(--font);letter-spacing:-.015em;color:var(--text)}
+.arB-h em{flex:none;font:700 11.5px/1.2 var(--font);font-style:normal;text-transform:uppercase;white-space:nowrap;padding:6px 10px;border-radius:999px;background:var(--bg4);color:var(--text);letter-spacing:.05em}
+.arB-n.late .arB-h em{background:var(--red-soft);color:var(--red)}
+.arB-n.next .arB-h em{background:var(--c-quick);color:#1E1E1E}
+.arB-n.fin .arB-h em{background:transparent;padding-right:0;color:var(--dim)}
+.arB-items{background:var(--bg2);border:1px solid var(--line);border-left:6px solid var(--cc);border-radius:22px;padding:2px 10px 2px 8px}
+.arB-items .ar-r{gap:6px}
+.arB-n.fin .arB-items{border-left-color:var(--c-quick)}
+.arB-n.fx .ar-fx{margin-top:2px}
+@media (prefers-reduced-motion:reduce){.arB-n.next .arB-dot{animation:none}}
+.arB-h{flex-wrap:wrap;row-gap:6px}
+/* small phones: the stop sits beside its name and the card takes the full width */
+@media (max-width:360px){
+  .ar-h h2{font-size:24px}
+  .arB-n{display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:10px;row-gap:8px;align-items:center}
+  .arB-b{display:contents}
+  .arB-dot{width:40px;height:40px}
+  .arB-dot b{font-size:16px}
+  .arB-dot small{font-size:8.5px}
+  .arB-n::before{left:18px;top:40px}
+  .arB-h{margin:0;min-height:40px}
+  .arB-items{grid-column:1/-1;position:relative;z-index:1}
+}
 /* Road to CCT sheet */
 .w-roadsh .w-ask-card{max-width:560px}
 .w-roadsh .z-timeline{margin-top:0!important}
 @media (max-width:420px){.w-roadsh .z-timeline>div{gap:10px!important}.w-roadsh .z-timeline>div>div:last-child{padding:16px 14px!important}}
+.ar-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 18px;margin:18px 0 4px}
+.ar-lk{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 6px;font:700 14.5px var(--font);color:var(--dim)}
+.ar-lk:hover{color:var(--text)}
+.ar-lk:focus-visible{outline:3px solid var(--text);outline-offset:2px;border-radius:10px}
 </style>
 
 </head>
@@ -7211,7 +7227,6 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     file:'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
     calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/>'
   };
-  if(!document.getElementById('af-fonts')) document.head.insertAdjacentHTML('beforeend','<link id="af-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">');
   const I = (name, s=22) => `<svg class="w-i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[name]||''}</svg>`;
   const ring = (pct) => {
     const r=17, c=2*Math.PI*r, p=Math.max(0,Math.min(100,pct||0));
@@ -7257,6 +7272,15 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     else if(lockDays===0){ lockTxt='Portfolio locks today'; pill='Locks today'; }
     else { lockTxt = lockDays===1?'Portfolio locks tomorrow':`Portfolio locks in ${lockDays} days`; pill=`Locks ${lock.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`; }
     return { panel, lock, days, lockDays, lockTxt, pill };
+  }
+  // Read-only view of the ARCP countdown (never creates state on the home screen)
+  function nextArcpStep(){
+    if(state.arcpPrep?.[currentYear]){
+      for(const g of readyGroups()){ const it=g.items.find(x=>!readyOn(x) && !readyNa(x)); if(it) return { title:it.t, date:g.at }; }
+    }
+    const steps=(state.arcpPrep?.[currentYear]?.steps)||{}, t=today0();
+    const list=ARCP_STEPS.map(s=>{ const date=arcpStepDate(s); return {...s,date,done:s.fixed?new Date(date)<=t:!!steps[s.id]?.done}; });
+    return list.find(s=>!s.done)||list[list.length-1];
   }
 
   // ── activity feed ──
@@ -8054,7 +8078,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     O.arcp();
     main().querySelector('.z-hero')?.remove();
     arcpMerge();
-    const p=panelInfo();
+    const p=panelInfo(), nx=nextArcpStep();
     // One list replaces "Countdown to panel", "Upload to your portfolio" and the separate checklist
     const mat=main().querySelector('.z-mat'); if(mat) mat.outerHTML=arcpListHTML();
     main().querySelector('.arcp-docs')?.closest('section')?.remove();
@@ -8077,6 +8101,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     } else {
     prepend(head({ title:'ARCP', color:'var(--c-arcp)', dark:true, kicker:`Panel · ${panelLong}`, big:String(Math.max(0,p.days)), unit:p.days===1?' day':' days',
       sub:`${p.lockTxt} · ${yearPct()}% of ${currentYear} gone`,
+      tab:{icon:'flag', label:`Next: ${nx.title}`, right:arcpFmt(nx.date), on:"wScroll('w-countdown')"},
       acts:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['calc','CCT calc','wCct()'],['road','Road to CCT','wRoad()']] }));
     }
     const ns=needsSection(); if(ns) main().querySelector('.w-head')?.insertAdjacentHTML('afterend', ns);
@@ -8096,78 +8121,43 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     document.addEventListener('keydown',onKey,true); document.body.appendChild(wrap);
     try{ wrap.querySelector('.w-ask-card').focus({preventScroll:true}); }catch(e){}
   };
-  // ═══ Your ARCP file: a dial for the run-up to the panel, then the 13 items grouped by what the panel reads ═══
-  // Display only: each item keeps its id, tick and deadline from readyGroups(); nothing stored changes shape.
-  const AF_SEC=[['01','What colleagues say',['msf','mcr']],['02','What your supervisor says',['es','es_spec','es_gim']],['03','What you can do',['cip_gen','cip_spec','cip_gim']],['04','The paperwork',['form_r','firth','cct','logbook','cpd']]];
-  const AF_TITLE={ msf:'MSF requests', mcr:'MCRs' };
-  const afSecOf=k=>{ const i=AF_SEC.findIndex(s=>s[2].includes(k)); return i<0?3:i; };   // your own items go in The paperwork
-  const afOrder=k=>{ const i=afSecOf(k), j=AF_SEC[i][2].indexOf(k); return i*100+(j<0?99:j); };
-  const afTick='<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7.3l2.7 2.7L11 4.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  function afItems(){
-    const t=today0();
-    return readyGroups().flatMap((g,gi)=>g.items.map(it=>{ const d=g.at?new Date(g.at+'T00:00:00'):null, on=readyOn(it), na=readyNa(it);
-      return { it, gi, d, dd:d?Math.round((d-t)/DAY):null, on, na, open:!on&&!na }; }));
-  }
-  // The dial: a 270° arc from the 8-week milestone (70 days out) to the panel
-  function afDial(p, xs, urgent){
-    const t=today0(), start=new Date(p.panel.getTime()-70*DAY), dOf=d=>Math.round((d-start)/DAY), cl=d=>Math.min(70,Math.max(0,d));
-    const ang=d=>(135+270*cl(d)/70)*Math.PI/180, pt=d=>[155+130*Math.cos(ang(d)),155+130*Math.sin(ang(d))], f=n=>n.toFixed(1);
-    const arc=(a,b)=>{ const [x1,y1]=pt(a),[x2,y2]=pt(b), large=270*(cl(b)-cl(a))/70>180?1:0; return `M ${f(x1)} ${f(y1)} A 130 130 0 ${large} 1 ${f(x2)} ${f(y2)}`; };
-    const fmt=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    const now=dOf(t), lockD=dOf(p.lock);
-    const ms=readyGroups().map((g,gi)=>{ const its=xs.filter(x=>x.gi===gi), d=new Date(g.at+'T00:00:00'); return { gi, d, at:dOf(d), done:its.every(x=>!x.open), late:its.some(x=>x.open) && d<t }; });
-    const nextGi=(ms.find(m=>!m.done)||{}).gi;
-    let s=`<path class="af-track" d="${arc(0,70)}"/><path class="af-knock" d="${arc(lockD,70)}"/><path class="af-locked" d="${arc(lockD,70)}"/>`;
-    if(cl(now)>0) s+=`<path class="af-elapsed" d="${arc(0,now)}"/>`;
-    const lab=[];
-    ms.forEach((m,i)=>{ const [x,y]=pt(m.at), nx=m.gi===nextGi;
-      s+= m.done ? `<circle class="af-m-done" cx="${f(x)}" cy="${f(y)}" r="7"/>` : nx ? `<circle class="af-m-next${m.late?' late':''}" cx="${f(x)}" cy="${f(y)}" r="7"/>` : `<circle class="af-m-later" cx="${f(x)}" cy="${f(y)}" r="6"/>`;
-      const cls=nx&&!m.done?` class="af-l-next${m.late?' late':''}"`:'';
-      if(i===0) lab.push(`<text${cls} x="${f(x)}" y="${f(y+27)}" text-anchor="middle">${fmt(m.d)}</text>`);
-      else { const r=106, a=ang(m.at), lx=155+r*Math.cos(a), ly=155+r*Math.sin(a)+4, an=lx<140?'start':lx>170?'end':'middle';
-        lab.push(`<text${cls} x="${f(lx)}" y="${f(ly)}" text-anchor="${an}">${fmt(m.d)}</text>`); }
-    });
-    { const [x,y]=pt(lockD), a=ang(lockD), lx=155+106*Math.cos(a), ly=155+106*Math.sin(a)+4;
-      s+=`<circle class="af-lockdot" cx="${f(x)}" cy="${f(y)}" r="6"/>`; lab.push(`<text x="${f(lx)}" y="${f(ly)}" text-anchor="${lx>170?'end':lx<140?'start':'middle'}">Locks ${fmt(p.lock)}</text>`); }
-    { const [x,y]=pt(70); s+=`<circle class="af-paneldot" cx="${f(x)}" cy="${f(y)}" r="8"/>`; lab.push(`<text class="af-l-panel" x="${f(x)}" y="${f(y+27)}" text-anchor="middle">Panel ${fmt(p.panel)}</text>`); }
-    { const [x,y]=pt(now); s+=`<circle class="af-halo" cx="${f(x)}" cy="${f(y)}" r="10"/><circle class="af-today" cx="${f(x)}" cy="${f(y)}" r="4"/>`; }
-    const big=p.days>0?String(p.days):p.days===0?'Today':fmt(p.panel), small=p.days>1?'days to your panel':p.days===1?'day to your panel':p.days===0?'is your panel':'your panel';
-    const nextTxt=urgent?` Next deadline: ${AF_TITLE[urgent.it.k]||urgent.it.t}, ${urgent.dd<0?'overdue since':'by'} ${urgent.d.toLocaleDateString('en-GB',{day:'numeric',month:'long'})}.`:' Everything is ready.';
-    const aria=(p.days>0?`${p.days} day${p.days===1?'':'s'} to your panel on ${p.panel.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}.`:p.days===0?'Your panel is today.':`Your panel was on ${p.panel.toLocaleDateString('en-GB',{day:'numeric',month:'long'})}.`)+nextTxt;
-    return `<div class="af-dial"><svg viewBox="0 0 310 290" fill="none" role="img" aria-label="${safe(aria)}">${s}<g class="af-lab">${lab.join('')}</g>
-      <text class="af-big${big.length>3?' word':''}" x="155" y="${big.length>3?182:166}" text-anchor="middle">${safe(big)}</text><text class="af-bigsub" x="155" y="${big.length>3?206:196}" text-anchor="middle">${small}</text></svg></div>`;
-  }
+  // Getting ready: a road of four stops, one per thing the panel reads, ending at the lock and the panel.
+  // Display only: each item keeps its id, tick and deadline from readyGroups().
+  const AR_CATS=[['What colleagues say',['msf','mcr'],'var(--c-spec)'],['What your supervisor says',['es','es_spec','es_gim'],'var(--c-gim)'],['What you can do',['cip_gen','cip_spec','cip_gim'],'var(--c-cpd)'],['The paperwork',['form_r','firth','cct','logbook','cpd'],'var(--c-log)']];
+  const arCatOf=k=>{ const i=AR_CATS.findIndex(c=>c[1].includes(k)); return i<0?3:i; };   // your own items go in The paperwork
+  const arPos=k=>{ const j=AR_CATS[arCatOf(k)][1].indexOf(k); return j<0?99:j; };
   function arcpListHTML(){
-    const c=readyCount(), p=panelInfo(), sp=specCfg().short, xs=afItems();
-    const urgent=xs.filter(x=>x.open&&x.d).sort((a,b)=>(a.d-b.d)||(afOrder(a.it.k)-afOrder(b.it.k)))[0];
-    const fmt=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), wd=d=>d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    const verb=k=>k==='mcr'?'chase by':k==='msf'?'send by':'by';
+    const t=today0(), c=readyCount(), p=panelInfo();
+    const xs=readyGroups().flatMap(g=>g.items.map(it=>({ it, d:g.at?new Date(g.at+'T00:00:00'):null, on:readyOn(it), na:readyNa(it) })));
+    const G=AR_CATS.map(([name,,col],i)=>{
+      const its=xs.filter(x=>arCatOf(x.it.k)===i).sort((a,b)=>arPos(a.it.k)-arPos(b.it.k)), open=its.filter(x=>!x.on&&!x.na);
+      const d=open.reduce((m,x)=>x.d&&(!m||x.d<m)?x.d:m,null), dd=d?Math.round((d-t)/DAY):null;   // the stop shows its next due date
+      return { name, col, its, open:open.length, d, dd, late:open.length>0 && dd!==null && dd<0, fin:!open.length };
+    });
+    const nx=G.filter(x=>!x.fin && !x.late && x.d).sort((a,b)=>a.d-b.d)[0]; if(nx) nx.next=true;   // earliest still to come; ties keep their order
+    const days=n=>`${n} day${n===1?'':'s'}`;
+    const stat=x=>x.fin?'Done':x.late?`${days(-x.dd)} late`:x.dd===0?'Today':x.dd===1?'Tomorrow':`In ${days(x.dd)}`;
+    const mon=d=>d.toLocaleDateString('en-GB',{month:'short'});
     const btn=it=>it.k==='es'?['Notes','wArcpNotes()']:it.k==='logbook'?['Make',`wReady({k:'logbook'})`]:it.k==='cct'?['Open','wCct()']:(it.k==='cpd'||it.k==='firth')?['Make',`arcpGenerate('${it.k}')`]:null;
-    const subOf=it=>it.k==='logbook'?`${sp} and GIM`:it.s||'';
-    const row=x=>{
-      const it=x.it, k=it.k, b=x.open?btn(it):null, urg=x===urgent, late=x.open && x.dd!==null && x.dd<0, counts=!!it.step && / of /.test(it.s||'');
-      const base=x.na?'Doesn’t apply to you':x.on?(counts?it.s:''):subOf(it);
-      const when=x.open&&x.d&&(urg||b) ? (late&&!urg?'<em class="af-ov">Overdue</em>':`${verb(k)} ${fmt(x.d)}`) : '';
-      const sub=[base&&safe(base), when].filter(Boolean).join(' · ');
-      const status= x.on ? `<span class="af-ok">${afTick}Ready</span>`
-        : x.na ? `<span class="af-dt">Not needed</span>`
-        : urg ? `<span class="af-pill${late?' late':''}">${late?'Overdue':x.dd===0?'Today':x.dd===1?'1 day':`${x.dd} days`}</span>`
-        : b ? '' : `<span class="af-dt">${late?'<em class="af-ov">Overdue</em>':x.d?fmt(x.d):''}</span>`;
-      return `<div class="af-r${x.on?' on':''}${x.na?' na':''}${urg?' urg':''}${late?' late':''}" data-k="${k}"><button class="af-tg" aria-pressed="${x.on}" onclick="${x.na?`wArcpNa('${k}')`:`wArcpTick('${k}')`}"><span class="af-tx"><b>${safe(AF_TITLE[k]||it.t)}</b>${sub?`<small>${sub}</small>`:''}</span>${status}</button>${b?`<button class="af-b" onclick="${b[1]}">${b[0]}</button>`:''}</div>`;
-    };
-    const secs=AF_SEC.map(([n,name],i)=>{ const its=xs.filter(x=>afSecOf(x.it.k)===i).sort((a,b)=>afOrder(a.it.k)-afOrder(b.it.k)), live=its.filter(x=>!x.na);
-      return `<div class="af-s" data-g="${safe(name)}"><div class="af-sh"><span class="af-n">${n}</span><h3>${safe(name)}</h3><span class="af-c">${live.filter(x=>x.on).length} of ${live.length}</span></div>${its.map(row).join('')}</div>${i===3&&arcpFirthOpen?`<div class="ar-firth">${renderFirthPanel()}</div>`:''}`; }).join('');
-    const past=p.days<0;
+    const row=(x,g)=>{ const it=x.it, b=btn(it), other=!x.on && !x.na && x.d && g.d && x.d.getTime()!==g.d.getTime();   // due on a different day from the stop: say when
+      const sub=x.na?'Doesn’t apply to you':[it.s, other?`by ${arcpD(x.d)}`:''].filter(Boolean).join(' · ');
+      return `<div class="ar-r${x.on?' on':''}${x.na?' na':''}" data-k="${it.k}"><button class="ar-o" onclick="wArcpTick('${it.k}')" aria-pressed="${x.on}" aria-label="${safe(it.t)}"${x.na?' disabled':''}>${I('check',17)}</button>
+        <button class="ar-t" onclick="wReady({k:'${it.k}'})"><b>${safe(it.t)}</b><small>${safe(sub)}</small></button>${b?`<button class="ar-b" onclick="${b[1]}">${b[0]}</button>`:''}</div>`; };
+    const firth=arcpFirthOpen?`<div class="ar-firth">${renderFirthPanel()}</div>`:'';
+    const lockTxt=p.lockDays<0?'Locked':p.lockDays===0?'Today':`${arcpD(p.lock,{weekday:'short',day:'numeric',month:'short'})} · in ${days(p.lockDays)}`;
+    const panTxt=p.days<0?'Set your next panel date':p.days===0?'Today':`${arcpD(p.panel,{weekday:'short',day:'numeric',month:'short'})} · in ${days(p.days)}`;
+    const head=`<div class="ar-h"><h2 id="ar-h">Getting ready</h2><span>${c.done} of ${c.total} done</span></div>`;
+    const bar=`<div class="ar-bar" role="progressbar" aria-label="ARCP checklist" aria-valuemin="0" aria-valuemax="${c.total}" aria-valuenow="${c.done}"><i style="width:${c.total?Math.round(c.done/c.total*100):0}%"></i></div>`;
     const rd=state.arcpPrep?.[currentYear]?.ready||{}, onHome=!!rd._home && !rd._hide;
-    return `<section class="af" id="w-countdown" aria-labelledby="af-h">
-      <div class="af-hd"><h2 id="af-h">Your ARCP file</h2><span>${c.done} of ${c.total} ready</span></div>
-      ${afDial(p, xs, urgent)}
-      ${secs}
-      <div class="af-ft"><span>Panel ${past?'sat':'sits'} ${wd(p.panel)} · file ${p.lockDays<0?'closed':'closes'} ${wd(p.lock)}</span><button class="af-chg" onclick="wArcpDate()">Change</button></div>
-      <div class="af-more"><button class="af-lk" onclick="wArcpHome()">${onHome?'Hide from Home':'Show on Home'}</button><span aria-hidden="true">·</span><button class="af-lk" onclick="wReadyIntro()">How to get ready</button></div>
-    </section>`;
+    const foot=`<div class="ar-foot"><button class="ar-lk" onclick="wArcpHome()">${I(onHome?'x':'pin',16)}${onHome?'Hide from Home':'Show on Home'}</button><button class="ar-lk" onclick="wReadyIntro()">${I('spark',16)}How to get ready</button></div>`;
+    return `<section class="ar arB" id="w-countdown" aria-labelledby="ar-h">${head}${bar}<ol class="arB-tl">
+      ${G.map(x=>`<li class="arB-n${x.late?' late':''}${x.next?' next':''}${x.fin?' fin':''}" style="--cc:${x.col}" data-g="${safe(x.name)}">
+        <div class="arB-dot" aria-hidden="true">${x.fin?I('check',22):x.d?`<b>${x.d.getDate()}</b><small>${mon(x.d)}</small>`:''}</div>
+        <div class="arB-b"><div class="arB-h"><span>${safe(x.name)}</span><em>${x.next?'Next · ':''}${stat(x)}</em></div><div class="arB-items">${x.its.map(y=>row(y,x)).join('')}</div></div></li>`).join('')}
+      <li class="arB-n fx"><div class="arB-dot" aria-hidden="true">${I('lock',20)}</div><div class="arB-b"><div class="ar-fx"><span>Portfolio locks<small>${lockTxt}</small></span></div></div></li>
+      <li class="arB-n fx end"><div class="arB-dot" aria-hidden="true">${I('flag',20)}</div><div class="arB-b"><div class="ar-fx"><span>ARCP panel<small>${panTxt}</small></span><button class="ar-chg" onclick="wArcpDate()">Change</button></div></div></li>
+    </ol>${firth}${foot}</section>`;
   }
-  window.wArcpNa=function(k){ const r=readyData(); delete r[k+'_na']; saveState(); render(); };
   window.wArcpHome=function(){
     const r=readyData(), on=!!r._home && !r._hide;
     if(on) r._hide=true; else { r._home=true; r._intro=true; delete r._hide; }
@@ -8192,7 +8182,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const c=readyCount();
     if(!was && !wasAll && c.total>0 && c.done>=c.total){ render(); wReady({done:true}); return; }
     render();
-    if(!was && !reduceMotion()) document.querySelector(`.af-r[data-k="${k}"] .af-ok`)?.animate([{transform:'scale(.6)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
+    if(!was && !reduceMotion()) document.querySelector(`.ar-r .ar-o[onclick="wArcpTick('${k}')"]`)?.animate([{transform:'scale(.6)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
   };
   // Notes for the ES meeting, on the ES meeting row
   window.wArcpNotes=function(){
