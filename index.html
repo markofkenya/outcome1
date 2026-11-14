@@ -1908,6 +1908,46 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
 }
 .w-del-bk{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;margin:4px 0 14px}
 .w-del-go{background:var(--red)!important;color:#fff!important;border-color:var(--red)!important}
+
+/* ── One look throughout: the older screens brought into line with the card screens ── */
+/* form labels: sentence case in the app font, not small grey capitals */
+.field label,.field>.hint:first-child{font:600 14px/1.3 var(--font)!important;letter-spacing:0!important;text-transform:none!important;color:var(--text)!important}
+.sec-note{font-family:var(--font)!important;letter-spacing:0!important;text-transform:none!important}
+/* confirm / message sheet */
+.w-conf .w-ask-t{font-size:24px}
+.w-conf .w-sus-go.danger{background:var(--red);color:#fff;border-color:var(--red)}
+/* notes */
+.o1-note{margin:0 0 14px;padding:12px 14px;border-radius:16px;background:var(--bg3);color:var(--dim);font:500 14px/1.45 var(--font)}
+/* CPD diary rows */
+.o1-cpd{padding:16px 18px!important}
+.o1-cpd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.o1-cpd-top strong{font:700 16.5px/1.25 var(--font);color:var(--text)}
+.o1-tag{font:700 12px/1 var(--font);padding:5px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--dim);white-space:nowrap}
+.o1-cpd.ext .o1-tag{background:var(--c-cpd);color:#1E1E1E;border-color:transparent}
+.o1-cpd-meta{margin-top:5px;font:500 14px/1.4 var(--font);color:var(--dim)}
+.o1-cpd-note{margin-top:9px;font:500 14.5px/1.45 var(--font);color:var(--text)}
+.o1-cpd-note span{display:block;font:700 12px/1.2 var(--font);color:var(--dim);margin-bottom:2px}
+.o1-cpd-cert{display:inline-block;margin-top:9px;font:600 14px var(--font);color:var(--text)}
+.o1-cpd-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* logbook list: dates and tags in the app font */
+.lb-row-data .lb-cell-date{font-family:var(--font)!important;letter-spacing:0!important;font-weight:600;font-size:13px!important;text-transform:none!important}
+.lb-row-data .lb-cell-type span{font-family:var(--font)!important;letter-spacing:0!important;text-transform:none!important;font-size:12px!important;font-weight:700!important}
+.lb-row-data .lb-cell-hospital,.lb-row-data .lb-cell-supervisor{font-size:13px!important}
+/* hospitals as a compact list */
+.o1-hosp .w-row{padding-top:10px;padding-bottom:10px}
+/* tables: on a phone each row is a small card, so nothing scrolls sideways or gets cut off */
+@media (max-width:640px){
+  .o1-stack{border:0!important;background:transparent!important;overflow:visible!important}
+  .o1-stack table,.o1-stack tbody,.o1-stack tr,.o1-stack td{display:block;width:auto}
+  .o1-stack thead{display:none}
+  .o1-stack tr{border:1px solid var(--line);border-radius:18px;background:var(--bg2);padding:12px 14px;margin:0 0 10px}
+  .o1-stack td{display:flex;justify-content:space-between;gap:14px;padding:5px 0!important;border:0!important;font:500 15px/1.35 var(--font);color:var(--text);text-align:right;white-space:normal!important}
+  .o1-stack td[data-l]::before{content:attr(data-l);color:var(--dim);font-weight:600;text-align:left;flex:none}
+  .o1-stack td:first-child{font-weight:700;font-size:16.5px;text-align:left;padding-bottom:7px!important}
+  .o1-stack td:first-child::before{display:none}
+  .o1-stack td:empty{display:none}
+  .o1-stack td.o1-td-acts{justify-content:flex-end;padding-top:9px!important}
+}
 </style>
 
 </head>
@@ -2412,7 +2452,7 @@ function saveOnboarding(){
 }
 function setOutcomeLocal(y,v){ state.years[y]=state.years[y]||{}; state.years[y].outcome=v; state.years[y].locked=LOCKING_OUTCOMES.includes(v); if(state.years[y].locked) state.years[y].lockedAt=Date.now(); }
 function openSettings(){ initOnboarding(); document.getElementById('gate').classList.add('show'); }
-function startFreshProfile(){ if(!confirm('Start a fresh test profile on this browser? This clears the local V2 profile and overwrites this anonymous Firebase test user with a blank profile.')) return; state=blankState(); currentYear='ST4'; localStorage.setItem('arcp_v2_current_year','ST4'); saveState(); initOnboarding(); document.getElementById('app').classList.remove('ready'); document.getElementById('gate').classList.add('show'); }
+function startFreshProfile(){ if(!o1Confirm('Start a blank profile?', ()=>startFreshProfile(), {sub:'This wipes everything in this account and starts again.', yes:'Wipe and start again', danger:true})) return; state=blankState(); currentYear='ST4'; localStorage.setItem('arcp_v2_current_year','ST4'); saveState(); initOnboarding(); document.getElementById('app').classList.remove('ready'); document.getElementById('gate').classList.add('show'); }
 
 /* ════════════════════════════════════════════════════════════════════
    WRAPPED DATA ENGINE  ·  buildMonthlySummary(year, month, state)
@@ -3229,7 +3269,7 @@ function arcpGenerate(id){
   arcpMarkReady(id); render();
 }
 function arcpAddDoc(){ const n=prompt('Document name'); if(!n||!n.trim()) return; const y=arcpData(); y.custom.push({id:'c'+Date.now(), name:n.trim(), hint:'Your own item'}); saveState(); render(); }
-function arcpRemoveDoc(id){ const y=arcpData(); if(!confirm('Remove this document from the list?')) return; y.custom=y.custom.filter(c=>c.id!==id); delete y.docs[id]; saveState(); render(); }
+function arcpRemoveDoc(id){ const y=arcpData(); if(!o1Confirm('Remove this document from the list?', ()=>arcpRemoveDoc(id), {yes:'Remove', danger:true})) return; y.custom=y.custom.filter(c=>c.id!==id); delete y.docs[id]; saveState(); render(); }
 function arcpToggleStep(id){ const y=arcpData(); const cur=y.steps[id]||{}; y.steps[id]={...cur, done:!cur.done}; saveState(); render(); }
 function arcpSetStepDate(id,v){ const y=arcpData(); const cur=y.steps[id]||{}; y.steps[id]={...cur, date:v||null}; saveState(); render(); }
 function arcpSetNotes(v){ arcpData().notes=v; localStorage.setItem(STATE_KEY, JSON.stringify(state)); clearTimeout(window.__arcpNotesT); window.__arcpNotesT=setTimeout(()=>saveState(),1200); }
@@ -3857,7 +3897,7 @@ function setTab(t){ currentTab=t; localStorage.setItem('arcp_v2_tab',t); render(
 function updateCountdown(){ const d=new Date(state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]); const today=new Date(); today.setHours(0,0,0,0); const days=Math.round((d-today)/86400000); const el=document.getElementById('days-val'); el.textContent=days>=0?days:'PAST'; el.className='metric-val '+(days<60?'alert':days<120?'warn':''); }
 function updateALS(){ const val=state.als; const el=document.getElementById('als-val'); if(!val){el.textContent='NOT SET'; el.className='metric-val'; return;} const d=new Date(val); const days=Math.round((d-new Date())/86400000); el.textContent=days<0?`EXPIRED ${fmtDate(val)}`:`${fmtDate(val)} (${days}d)`; el.className='metric-val '+(days<0?'alert':days<183?'warn':''); }
 function renderLockedBlock(){ if(!yearLocked()) return ''; return `<div class="lock-banner"><div><div class="lock-title">✓ ${safe(OUTCOMES[outcome()]||'Year locked')}</div><div class="lock-note">${currentYear} is locked after ARCP outcome. Sections are collapsed to protect the record. Unlock only if you need to correct data.</div></div><div class="row"><button class="btn small primary" onclick="showPrintStylePicker()">Print report</button><button class="btn small" onclick="unlockYear()">Unlock</button></div></div>`; }
-function unlockYear(){ if(!confirm('Unlock this year? Use this only if you entered the outcome by mistake.'))return; state.years[currentYear]=state.years[currentYear]||{}; state.years[currentYear].locked=false; state.years[currentYear].outcome=''; delete state.years[currentYear].lockedAt; saveState(); render(); }
+function unlockYear(){ if(!o1Confirm('Unlock this year?', ()=>unlockYear(), {sub:'Only do this if the outcome was entered by mistake.', yes:'Unlock'})) return; state.years[currentYear]=state.years[currentYear]||{}; state.years[currentYear].locked=false; state.years[currentYear].outcome=''; delete state.years[currentYear].lockedAt; saveState(); render(); }
 function renderOutcomeSelector(){ const allowedOutcomes=Object.entries(OUTCOMES).filter(([k])=>k!=='6'||currentYear==='ST7'); return `<div class="panel"><div class="row"><strong style="font-size:11px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase">ARCP Outcome</strong><select class="input" style="max-width:360px" onchange="setOutcome('${currentYear}',this.value)"><option value="">-- not yet --</option>${allowedOutcomes.map(([k,v])=>`<option value="${k}" ${outcome()===k?'selected':''}>${v}</option>`).join('')}</select>${yearLocked()?'<span class="green" style="font-size:11px;font-weight:800">YEAR LOCKED</span>':''}</div></div>`; }
 function sceDateBlock(done){
   const d=state.sceDate||''; let note='';
@@ -3976,9 +4016,9 @@ function inCurrentYear(e){
 }
 function tableFiltered(k, filterFn, cols, mapper){ const arr=entries(k).filter(filterFn).filter(inCurrentYear).slice().sort((a,b)=>(b.date||b.start||'').localeCompare(a.date||a.start||'')); return tableFromArray(k, arr, cols, mapper); }
 function canEditEntry(e){ return Date.now() - Number(e.createdAt || e.id || 0) <= 7*86400000; }
-function tableFromArray(k, arr, cols, mapper){ if(!arr.length) return `<div class="hint">// no entries yet</div>`; return `<div class="table-wrap"><table class="table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead><tbody>${arr.map(e=>`<tr>${mapper(e).map(x=>`<td>${safe(x)}</td>`).join('')}<td><div class="row" style="gap:4px;justify-content:flex-end">${k==='teaching'?`<button class="btn tiny action" onclick="openFeedback(${e.id})">Feedback${e.feedbackCount?' \u00b7 '+e.feedbackCount:''}</button>`:''}${canEditEntry(e)?`<button class="btn tiny" title="Edit available for 7 days after adding" onclick="editEntry('${k}',${e.id})">Edit</button>`:`<span class="hint" title="Editing window has passed">locked</span>`}<button class="btn tiny danger" onclick="deleteEntry('${k}',${e.id})">✕</button></div></td></tr>`).join('')}</tbody></table></div>`; }
+function tableFromArray(k, arr, cols, mapper){ if(!arr.length) return `<div class="hint">No entries yet</div>`; return `<div class="table-wrap o1-stack"><table class="table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead><tbody>${arr.map(e=>`<tr>${mapper(e).map((x,i)=>`<td data-l="${safe(cols[i]||'')}">${safe(x)}</td>`).join('')}<td class="o1-td-acts"><div class="row" style="gap:4px;justify-content:flex-end">${k==='teaching'?`<button class="btn tiny action" onclick="openFeedback(${e.id})">Feedback${e.feedbackCount?' \u00b7 '+e.feedbackCount:''}</button>`:''}${canEditEntry(e)?`<button class="btn tiny" title="Edit available for 7 days after adding" onclick="editEntry('${k}',${e.id})">Edit</button>`:`<span class="hint" title="Editing window has passed">locked</span>`}<button class="btn tiny danger" onclick="deleteEntry('${k}',${e.id})">✕</button></div></td></tr>`).join('')}</tbody></table></div>`; }
 function addEntry(k, data){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); const now=Date.now(); const arr=entries(k); arr.push({...data,id:now,createdAt:now,updatedAt:now,year:data.year||currentYear}); saveEntries(k,arr); render(); }
-function deleteEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); if(!confirm('Delete this entry?')) return; state.tombstones=state.tombstones||{}; state.tombstones[k]=state.tombstones[k]||{}; state.tombstones[k][String(id)]=Date.now(); saveEntries(k, entries(k).filter(e=>e.id!==id)); render(); }
+function deleteEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); if(!o1Confirm('Delete this entry?', ()=>deleteEntry(k,id), {sub:'It’s removed from your logbook on all your devices.', yes:'Delete', danger:true})) return; state.tombstones=state.tombstones||{}; state.tombstones[k]=state.tombstones[k]||{}; state.tombstones[k][String(id)]=Date.now(); saveEntries(k, entries(k).filter(e=>e.id!==id)); render(); }
 function editEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); const arr=entries(k); const idx=arr.findIndex(e=>e.id===id); if(idx<0) return; const e=arr[idx]; if(!canEditEntry(e)) return alert('Editing closes 7 days after an entry is added. You can still delete it.'); const editable=Object.keys(e).filter(x=>!['id','createdAt','updatedAt'].includes(x)); for(const field of editable){ const current=e[field]??''; const next=prompt(`Edit ${field}`, current); if(next===null) return; e[field]=next; } e.updatedAt=Date.now(); arr[idx]=e; saveEntries(k,arr); render(); }
 function logSummaryCards(items){ return `<div class="summary-grid" style="margin-bottom:16px;">${items.map(it=>`<div class="summary"><div class="big ${it.cls||'primary'}">${it.value}</div><div class="hint">${it.label}</div></div>`).join('')}</div>`; }
 function otherClinicControl(id, list){ const sc=list[0]==='Specialty clinic'; return `<select class="input" id="${id}" onchange="document.getElementById('${id}-other-wrap').style.display=(this.value==='Other'||this.value==='Specialty clinic')?'flex':'none'">${optionsHtml(list)}</select><div class="field" id="${id}-other-wrap" style="display:${sc?'flex':'none'};margin-top:6px"><label>${sc?'Clinic name':'Specify clinic type'}</label><input class="input" id="${id}-other" placeholder="Type clinic name"></div>`; }
@@ -4043,31 +4083,20 @@ function renderLogCPD(){
 
   const diaryRow = (e) => {
     const cat = e.category || cpdCategoryFor(e.type);
-    const refl = (e.reflection||'').trim();
-    const learn = (e.learning||'').trim();
-    return `<div class="card" style="grid-column:1/-1;border-left:3px solid ${cat==='Internal'?'var(--primary)':'var(--gim)'}">
-      <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px">
-        <div style="flex:1">
-          <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
-            <strong style="font-size:13px">${e.title||e.type||'CPD'}</strong>
-            <span class="badge" style="font-size:8px;background:${cat==='Internal'?'var(--green-soft)':'rgba(96,165,250,.12)'};color:${cat==='Internal'?'var(--primary)':'var(--gim)'};padding:2px 7px;border-radius:20px;letter-spacing:.08em">${cat.toUpperCase()}</span>
-          </div>
-          <div class="hint" style="margin-top:3px">${fmtDate(e.date)} · ${e.type||''}${e.provider?' · '+e.provider:''} · ${e.hours||0}h · ${e.year||''}</div>
-          ${learn?`<div style="font-size:11px;margin-top:7px;color:var(--text)"><span style="opacity:.6">Learning:</span> ${learn}</div>`:''}
-          ${refl?`<div style="font-size:11px;margin-top:5px;color:var(--text);font-style:italic;opacity:.9"><span style="opacity:.6;font-style:normal">Reflection:</span> ${refl}</div>`:''}
-          ${e.cert&&e.cert.url?`<a href="${e.cert.url}" target="_blank" rel="noopener" style="font-size:10px;margin-top:7px;display:inline-block;color:var(--gim);text-decoration:none">📎 ${e.cert.name||'Certificate'}</a>`:''}
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
-          ${canEditEntry(e)?`<button class="btn tiny" onclick="editCpdEntry(${e.id})">Edit</button>`:""}
-          <button class="btn tiny danger" onclick="deleteEntry('cpd',${e.id})">✕</button>
-        </div>
-      </div>
+    const refl = (e.reflection||'').trim(), learn = (e.learning||'').trim(), url = (e.cert&&/^https?:/i.test(e.cert.url||''))?e.cert.url:'';
+    return `<div class="card o1-cpd ${cat==='Internal'?'int':'ext'}" style="grid-column:1/-1">
+      <div class="o1-cpd-top"><strong>${safe(e.title||e.type||'CPD')}</strong><span class="o1-tag">${safe(cat)}</span></div>
+      <div class="o1-cpd-meta">${safe([fmtDate(e.date), e.type, e.provider, (Number(e.hours)||0)+'h', e.year].filter(Boolean).join(' · '))}</div>
+      ${learn?`<div class="o1-cpd-note"><span>Learning</span>${safe(learn)}</div>`:''}
+      ${refl?`<div class="o1-cpd-note"><span>Reflection</span>${safe(refl)}</div>`:''}
+      ${url?`<a class="o1-cpd-cert" href="${safe(url)}" target="_blank" rel="noopener">${safe(e.cert.name||'Certificate')}</a>`:''}
+      <div class="o1-cpd-acts">${canEditEntry(e)?`<button class="btn small" onclick="editCpdEntry(${e.id})">Edit</button>`:""}<button class="btn small danger" onclick="deleteEntry('cpd',${e.id})">Delete</button></div>
     </div>`;
   };
 
   const listFor = (filterFn) => {
     const list = entries('cpd').filter(filterFn).filter(inCurrentYear).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-    if(!list.length) return '<div class="hint">// no entries yet</div>';
+    if(!list.length) return '<div class="hint">No entries yet</div>';
     return list.map(diaryRow).join('');
   };
 
@@ -4078,7 +4107,7 @@ function renderLogCPD(){
       {value:gimHours,label:'GIM external CPD · cumulative target',cls:'green'}
     ])+
     `<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><button class="btn small primary" onclick="exportCpdDiary()">⎙ CPD Diary report</button><button class="btn small" onclick="exportCpdData()">⬇ Export data (JSON)</button><button class="btn small" onclick="importCpdDiary()">⬆ Import CPD (JSON)</button></div>`+
-    `<div class="hint" style="margin:0 0 14px;padding:9px 12px;background:var(--panel-2,#1c1f29);border-radius:8px;font-size:10px;">📓 This is your CPD diary — courses, conferences, e-learning, MDT, M&M and more. Add reflection to make entries appraisal-ready.</div>`+
+    `<div class="o1-note">Your CPD diary: courses, conferences, e-learning, MDT, M&amp;M and more. Add a reflection to make entries appraisal-ready.</div>`+
     formPanel(`Add ${sp.short} CPD entry`,diaryForm('spec'),"saveCPD('spec')")+
     section(`${sp.short} CPD diary`,`${specEntries.length} entries · ${specHours}h`, [listFor(e=>e.scope!=='gim')])+
     formPanel('Add GIM CPD entry',diaryForm('gim'),"saveCPD('gim')")+
@@ -4372,7 +4401,7 @@ function saveCpdEdit(id){
 }
 function saveCPD(scope='spec'){ const prefix=`cpd-${scope}`; const cert=(window._cpdPendingCert&&window._cpdPendingCert[scope])||null; addEntry('cpd',{scope,type:val(`${prefix}-type`),category:val(`${prefix}-category`),date:val(`${prefix}-date`),title:val(`${prefix}-title`),provider:val(`${prefix}-provider`),hours:val(`${prefix}-hours`),year:val(`${prefix}-year`),learning:val(`${prefix}-learning`),reflection:val(`${prefix}-reflection`),cert}); if(window._cpdPendingCert) delete window._cpdPendingCert[scope]; }
 function renderSimpleLog(k,title,fields,cols,types){ const html=fields.map(f=>{ if(f==='date')return `<div class="field"><label>Date</label><input class="input" id="sl-date" type="date" value="${arcpIso(new Date())}"></div>`; if(f==='hospital')return hospitalField('sl-hospital'); if(f==='year')return `<div class="field"><label>Year</label><select class="input" id="sl-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div>`; if((f==='type'||f==='course') && Array.isArray(types))return `<div class="field"><label>${f}</label><select class="input" id="sl-${f}">${optionsHtml(types)}</select></div>`; return `<div class="field"><label>${f}</label><input class="input" id="sl-${f}" ${f==='hours'?'type="number" step="0.5" min="0"':''}></div>`; }).join(''); const arr=entries(k).filter(inCurrentYear); document.getElementById('log-content').innerHTML=formPanel(`Add ${title}`,html,`saveSimple('${k}','${fields.join('|')}')`)+section(`${title} log`,`${arr.length} entries`,[`<div class="card" style="grid-column:1/-1">${table(k, cols, e=>fields.slice(1).map(f=>f==='date'?fmtDate(e[f]):e[f]))}</div>`]); }
-function saveSimple(k,fieldStr){ const data={}; fieldStr.split('|').forEach(f=>{ data[f]=val('sl-'+f); }); const before=entries(k).length; addEntry(k,data); if(data.hospital)addHospitalIfNew(data.hospital); if(k==='teaching'){ const arr=entries('teaching'); if(arr.length>before){ const last=arr[arr.length-1]; setTimeout(()=>{ if(confirm('Teaching saved. Collect feedback for this session now? (QR code / link / email)')) openFeedback(last.id); },80); } } }
+function saveSimple(k,fieldStr){ const data={}; fieldStr.split('|').forEach(f=>{ data[f]=val('sl-'+f); }); const before=entries(k).length; addEntry(k,data); if(data.hospital)addHospitalIfNew(data.hospital); if(k==='teaching'){ const arr=entries('teaching'); if(arr.length>before){ const last=arr[arr.length-1]; setTimeout(()=>{ o1Confirm('Teaching saved', ()=>{ window.__o1Ok=false; openFeedback(last.id); }, {sub:'Collect feedback for this session now? You’ll get a QR code and a link.', yes:'Get feedback', no:'Not now'}); },80); } } }
 function renderAcute(targetId){ const total=entries('acute').reduce((a,e)=>a+Number(e.estimated||0),0); const html=`${hospitalField('acute-hospital')}<div class="field"><label>Start</label><input class="input" id="acute-start" type="date" onchange="calcAcute()"></div><div class="field"><label>End</label><input class="input" id="acute-end" type="date" onchange="calcAcute()"></div><div class="field"><label>Takes / month</label><input class="input" id="acute-takes" type="number" oninput="calcAcute()"></div><div class="field"><label>Patients / take</label><input class="input" id="acute-patients" type="number" oninput="calcAcute()"></div><div class="field"><label>Estimated patients</label><input class="input" id="acute-estimated" readonly></div><div class="field"><label>Supervisor</label><input class="input" id="acute-supervisor"></div>`; const target=document.getElementById(targetId||'log-content'); if(!target) return; target.innerHTML=`<div class="summary-grid"><div class="summary"><div class="big blue">${Math.round(total)}</div><div class="hint">/ 750 estimated patients</div></div></div>`+formPanel('Add acute take placement',html,'saveAcute()')+section('Acute take log','Firth-style estimate', [`<div class="card" style="grid-column:1/-1">${table('acute',['Hospital','Start','End','Months','Takes/mo','Pts/take','Estimated','Year','Supervisor'], e=>[e.hospital,fmtDate(e.start),fmtDate(e.end),e.months,e.takes,e.patients,e.estimated,e.year,e.supervisor])}</div>`]); }
 function calcAcute(){ const s=val('acute-start'), e=val('acute-end'); const months=monthsBetween(s,e); const est=Math.round(months*Number(val('acute-takes')||0)*Number(val('acute-patients')||0)); document.getElementById('acute-estimated').value=est||''; }
 function saveAcute(){ const s=val('acute-start'), e=val('acute-end'); addEntry('acute',{hospital:val('acute-hospital'),start:s,end:e,months:monthsBetween(s,e),takes:val('acute-takes'),patients:val('acute-patients'),estimated:val('acute-estimated'),supervisor:val('acute-supervisor')}); addHospitalIfNew(val('acute-hospital')); }
@@ -4406,7 +4435,7 @@ function removeHospital(h){ state.hospitals=(state.hospitals||[]).filter(x=>x!==
 function renderOverview(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const spec=calcReqs(specReqs()), gim=calcReqs(GIM_REQS); const outstanding=[...Object.entries(specReqs()).filter(([id,r])=>['unmet','partial'].includes(reqStatus(id,r))).map(([id,r])=>makeReqCard(id,r,'spec')),...Object.entries(GIM_REQS).filter(([id,r])=>['unmet','partial'].includes(reqStatus(id,r))).map(([id,r])=>makeReqCard(id,r,'gim'))]; document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Overview — ${currentYear}</span><span class="sec-rule"></span></div><div class="summary-grid"><div class="summary"><div class="big green">${spec.met}</div><div class="hint">${specCfg().short} complete</div></div><div class="summary"><div class="big red">${spec.open}</div><div class="hint">${specCfg().short} outstanding</div></div><div class="summary"><div class="big green">${gim.met}</div><div class="hint">GIM complete</div></div><div class="summary"><div class="big red">${gim.open}</div><div class="hint">GIM outstanding</div></div><div class="summary"><div class="big primary">${entries('clinics').length+entries('procedures').length+entries('cpd').length+entries('simulation').length+entries('teaching').length}</div><div class="hint">logbook entries</div></div></div></section>${outstanding.length?section('Outstanding / in progress','Editable unless year locked',outstanding):'<div class="panel green">✓ All visible requirements met for this year.</div>'}`; }
 function calcReqs(reqs){ const arr=Object.entries(reqs).filter(([id,r])=>r.deadline==='annual'||yrIndex(r.deadline)<=yrIndex()); const met=arr.filter(([id,r])=>reqStatus(id,r)==='met').length; return {met,total:arr.length,open:arr.length-met,pct:arr.length?Math.round(met/arr.length*100):0}; }
 function updateReadiness(){ if(!state.profile)return; const spec=calcReqs(specReqs()), gim=calcReqs(GIM_REQS); document.getElementById('spec-pct').textContent=spec.pct+'%'; document.getElementById('spec-fill').style.width=spec.pct+'%'; document.getElementById('gim-pct').textContent=gim.pct+'%'; document.getElementById('gim-fill').style.width=gim.pct+'%'; document.getElementById('readiness-detail').textContent=`${specCfg().short} ${spec.met}/${spec.total} · GIM ${gim.met}/${gim.total}`; }
-function resetYearData(){ if(yearLocked()) return alert('This year is locked. Unlock it before resetting.'); if(!confirm(`Reset annual requirement data for ${currentYear}? Cumulative logbook data is preserved.`)) return; Object.keys(state.req).forEach(k=>{ if(k.startsWith(currentYear+'.')) delete state.req[k]; }); saveState(); render(); }
+function resetYearData(){ if(yearLocked()) return alert('This year is locked. Unlock it before resetting.'); if(!o1Confirm(`Reset ${currentYear}?`, ()=>resetYearData(), {sub:'This clears this year’s requirement values. Your logbook entries are kept.', yes:'Reset', danger:true})) return; Object.keys(state.req).forEach(k=>{ if(k.startsWith(currentYear+'.')) delete state.req[k]; }); saveState(); render(); }
 function toggleFocus(){ document.body.classList.toggle('focus'); localStorage.setItem('arcp_v2_dark', document.body.classList.contains('focus')?'1':'0'); updateModeButton(); setTheme(); }
 function updateModeButton(){ const b=document.getElementById('mode-toggle'); if(b) b.textContent=document.body.classList.contains('focus')?'LIGHT':'DARK'; }
 function countByYear(arr){ return arr.filter(e=>!e.year || e.year===currentYear).length; }
@@ -5201,7 +5230,7 @@ async function authReset(){
   }
 }
 async function signOutUser(){
-  if(!confirm('Sign out? Your data is safely synced — you can sign back in any time on any device with the same email and password.')) return;
+  if(!o1Confirm('Sign out?', ()=>signOutUser(), {sub:'Your data is saved to your account. Sign back in on any device with the same email and password.', yes:'Sign out'})) return;
   await window.ARCP_AUTH.signOutUser();
 }
 window.authToggleMode=authToggleMode;
@@ -7996,6 +8025,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const signEmail=window.ARCP_FB?.user?.email||'';
     append(`<section class="section"><div class="sec-head"><span class="sec-title">Sign-in</span></div><div class="w-list">
       ${row('user','Sign-in email', signEmail?safe(signEmail):'Not connected yet', 'wChangeEmail()', 'Change')}
+      ${signEmail?row('x','Sign out','Your data stays saved in your account','signOutUser()','Sign out'):''}
     </div></section>`);
     const lb=Number(localStorage.getItem('arcp_v2_last_backup')||0);
     append(`<section class="section"><div class="sec-head"><span class="sec-title">Your data</span></div><div class="w-list">
@@ -8009,9 +8039,30 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       ${row('sliders','Profile and specialty',`${safe(sp.label)} · ${safe(currentYear)}`,'openSettings()','Edit')}
       ${row('compass','Setup guide','Welcome tour and getting-started checklist','wSetupOpen()','Open')}
       ${row('ul','Import a logbook','From Excel or CSV, with a preview first','wImport()','Import')}
-      ${row('reset',`Reset ${safe(currentYear)}`,'Clears this year’s requirement values; logbook kept','resetYearData()','Reset',true)}
-      ${row('user','New test profile','Starts a blank profile on this browser','startFreshProfile()','Start',true)}
     </div></section>`);
+    if(isDev()) append(`<section class="section"><div class="sec-head"><span class="sec-title">Developer</span><span class="sec-note">Shown because ?dev=1 was used</span></div><div class="w-list">
+      ${row('reset',`Reset ${safe(currentYear)}`,'Clears this year’s requirement values; logbook kept','resetYearData()','Reset',true)}
+      ${row('user','Blank profile','Wipes this account and starts again','startFreshProfile()','Start',true)}
+    </div></section>`);
+    adminTidy();
+  }
+  // The older parts of Account, brought into line: no duplicate sign-in panel, hospitals as a compact list,
+  // developer-only sections hidden, and the everyday sections (sign-in, your data, app) ahead of the long lists.
+  function adminTidy(){
+    const m=main(), secs=[...m.querySelectorAll(':scope > section.section')], by=t=>secs.find(s=>s.querySelector('.sec-title')?.textContent.trim().startsWith(t));
+    by('Account')?.remove();
+    const adv=by('Advanced'); if(adv && !isDev()){ let n=adv.nextElementSibling; adv.remove(); while(n && !n.matches('section,.w-head')){ const x=n.nextElementSibling; n.remove(); n=x; } }
+    const hos=by('Hospitals'), grid=hos?.querySelector('.grid');
+    if(grid){
+      const list=document.createElement('div'); list.className='w-list o1-hosp';
+      [...grid.querySelectorAll('.card')].forEach(c=>{ const name=c.querySelector('.card-title')?.textContent||'', btn=c.querySelector('button'); if(!btn) return;
+        const r=document.createElement('div'); r.className='w-row'; r.innerHTML=`<span class="w-row-m"><span class="w-row-t"></span></span><span class="w-row-r"></span>`;
+        r.querySelector('.w-row-t').textContent=name; btn.className='btn small'; btn.textContent='Remove'; btn.setAttribute('aria-label','Remove '+name+' from your list'); r.querySelector('.w-row-r').appendChild(btn); list.appendChild(r); });
+      grid.replaceWith(list);
+      const note=hos.querySelector('.sec-note'); if(note) note.textContent='Remove the ones you won’t work in';
+    }
+    const first=m.querySelector(':scope > section.section');
+    ['Sign-in','Your data','App'].forEach(t=>{ const s=[...m.querySelectorAll(':scope > section.section')].find(x=>x.querySelector('.sec-title')?.textContent.trim()===t); if(s && first && s!==first) m.insertBefore(s, first); });
   }
   function renderFormScreen(){
     if(!KINDS.includes(logSubTab)) logSubTab='clinics';
@@ -10080,6 +10131,42 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     }catch(err){ console.error('[Outcome1] CCT form failed', err); wToast('Couldn’t make the form. Try again'); }
   }
   window.wCctWorkbook=cctWorkbook;
+
+  // ── One sheet for every "are you sure?" and every message, instead of the browser's own pop-ups ──
+  function o1Sheet(o){
+    document.getElementById('w-ask')?.remove();
+    const prev=document.activeElement;
+    const wrap=document.createElement('div'); wrap.id='w-ask'; wrap.className='w-ask w-conf';
+    wrap.innerHTML=`<div class="w-ask-card" role="${o.onYes?'dialog':'alertdialog'}" aria-modal="true" aria-labelledby="w-conf-t">
+      <div class="w-ask-t" id="w-conf-t">${safe(o.title)}</div>${o.sub?`<div class="w-ask-s">${safe(o.sub)}</div>`:''}
+      <div class="w-sus-acts"><button class="w-sus-go ${o.danger?'danger':''}" data-yes="1">${safe(o.yes||'OK')}</button>${o.onYes?`<button class="w-sus-alt" data-x="1">${safe(o.no||'Cancel')}</button>`:''}</div></div>`;
+    const close=()=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const onKey=e=>{
+      if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); }
+      else if(e.key==='Tab'){ const f=[...wrap.querySelectorAll('button')]; const i=f.indexOf(document.activeElement); e.preventDefault(); f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus(); }
+    };
+    wrap.addEventListener('click',e=>{
+      if(e.target.closest('[data-yes]')){ close(); if(o.onYes) o.onYes(); return; }
+      if(e.target===wrap||e.target.closest('[data-x]')) close();
+    });
+    document.addEventListener('keydown',onKey,true);
+    document.body.appendChild(wrap);
+    try{ wrap.querySelector(o.danger?'[data-x]':'[data-yes]').focus({preventScroll:true}); }catch(e){}
+  }
+  // Used as: if(!o1Confirm('Delete?', ()=>sameCall(args))) return;  The sheet's Yes re-runs the call, which then passes.
+  window.o1Confirm = function(title, again, opts){
+    if(window.__o1Ok){ window.__o1Ok=false; return true; }
+    o1Sheet(Object.assign({ title, onYes:()=>{ window.__o1Ok=true; try{ again(); } finally { window.__o1Ok=false; } } }, opts||{}));
+    return false;
+  };
+  const __nativeAlert=window.alert.bind(window);
+  window.alert = function(msg){
+    try{ const s=String(msg??''), i=s.search(/[.!?]\s/); o1Sheet(i>0 && i<90 ? {title:s.slice(0,i+1), sub:s.slice(i+2)} : s.length>90 ? {title:'Heads up', sub:s} : {title:s}); }
+    catch(e){ __nativeAlert(msg); }
+  };
+  // Developer tools (blank test profile, year reset, data bridge) stay out of sight unless switched on with ?dev=1 (off again with ?dev=0)
+  try{ const m=/[?&]dev=([01])\b/.exec(location.search); if(m){ if(m[1]==='1') localStorage.setItem('o1_dev','1'); else localStorage.removeItem('o1_dev'); } }catch(e){}
+  const isDev=()=>{ try{ return localStorage.getItem('o1_dev')==='1'; }catch(e){ return false; } };
 
   // ── Your data: back up, restore, delete the account ──
   const KINDS_ALL=()=>Object.keys(state.logbook||{}).filter(k=>Array.isArray(state.logbook[k]));
