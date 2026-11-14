@@ -1948,6 +1948,50 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
   .o1-stack td:empty{display:none}
   .o1-stack td.o1-td-acts{justify-content:flex-end;padding-top:9px!important}
 }
+
+/* ── ARCP: one list, grouped by when it's due ── */
+.ar{padding:26px 16px 8px;max-width:760px;margin:0 auto;font-family:var(--font);color:var(--text)}
+.ar-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 2px}
+.ar-h h2{margin:0;font:800 28px/1.1 var(--font);letter-spacing:-.035em}
+.ar-h span{font:600 14.5px var(--font);color:var(--dim);white-space:nowrap}
+.ar-bar{height:8px;border-radius:9px;background:var(--line-strong);margin:12px 2px 8px;overflow:hidden}
+.ar-bar i{display:block;height:100%;background:var(--ink);border-radius:9px;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.ar-note{margin:0 2px 4px;font:500 13.5px/1.4 var(--font);color:var(--dim)}
+.ar-g{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:20px 2px 8px;font:700 12.5px/1.2 var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.ar-g span:last-child{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.ar-g.late{color:var(--red)} .ar-g.next{color:var(--text)}
+.ar-card{background:var(--bg2);border:1px solid var(--line);border-radius:24px;padding:2px 14px}
+.ar-card.next{border:2px solid var(--line-ink)}
+.ar-r{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.ar-r:first-child{border-top:0}
+.ar-o{all:unset;box-sizing:border-box;flex:none;width:44px;height:44px;display:grid;place-items:center;cursor:pointer;border-radius:50%}
+.ar-o svg{width:30px;height:30px;padding:5px;box-sizing:border-box;border-radius:50%;border:2px solid var(--line-strong);color:transparent;transition:background .2s,border-color .2s}
+.ar-r.on .ar-o svg{background:var(--c-quick);border-color:#1E1E1E;color:#1E1E1E}
+.ar-r.na .ar-o svg{border-style:dashed}
+.ar-o:focus-visible svg,.ar-t:focus-visible,.ar-b:focus-visible,.ar-chg:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.ar-t{all:unset;box-sizing:border-box;flex:1;min-width:0;cursor:pointer;padding:4px 0}
+.ar-t b{display:block;font:700 16.5px/1.25 var(--font);color:var(--text)}
+.ar-t small{display:block;font:500 13.5px/1.3 var(--font);color:var(--dim);margin-top:2px}
+.ar-r.on .ar-t b{text-decoration:line-through;color:var(--dim);font-weight:600}
+.ar-r.na .ar-t{opacity:.6}
+.ar-b,.ar-chg{all:unset;box-sizing:border-box;flex:none;cursor:pointer;font:700 13.5px var(--font);padding:9px 13px;min-height:40px;display:inline-flex;align-items:center;border-radius:999px;border:1.5px solid var(--line-strong);color:var(--text);white-space:nowrap}
+.ar-fx{position:relative;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:22px;background:var(--c-arcp);color:#F4F3EE;margin-top:10px;font:700 16px var(--font)}
+.ar-fx>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ar-fx small{font:600 14px var(--font);opacity:.8}
+.ar-chg{border-color:rgba(244,243,238,.5);color:#F4F3EE;min-height:36px;padding:6px 12px}
+.ar-date{position:absolute;right:16px;bottom:8px;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.ar .arcp-firth{margin:4px 0 12px}
+.w-rdy-live{margin-top:10px;font:700 15px var(--font);color:var(--text)}
+.w-esn{width:100%;box-sizing:border-box;margin:14px 0 4px;min-height:160px;font:500 16px/1.45 var(--font)}
+/* Road to CCT, folded away at the bottom */
+.w-road{max-width:760px;margin:26px auto 12px;padding:0 16px}
+.w-road summary{list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer;padding:16px;border-radius:22px;background:var(--bg2);border:1px solid var(--line);font:700 16.5px var(--font);color:var(--text)}
+.w-road summary::-webkit-details-marker{display:none}
+.w-road summary small{margin-left:auto;font:500 14px var(--font);color:var(--dim)}
+.w-road summary svg{transition:transform .2s}
+.w-road[open] summary svg{transform:rotate(90deg)}
+.w-road-in{padding-top:14px}
+@media (prefers-reduced-motion:reduce){.ar-bar i,.w-road summary svg{transition:none}}
 </style>
 
 </head>
@@ -7191,6 +7235,9 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   }
   // Read-only view of the ARCP countdown (never creates state on the home screen)
   function nextArcpStep(){
+    if(state.arcpPrep?.[currentYear]){
+      for(const g of readyGroups()){ const it=g.items.find(x=>!readyOn(x) && !readyNa(x)); if(it) return { title:it.t, date:g.at }; }
+    }
     const steps=(state.arcpPrep?.[currentYear]?.steps)||{}, t=today0();
     const list=ARCP_STEPS.map(s=>{ const date=arcpStepDate(s); return {...s,date,done:s.fixed?new Date(date)<=t:!!steps[s.id]?.done}; });
     return list.find(s=>!s.done)||list[list.length-1];
@@ -7990,8 +8037,13 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     O.road(); const tl=main().querySelector('.z-timeline')?.outerHTML||'';
     O.arcp();
     main().querySelector('.z-hero')?.remove();
-    const mat=main().querySelector('.z-mat'); if(mat) mat.id='w-countdown';
+    arcpMerge();
     const p=panelInfo(), nx=nextArcpStep();
+    // One list replaces "Countdown to panel", "Upload to your portfolio" and the separate checklist
+    const mat=main().querySelector('.z-mat'); if(mat) mat.outerHTML=arcpListHTML();
+    main().querySelector('.arcp-docs')?.closest('section')?.remove();
+    const last=main().querySelector('.arcp-last');
+    if(last){ last.querySelector('#arcp-notes')?.closest('.card')?.remove(); if(p.days>0 && !outcome()) last.remove(); }   // notes live on the ES meeting row; "After the panel" waits for the panel
     const panelLong=p.panel.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
     const oc=outcome(), om=OC_META[oc], y=currentYear;
     if(om && !['3','5'].includes(oc)){
@@ -8013,8 +8065,63 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       acts:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['calc','CCT calc','wCct()'],['ticks','Checklist','wReady()']] }));
     }
     const ns=needsSection(); if(ns) main().querySelector('.w-head')?.insertAdjacentHTML('afterend', ns);
-    if(tl) append(`<section class="z-sec" style="padding-top:88px"><div class="arcp-sec-head"><div><h2 class="arcp-h2">Road to CCT</h2><span class="z-script">${YEARS[0]} to ${YEARS[YEARS.length-1]}</span></div></div>${tl}</section>`);
+    if(tl) append(`<details class="w-road"><summary><span>Road to CCT</span><small>${safe(currentYear)} of ${safe(YEARS[YEARS.length-1])}</small>${I('chev',18)}</summary><div class="w-road-in">${tl}</div></details>`);
   }
+  const arcpD=(d,o)=>d.toLocaleDateString('en-GB',o||{day:'numeric',month:'short'});
+  function arcpListHTML(){
+    const t=today0(), c=readyCount(), groups=readyGroups(), p=panelInfo();
+    let nextDone=false;
+    const sub=it=>readyNa(it)?'Doesn’t apply to you':it.s||'';
+    const btn=it=>it.k==='es'?['Notes','wArcpNotes()']:it.k==='logbook'?['Make',`wReady({k:'logbook'})`]:it.k==='cct'?['Open','wCct()']:(it.k==='cpd'||it.k==='firth')?['Make',`arcpGenerate('${it.k}')`]:null;
+    const gs=groups.map(g=>{
+      const open=g.items.filter(it=>!readyOn(it)&&!readyNa(it)), d=g.at?new Date(g.at+'T00:00:00'):null, dd=d?Math.round((d-t)/DAY):null;
+      const late=open.length>0 && dd!==null && dd<0, next=!late && open.length>0 && !nextDone; if(next) nextDone=true;
+      const right=!open.length?`${I('check',14)}Done`:late?`${-dd} day${dd===-1?'':'s'} overdue`:`${next?'Next · ':''}${dd===0?'today':dd===1?'tomorrow':`in ${dd} days`}`;
+      const rows=g.items.map(it=>{ const on=readyOn(it), na=readyNa(it), b=btn(it);
+        return `<div class="ar-r${on?' on':''}${na?' na':''}"><button class="ar-o" onclick="wArcpTick('${it.k}')" aria-pressed="${on}" aria-label="${safe(it.t)}"${na?' disabled':''}>${I('check',17)}</button>
+          <button class="ar-t" onclick="wReady({k:'${it.k}'})"><b>${safe(it.t)}</b><small>${safe(sub(it))}</small></button>${b?`<button class="ar-b" onclick="${b[1]}">${b[0]}</button>`:''}</div>${it.k==='firth'&&arcpFirthOpen?renderFirthPanel():''}`; }).join('');
+      return `<div class="ar-g${late?' late':''}${next?' next':''}"><span>${safe(g.g)}${d?' · '+arcpD(d):''}</span><span>${right}</span></div><div class="ar-card${next?' next':''}">${rows}</div>`;
+    }).join('');
+    const lockTxt=p.lockDays<0?'Locked':p.lockDays===0?'Today':`${arcpD(p.lock,{weekday:'short',day:'numeric',month:'short'})} · in ${p.lockDays} day${p.lockDays===1?'':'s'}`;
+    const panTxt=p.days<0?'Set your next panel date':p.days===0?'Today':`${arcpD(p.panel,{weekday:'short',day:'numeric',month:'short'})} · in ${p.days} day${p.days===1?'':'s'}`;
+    return `<section class="ar" id="w-countdown" aria-labelledby="ar-h">
+      <div class="ar-h"><h2 id="ar-h">Getting ready</h2><span>${c.done} of ${c.total} done</span></div>
+      <div class="ar-bar" role="progressbar" aria-label="ARCP checklist" aria-valuemin="0" aria-valuemax="${c.total}" aria-valuenow="${c.done}"><i style="width:${c.total?Math.round(c.done/c.total*100):0}%"></i></div>
+      <p class="ar-note">Dates count back from when your portfolio locks, two weeks before the panel.</p>
+      ${gs}
+      <div class="ar-fx"><span>Portfolio locks<small>${lockTxt}</small></span></div>
+      <div class="ar-fx"><span>ARCP panel<small>${panTxt}</small></span><button class="ar-chg" onclick="wArcpDate()">Change</button>
+        <input type="date" id="ar-date" class="ar-date" tabindex="-1" aria-label="ARCP panel date" value="${arcpIso(arcpPanelDate())}" onchange="if(this.value){ state.arcpDates[currentYear]=this.value; saveState(); render(); }"></div>
+    </section>`;
+  }
+  window.wArcpDate=function(){ const i=document.getElementById('ar-date'); if(!i) return; try{ i.showPicker(); }catch(e){ i.focus(); i.click(); } };
+  window.wArcpTick=function(k){
+    const it=readyFlat().find(x=>x.k===k); if(!it) return;
+    const c0=readyCount(), wasAll=c0.total>0 && c0.done>=c0.total, was=readyOn(it);
+    wReadySet(it,!was);
+    const c=readyCount();
+    if(!was && !wasAll && c.total>0 && c.done>=c.total){ render(); wReady({done:true}); return; }
+    render();
+    if(!was && !reduceMotion()) document.querySelector(`.ar-r .ar-o[onclick="wArcpTick('${k}')"]`)?.animate([{transform:'scale(.6)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
+  };
+  // Notes for the ES meeting, on the ES meeting row
+  window.wArcpNotes=function(){
+    document.getElementById('w-ask')?.remove();
+    const prev=document.activeElement, y=arcpData();
+    const wrap=document.createElement('div'); wrap.id='w-ask'; wrap.className='w-ask';
+    wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-esn-t">
+      <div class="w-ask-t" id="w-esn-t">Notes for your ES meeting</div>
+      <div class="w-ask-s">Points to raise and gaps to explain. Saved as you type.</div>
+      <textarea id="w-esn" class="input w-esn" rows="8" aria-labelledby="w-esn-t"></textarea>
+      <div class="w-sus-acts"><button class="w-sus-go" data-x="1">Done</button></div></div>`;
+    const ta=wrap.querySelector('textarea'); ta.value=y.notes||'';
+    ta.addEventListener('input',()=>arcpSetNotes(ta.value));
+    const close=()=>{ arcpFlushNotes(ta.value); wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
+    wrap.addEventListener('click',e=>{ if(e.target===wrap||e.target.closest('[data-x]')) close(); });
+    document.addEventListener('keydown',onKey,true); document.body.appendChild(wrap);
+    try{ ta.focus({preventScroll:true}); }catch(e){}
+  };
   function renderAdminScreen(){
     const pr=state.profile||{}, sp=specCfg(), dark=document.body.classList.contains('focus');
     O.admin();
@@ -8933,33 +9040,76 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   // opens as the full list, with a button that carries the walkthrough on from where it stopped.
   // Ticks are kept per training year. The three library items share their state with "Upload to your
   // portfolio" further down the ARCP screen, so they never disagree.
+  // Live MSF / MCR numbers against this year's Renal and GIM targets
+  function arcpCounts(re){
+    const thisYear=r=>r.deadline==='annual'||r.deadline===currentYear, out=[];
+    [[specReqs(), specCfg().short],[visibleGimReqs(),'GIM']].forEach(([reqs,name])=>Object.entries(reqs||{}).forEach(([id,r])=>{
+      if(!re.test(id) || r.type!=='number' || !thisYear(r) || reqStatus(id,r)==='na') return;
+      out.push({ name, v:getReqVal(id,r), t:Number(r.target)||0 });
+    }));
+    return out;
+  }
+  const countsTxt=(cs,unit)=>cs.map(c=>`${c.name} ${c.v} of ${c.t}`).join(' · ')+(unit&&cs.length?` ${unit}`:'');
+  const countsMet=cs=>cs.length>0 && cs.every(c=>c.v>=c.t);
+  // The one ARCP list: everything to do before the panel, grouped by when it's due (counted back from when the portfolio locks).
+  // The ARCP screen, the walkthrough, the Home card, "You're ARCP ready" and the badge all read from here.
   function readyGroups(){
     const sp=specCfg().short, y=currentYear;
     const cip=what=>`Rate yourself against ${what} on your ePortfolio, then ask your educational supervisor to add their ratings.`;
+    const at=id=>{ const s=ARCP_STEPS.find(x=>x.id===id); return s?arcpStepDate(s):null; };
+    const msf=arcpCounts(/_msf$/), mcr=arcpCounts(/_mcrs?$/);
+    const custom=(state.arcpPrep?.[y]?.custom||[]).map(c=>({ k:'doc_'+c.id, doc:c.id, t:c.name, s:'Your own item', d:`${c.name}: tick it once it’s in your ePortfolio library.` }));
     return [
-      { g:'Educational supervisor reports', items:[
-        { k:'es_spec', t:`ES report: ${sp}`, d:`Your educational supervisor’s ${sp} report for ${y}, completed on your ePortfolio. Book the meeting in good time so it’s there before the portfolio locks.` },
-        { k:'es_gim',  t:'ES report: GIM', d:`Your educational supervisor’s GIM report for ${y}, completed on your ePortfolio.` } ]},
-      { g:'CiPs rated by you', items:[
-        { k:'cip_gen',  t:'Generic CiPs', d:cip('each generic CiP') },
-        { k:'cip_spec', t:`${sp} CiPs`, d:cip(`each ${sp} specialty CiP`) },
-        { k:'cip_gim',  t:'GIM CiPs', d:cip('each GIM clinical CiP') } ]},
-      { g:'In your ePortfolio library', items:[
-        { k:'form_r', doc:'form_r', t:'Form R (Part B)', d:'Complete this year’s Form R (Part B) and save a copy in your ePortfolio library.' },
-        { k:'logbook', docs:['logbook','sum_spec','sum_gim'], t:'Logbook and summaries', tools:[['dl','Logbook spreadsheet','logbook'],['file',`${sp} summary`,'sum_spec'],['file','GIM summary','sum_gim']],
+      { g:'8 weeks before', at:at('msf'), items:[
+        { k:'msf', step:'msf', t:'Send MSF requests', s:msf.length?countsTxt(msf,'raters'):'Raters need time to reply', auto:countsMet(msf),
+          d:'Send your multi-source feedback requests. Raters need time to reply, and their responses have to be in before your portfolio locks. This ticks itself once your raters reach the targets.' } ]},
+      { g:'6 weeks before', at:at('mcr'), items:[
+        { k:'mcr', step:'mcr', t:'Chase MCRs', s:mcr.length?countsTxt(mcr):'Consultant reports', auto:countsMet(mcr),
+          d:'Chase the multiple consultant reports still outstanding, so they’re in before your ES meeting. This ticks itself once your MCRs reach the targets.' } ]},
+      { g:'4 weeks before', at:at('es'), items:[
+        { k:'es', step:'es', t:'ES meeting', s:'Book it early', tools:[['list','Notes for the meeting','notes']],
+          d:'Meet your educational supervisor to go through the year. Book it early: their reports have to be written before your portfolio locks. Jot down points to raise and gaps to explain in your notes.' },
+        { k:'es_spec', t:`ES report: ${sp}`, s:'On your ePortfolio', d:`Your educational supervisor’s ${sp} report for ${y}, completed on your ePortfolio. Book the meeting in good time so it’s there before the portfolio locks.` },
+        { k:'es_gim',  t:'ES report: GIM', s:'On your ePortfolio', d:`Your educational supervisor’s GIM report for ${y}, completed on your ePortfolio.` },
+        { k:'cip_gen',  t:'Generic CiPs', s:'Rated by you, then your ES', d:cip('each generic CiP') },
+        { k:'cip_spec', t:`${sp} CiPs`, s:'Rated by you, then your ES', d:cip(`each ${sp} specialty CiP`) },
+        { k:'cip_gim',  t:'GIM CiPs', s:'Rated by you, then your ES', d:cip('each GIM clinical CiP') } ]},
+      { g:'1 week before', at:at('uploads'), items:[
+        { k:'form_r', doc:'form_r', t:'Form R (Part B)', s:'In your ePortfolio library', d:'Complete this year’s Form R (Part B) and save a copy in your ePortfolio library.' },
+        { k:'logbook', docs:['logbook','sum_spec','sum_gim'], t:'Logbook and summaries', s:`Spreadsheet, ${sp} and GIM summaries`, tools:[['dl','Logbook spreadsheet','logbook'],['file',`${sp} summary`,'sum_spec'],['file','GIM summary','sum_gim']],
           d:`Add this year’s logbook spreadsheet and your ${sp} and GIM summaries to your ePortfolio library. Outcome1 makes all three.` },
-        { k:'cpd',    doc:'cpd',    t:'CPD diary', tools:[['book','CPD diary','cpd']], d:'Add this year’s CPD diary, with your reflections, to your ePortfolio library. Outcome1 makes it, ready to save as a PDF.' },
-        { k:'firth',  doc:'firth',  t:'Updated Firth calculator', tools:[['table','Firth calculator','firth']], d:'Bring the Firth calculator up to date with your acute take numbers and upload it to your ePortfolio library. Outcome1 can build it from your acute take entries.' },
-        { k:'cct',    doc:'cct',    t:'CCT calculator', s:'If LTFT or time out of training', optional:true, tools:[['calc','CCT calculator','cct']], d:'If you’re less than full time or have had time out of training, work out your CCT date, download the completion date calculator and upload it to your ePortfolio library.' } ]}
+        { k:'cpd',    doc:'cpd',    t:'CPD diary', s:'With your reflections', tools:[['book','CPD diary','cpd']], d:'Add this year’s CPD diary, with your reflections, to your ePortfolio library. Outcome1 makes it, ready to save as a PDF.' },
+        { k:'firth',  doc:'firth',  t:'Firth calculator', s:'Acute take numbers', tools:[['table','Firth calculator','firth']], d:'Bring the Firth calculator up to date with your acute take numbers and upload it to your ePortfolio library. Outcome1 can build it from your acute take placements.' },
+        { k:'cct',    doc:'cct',    t:'CCT calculator', s:'If LTFT or time out', optional:true, tools:[['calc','CCT calculator','cct']], d:'If you’re less than full time or have had time out of training, work out your CCT date, download the completion date calculator and upload it to your ePortfolio library.' },
+        ...custom ]}
     ];
   }
+  // Ticks made before the lists were merged carry over, once per year: "Form R + uploads complete" ticks the library
+  // documents, and "ES meeting & report" ticks both ES reports.
+  function arcpMerge(){
+    const y=arcpData(); if(y._merged) return; y._merged=1; y.ready=y.ready||{};
+    if(y.steps?.uploads?.done) ['form_r','logbook','sum_spec','sum_gim','cpd','firth'].forEach(d=>{ const cur=y.docs[d]||{}; if(cur.status!=='up') y.docs[d]={...cur, status:'up', upAt:cur.upAt||arcpToday()}; });
+    if(y.steps?.es?.done){ if(!y.ready.es_spec) y.ready.es_spec=arcpToday(); if(!y.ready.es_gim) y.ready.es_gim=arcpToday(); }
+    saveState();
+  }
   function readyData(){ const y=arcpData(); y.ready=y.ready||{}; return y.ready; }
-  const readyOn = it => it.docs ? it.docs.every(d=>arcpDocState(d).status==='up') : it.doc ? arcpDocState(it.doc).status==='up' : !!readyData()[it.k];
+  const stepDone = it => !!state.arcpPrep?.[currentYear]?.steps?.[it.step]?.done;
+  const readyOn = it => it.step ? (it.auto || stepDone(it)) : it.docs ? it.docs.every(d=>arcpDocState(d).status==='up') : it.doc ? arcpDocState(it.doc).status==='up' : !!readyData()[it.k];
   const readyNa = it => !!it.optional && !!readyData()[it.k+'_na'] && !readyOn(it);
-  const readyFlat = () => readyGroups().flatMap(g=>g.items.map(it=>Object.assign({group:g.g}, it)));
+  const readyFlat = () => readyGroups().flatMap(g=>{ const when=g.at?' · '+new Date(g.at+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''; return g.items.map(it=>Object.assign({group:g.g+when}, it)); });
   function readyCount(){
     const all=readyFlat().filter(it=>!readyNa(it));
     return { done:all.filter(readyOn).length, total:all.length };
+  }
+  function wReadySet(it,on){
+    if(readyOn(it)===on) return;
+    if(it.step){
+      if(it.auto && !on){ wToast(it.k==='msf'?'Ticked by your MSF numbers':'Ticked by your MCR numbers'); return; }
+      const y=arcpData(), cur=y.steps[it.step]||{}; y.steps[it.step]={...cur, done:on}; saveState(); return;
+    }
+    if(it.docs) it.docs.forEach(d=>{ if((arcpDocState(d).status==='up')!==on) arcpToggleUploaded(d); });   // all three together
+    else if(it.doc) arcpToggleUploaded(it.doc);
+    else { const r=readyData(); if(on) r[it.k]=arcpToday(); else delete r[it.k]; saveState(); }
   }
   window.wReady = function(opts){
     opts=opts||{};
@@ -8972,12 +9122,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const card=wrap.firstElementChild;
     const left=()=>readyFlat().filter(it=>!readyOn(it) && !readyNa(it));
     let mode='list', queue=[], qi=0;
-    const setOn=(it,on)=>{
-      if(readyOn(it)===on) return;
-      if(it.docs) it.docs.forEach(d=>{ if((arcpDocState(d).status==='up')!==on) arcpToggleUploaded(d); });   // all three together
-      else if(it.doc) arcpToggleUploaded(it.doc);   // same state as "Upload to your portfolio"; saves and redraws the screen
-      else { const r=readyData(); if(on) r[it.k]=arcpToday(); else delete r[it.k]; saveState(); }
-    };
+    const setOn=(it,on)=>wReadySet(it,on);
     // Walkthrough: what's left, starting from where it stopped last time
     const startWalk=()=>{
       const all=readyFlat(), open=left(), r=readyData(); if(!open.length){ showList(); return; }
@@ -8991,7 +9136,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       const all=readyFlat(), it=queue[qi], n=all.findIndex(x=>x.k===it.k)+1;
       card.innerHTML=`<div class="w-sus-k">Ready checklist · Step ${n} of ${all.length}</div>
         <div class="w-rdy-seg" aria-hidden="true">${all.map(x=>`<i class="${readyOn(x)?'on':''}${readyNa(x)?' na':''}${x.k===it.k?' cur':''}"></i>`).join('')}</div>
-        <div class="w-rdy-step"><div class="w-rdy-gk">${safe(it.group)}</div><div class="w-ask-t" id="w-rdy-t">${safe(it.t)}</div><div class="w-ask-s">${safe(it.d)}</div>${it.tools?`<div class="w-rdy-tools"><span>Open in Outcome1</span>${it.tools.map(([ic,l,id])=>`<button class="w-rdy-tool" data-tool="${id}">${I(ic,16)}${safe(l)}</button>`).join('')}</div>`:''}</div>
+        <div class="w-rdy-step"><div class="w-rdy-gk">${safe(it.group)}</div><div class="w-ask-t" id="w-rdy-t">${safe(it.t)}</div><div class="w-ask-s">${safe(it.d)}</div>${it.step&&/ of /.test(it.s||'')?`<div class="w-rdy-live">${safe(it.s)}</div>`:''}${it.tools?`<div class="w-rdy-tools"><span>Open in Outcome1</span>${it.tools.map(([ic,l,id])=>`<button class="w-rdy-tool" data-tool="${id}">${I(ic,16)}${safe(l)}</button>`).join('')}</div>`:''}</div>
         <div class="w-sus-acts"><button class="w-sus-go" data-w="done">Done</button><button class="w-sus-alt" data-w="skip">Not yet</button>${it.optional?'<button class="w-sus-alt" data-w="na">Doesn’t apply to me</button>':''}</div>
         <div class="w-rdy-foot"><button class="w-ask-x" data-w="list">See full list</button><button class="w-ask-x" data-x="1">Finish later</button></div>`;
       card.scrollTop=0;
@@ -9002,7 +9147,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
         <div class="w-ask-t" id="w-rdy-t">ARCP ready checklist</div>
         <div class="w-ask-s">${all?'Everything on the list is ready for your ARCP.':'Tick these off as you get ready for your ARCP. The list starts fresh each training year.'}</div>
         <div class="w-rdy-p"><div class="w-su-bar" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="${c.total}" aria-valuenow="${c.done}"><i style="width:${c.done?Math.max(6,Math.round(c.done/c.total*100)):0}%"></i></div><span>${all?`${I('check',16)}All set`:`${c.done} of ${c.total} ready`}</span></div>
-        ${readyGroups().map(g=>`<div class="w-rdy-g" style="--i:${i}">${safe(g.g)}</div>`+g.items.map(it=>{
+        ${readyGroups().map(g=>`<div class="w-rdy-g" style="--i:${i}">${safe(g.g)}${g.at?' · '+new Date(g.at+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}</div>`+g.items.map(it=>{
           const on=readyOn(it), na=readyNa(it); i++;
           const extra=it.tools ? (it.tools.length===1 ? `<button class="w-rdy-x" data-tool="${it.tools[0][2]}">Open</button>` : `<button class="w-rdy-x" data-open="${it.k}">Open</button>`)
             : it.optional && !on ? `<button class="w-rdy-x" data-na="${it.k}">${na?'It applies':'Not for me'}</button>` : '';
@@ -9030,6 +9175,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     // Reports open in a new tab and the checklist stays put, ready for "Done". The Firth calculator lives on the ARCP screen, so that one closes the checklist.
     const runTool=id=>{
       if(id==='cct'){ wCct(); return; }   // opens over the checklist; closing it comes back here
+      if(id==='notes'){ wArcpNotes(); return; }
       if(id==='firth'){ close(); arcpFirthOpen=true; if(currentTab!=='arcp') setTab('arcp'); else render(); setTimeout(()=>document.getElementById('arcp-firth')?.scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'start'}),80); }
       else arcpGenerate(id);   // logbook spreadsheet, Renal and GIM summaries, CPD diary
     };
@@ -9060,7 +9206,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     document.body.appendChild(wrap);
     // First time this training year it plays as a walkthrough; after that it opens as the list
     const one=opts.k && readyFlat().find(x=>x.k===opts.k);
-    if(one){ queue=[one]; qi=0; mode='walk'; draw(); }
+    if(opts.done){ readyData()._doneAt=Date.now(); saveState(); mode='done'; draw(); confetti(wrap,'party'); }
+    else if(one){ queue=[one]; qi=0; mode='walk'; draw(); }
     else if(!opts.list && (opts.walk || !readyData()._walked) && left().length) startWalk(); else showList();
     try{ card.focus({preventScroll:true}); }catch(e){}
   };
