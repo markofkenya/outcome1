@@ -1050,7 +1050,12 @@ div.w-row{cursor:default}
 .w-req{display:flex;align-items:center;gap:16px;padding:17px 0;border-bottom:1px solid var(--line)}
 .w-req:last-child{border-bottom:0}
 .w-req.na{opacity:.55}
-.w-req .w-row-s{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.w-req{cursor:pointer}
+.w-req-o{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;border-radius:10px}
+.w-req-o:focus-visible{outline:3px solid var(--text);outline-offset:3px}
+.w-req-o .w-row-t{display:block}
+.w-req-ch{display:inline-flex;vertical-align:-2px;margin-left:3px;color:var(--dim)}
+.w-req:hover .w-req-ch{color:var(--text)}
 .w-req .dl.past{color:var(--red);font-weight:600}
 .w-req .dl.soon{color:var(--text);font-weight:600}
 .w-req .sce-date{margin-top:10px}
@@ -2032,6 +2037,27 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
 .ar-lk{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 6px;font:700 14.5px var(--font);color:var(--dim)}
 .ar-lk:hover{color:var(--text)}
 .ar-lk:focus-visible{outline:3px solid var(--text);outline-offset:2px;border-radius:10px}
+/* a requirement's card */
+.w-rq .w-ask-card{max-width:460px}
+.w-rq-p{display:flex;align-items:center;gap:14px;margin-top:14px}
+.w-rq-p>span:last-child{font:500 15px/1.3 var(--font);color:var(--dim)}
+.w-rq-p b{font:800 30px/1 var(--font);letter-spacing:-.03em;color:var(--text)}
+.w-rq-p small{display:block;font:600 13.5px var(--font);color:var(--dim);margin-top:4px}
+.w-rq-p.ck b{font-size:20px;letter-spacing:-.01em}
+.w-nw{white-space:nowrap}
+.w-rq-due{margin-top:14px;font:600 14px/1.35 var(--font);color:var(--dim)}
+.w-rq-due .dl.past{color:var(--red)}
+.w-rq-due .dl.soon{color:var(--text)}
+.w-rq-note{margin:8px 0 0;font:400 15.5px/1.5 var(--font);color:var(--text)}
+.w-rq-ctl{margin-top:18px;display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.w-rq-ctl .w-tog{align-self:flex-start;min-height:44px;padding:0 20px;display:inline-flex;align-items:center}
+.w-rq-ctl .w-sus-go{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.w-rq-step{justify-content:flex-start;gap:10px}
+.w-rq-step button{width:48px;height:48px;font-size:22px}
+.w-rq-step input{width:76px;font-size:26px}
+.w-rq-auto{margin:0;font:500 14px var(--font);color:var(--dim)}
+.w-rq-why{margin:10px 0 0;font:600 13.5px var(--font);color:var(--dim)}
+
 </style>
 
 </head>
@@ -3318,9 +3344,9 @@ const ARCP_DOCS=[
   {id:'cpd',     name:'CPD diary',       hint:'This year’s CPD with reflections', gen:'cpd'}
 ];
 const ARCP_STEPS=[
-  {id:'msf',     title:'Send MSF requests',         weeks:8},
-  {id:'mcr',     title:'Chase MCRs',                weeks:6},
-  {id:'es',      title:'ES meeting & report',       weeks:4},
+  {id:'msf',     title:'Send MSF requests',         weeks:4},
+  {id:'mcr',     title:'Chase MCRs',                weeks:4},
+  {id:'es',      title:'ES meeting & report',       weeks:2},
   {id:'uploads', title:'Form R + uploads complete', weeks:1},
   {id:'lock',    title:'Portfolio locked for review', fixed:true},
   {id:'panel',   title:'ARCP panel',                fixed:true}
@@ -7332,7 +7358,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const dis=(locked||finalOnly)?'disabled':'';
     const st=finalOnly?'na':reqStatus(id,req);
     const dc=deadlinePast(req.deadline)?'past':req.deadline===currentYear?'soon':'';
-    const sub=`<span class="dl ${dc}">${safe(deadlineText(req))}</span>${req.cumulative&&!/umulative/.test(req.note||'')?' · cumulative':''}${req.note?' · '+safe(req.note):''}`;
+    const sub=`<span class="dl ${dc}">${safe(deadlineText(req))}</span>${req.cumulative?' · Cumulative':''}`;   // the full rule is on the row's card
     let tile, right;
     const auto=AUTO_REQ[id];
     if(auto && req.type==='number'){
@@ -7348,7 +7374,57 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       right = `<div class="w-step"><button ${dis} aria-label="Decrease ${safe(req.label)}" onclick="wStep('${id}',-1)">−</button><input type="number" inputmode="decimal" min="0" value="${v}" ${dis} aria-label="${safe(req.label)}" onfocus="this.select()" onchange="wSet('${id}',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button ${dis} aria-label="Increase ${safe(req.label)}" onclick="wStep('${id}',1)">+</button></div><div class="w-of">of ${t} ${safe(req.unit||'')}${left?` · ${left} to go`:''}</div>`;
     }
     const sce = id==='spec_sce' ? sceDateBlock(v) : '';
-    return `<div class="w-req ${st}">${tile}<div class="w-row-m"><div class="w-row-t">${safe(req.label)}</div><div class="w-row-s">${sub}</div>${sce}</div><div class="w-row-r">${right}</div></div>`;
+    return `<div class="w-req ${st}" data-req="${id}" onclick="wReqRow(event,'${id}')">${tile}<div class="w-row-m"><button class="w-req-o" onclick="wReqCard('${id}')"><span class="w-row-t">${(()=>{ const w=String(req.label).split(' '), last=w.pop(); return `${w.length?safe(w.join(' '))+' ':''}<span class="w-nw">${safe(last)}<span class="w-req-ch">${I('chev',15)}</span></span>`; })()}</span><span class="w-row-s">${sub}</span></button>${sce}</div><div class="w-row-r">${right}</div></div>`;
+  };
+  // Tapping anywhere on a row, apart from its own controls, opens its card
+  window.wReqRow = (e,id) => { if(e.target.closest('button,input,select,textarea,a,label,.sce-date,.w-step')) return; wReqCard(id); };
+  // A requirement's card: the full rule, progress, due date and the row's controls
+  window.wReqCard = function(id){
+    if(!__wReq[id]) return;
+    document.getElementById('w-rq')?.remove();
+    const prev=document.activeElement;
+    const wrap=document.createElement('div'); wrap.id='w-rq'; wrap.className='w-ask w-su-sheet w-rq';
+    wrap.innerHTML=`<div class="w-ask-card" role="dialog" aria-modal="true" aria-labelledby="w-rq-t" tabindex="-1"></div>`;
+    const card=wrap.firstElementChild;
+    const draw=()=>{
+      const req=__wReq[id], v=getReqVal(id,req), locked=yearLocked(), auto=AUTO_REQ[id];
+      const finalOnly=['gim_cpd_st7','gim_sim_st7','gim_acute_st7'].includes(id) && currentYear!=='ST7', dis=(locked||finalOnly)?'disabled':'';
+      const dc=deadlinePast(req.deadline)?'past':req.deadline===currentYear?'soon':'';
+      const who=/^gim_/.test(id)?'GIM':specCfg().short;
+      let prog, ctl;
+      if(req.type==='checkbox'){
+        prog=`<div class="w-rq-p ck">${v?doneTile():ring(0)}<span><b>${v?'Done':'Not done yet'}</b></span></div>`;
+        ctl=`<button class="w-tog ${v?'on':''}" ${dis} aria-pressed="${!!v}" data-rq="tog">${v?'Done':'Mark done'}</button>`;
+      } else {
+        const t=req.target||1, pct=Math.min(100,Math.round(v/t*100)), left=Math.max(0,r1(t-v));
+        prog=`<div class="w-rq-p">${v>=t?doneTile():ring(pct)}<span><b>${r1(v)}</b> / ${t} ${safe(req.unit||'')}<small>${left?`${left} to go`:'Target reached'}</small></span></div>`;
+        ctl= auto ? `<p class="w-rq-auto">Counted from your logbook.</p><button class="w-sus-go" data-rq="auto" ${finalOnly?'disabled':''}>${safe(auto[0])}${I('chev',18)}</button>`
+          : `<div class="w-step w-rq-step"><button ${dis} aria-label="Decrease ${safe(req.label)}" data-rq="-1">−</button><input type="number" inputmode="decimal" min="0" value="${v}" ${dis} aria-label="${safe(req.label)}" data-rq="set"><button ${dis} aria-label="Increase ${safe(req.label)}" data-rq="1">+</button></div>`;
+      }
+      const why=locked?'This training year is locked.':finalOnly?'This one counts in ST7.':'';
+      card.innerHTML=`<div class="w-sus-k">${safe(who)} · ${safe(currentYear)}</div>
+        <div class="w-ask-t" id="w-rq-t">${safe(req.label)}</div>
+        ${prog}
+        <div class="w-rq-due"><span class="dl ${dc}">${safe(deadlineText(req))}</span>${req.cumulative?' · Cumulative across training':''}</div>
+        ${req.note?`<p class="w-rq-note">${safe(req.note)}</p>`:''}
+        <div class="w-rq-ctl">${ctl}</div>${why?`<p class="w-rq-why">${why}</p>`:''}
+        <button class="w-ask-x" data-x="1">Close</button>`;
+    };
+    const close=()=>{ wrap.remove(); document.removeEventListener('keydown',onKey,true); try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){} };
+    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(); } else if(e.key==='Enter' && e.target.matches?.('[data-rq="set"]')) e.target.blur(); };
+    wrap.addEventListener('click',e=>{
+      if(e.target===wrap || e.target.closest('[data-x]')){ close(); return; }
+      const b=e.target.closest('button[data-rq]'); if(!b || b.disabled) return;
+      const a=b.dataset.rq;
+      if(a==='auto'){ close(); const f=AUTO_REQ[id]?.[1]; if(f) (new Function(f))(); return; }
+      if(a==='tog') wToggle(id); else wStep(id, Number(a));
+      draw(); card.querySelector(`[data-rq="${a}"]`)?.focus({preventScroll:true});
+    });
+    wrap.addEventListener('change',e=>{ if(e.target.matches('[data-rq="set"]')){ wSet(id,e.target.value); draw(); } });
+    wrap.addEventListener('focusin',e=>{ if(e.target.matches('[data-rq="set"]')) e.target.select(); });
+    document.addEventListener('keydown',onKey,true);
+    document.body.appendChild(wrap); draw();
+    try{ card.focus({preventScroll:true}); }catch(e){}
   };
   window.wStep = (id,d) => { const r=__wReq[id]; if(!r||yearLocked()) return; setReqVal(id,r,r1(getReqVal(id,r)+d)); render(); };
   window.wSet = (id,val) => { const r=__wReq[id]; if(!r||yearLocked()) return; setReqVal(id,r,val); render(); };
@@ -9140,13 +9216,13 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const msf=arcpCounts(/_msf$/), mcr=arcpCounts(/_mcrs?$/);
     const custom=(state.arcpPrep?.[y]?.custom||[]).map(c=>({ k:'doc_'+c.id, doc:c.id, t:c.name, s:'Your own item', d:`${c.name}: tick it once it’s in your ePortfolio library.` }));
     return [
-      { g:'8 weeks before', at:at('msf'), items:[
+      { g:'4 weeks before', at:at('msf'), items:[
         { k:'msf', step:'msf', t:'Send MSF requests', s:msf.length?countsTxt(msf,'raters'):'Raters need time to reply', auto:countsMet(msf),
           d:'Send your multi-source feedback requests. Raters need time to reply, and their responses have to be in before your portfolio locks. This ticks itself once your raters reach the targets.' } ]},
-      { g:'6 weeks before', at:at('mcr'), items:[
+      { g:'4 weeks before', at:at('mcr'), items:[
         { k:'mcr', step:'mcr', t:'Chase MCRs', s:mcr.length?countsTxt(mcr):'Consultant reports', auto:countsMet(mcr),
           d:'Chase the multiple consultant reports still outstanding, so they’re in before your ES meeting. This ticks itself once your MCRs reach the targets.' } ]},
-      { g:'4 weeks before', at:at('es'), items:[
+      { g:'2 weeks before', at:at('es'), items:[
         { k:'es', step:'es', t:'ES meeting', s:'Book it early', tools:[['list','Notes for the meeting','notes']],
           d:'Meet your educational supervisor to go through the year. Book it early: their reports have to be written before your portfolio locks. Jot down points to raise and gaps to explain in your notes.' },
         { k:'es_spec', t:`ES report: ${sp}`, s:'On your ePortfolio', d:`Your educational supervisor’s ${sp} report for ${y}, completed on your ePortfolio. Book the meeting in good time so it’s there before the portfolio locks.` },
@@ -10093,7 +10169,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   }
   function cctResultHTML(){
     const a=CC.a, r=cctResult(a), wi=cctWhatIf(a, a.wi), name=w=>`${w}%`;
-    const hero=`<div class="w-cct-hero"><span class="w-cct-hk">Expected CCT</span><b>${r.date?cLong(r.date):'—'}</b><span>At ${a.next.wte}% from ${cLong(a.next.start)}${r.toGo<=0?' · programme complete':''}</span></div>`;
+    const hero=`<div class="w-cct-hero"><span class="w-cct-hk">Expected CCT</span><b>${r.date?cLong(r.date):'—'}</b>${r.toGo<=0?'<span>Programme complete</span>':''}</div>`;
     const stats=`<div class="w-cct-stats"><div><b>${cMo(Number(a.length))}</b><small>months in programme</small></div><div><b>${cMo(r.credit)}</b><small>counted by your next post</small></div><div><b>${cMo(r.toGo)}</b><small>still to do</small></div></div>`;
     const table=`<section class="w-cct-card"><h3>At other percentages</h3><p class="w-cct-sub">From ${cLong(a.next.start)}, as on the form.</p><div class="w-cct-tab">${r.table.map(t=>`<div class="${t.wte===Number(a.next.wte)?'on':''}"><span>${name(t.wte)}</span><span>${cLong(t.date)}</span></div>`).join('')}</div></section>`;
     let wiTxt='';
