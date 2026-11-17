@@ -2064,6 +2064,10 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
 .w-rq-auto{margin:0;font:500 14px var(--font);color:var(--dim)}
 .w-rq-why{margin:10px 0 0;font:600 13.5px var(--font);color:var(--dim)}
 
+
+/* Profile sheet: the editable details, then what was fixed at sign-up */
+.w-pf-fixed .w-ent-r b{text-align:right}
+.w-pf .w-sus-note{margin-top:8px}
 </style>
 
 </head>
@@ -7580,7 +7584,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
           <select class="w-pill" aria-label="Training year" onchange="setYear(this.value)">${YEARS.map(y=>`<option value="${y}" ${y===currentYear?'selected':''}>${y}${yearLocked(y)?' ✓':''}</option>`).join('')}</select>
           <button class="w-circ" onclick="wWrapped()" aria-label="Last month’s Wrapped" title="Last month’s Wrapped">${I('spark',22)}</button>
           <button class="w-circ" onclick="toggleFocus();render()" aria-label="Switch light or dark" title="Switch light or dark">${I('moon',21)}</button>
-          <button class="w-circ" onclick="openSettings()" aria-label="Profile and specialty" title="Profile and specialty">${I('sliders',22)}</button>
+          <button class="w-circ" onclick="openSettings()" aria-label="Your profile" title="Your profile">${I('sliders',22)}</button>
         </div>
       </div>
       <div class="w-homegrid">
@@ -8144,7 +8148,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       sub:`${r.met} of ${r.total} requirements met${r.open?` · ${r.open} still open`:''}`,
       tab:{label:'Add evidence', on:"wQuick('procedures','spec')"},
       acts:[['clinic','Clinic',"wQuick('clinics','spec')"],['proc','Procedure',"wQuick('procedures','spec')"],['book','CPD',"wQuick('cpd','spec')"],['file','Summary',"wSummary('spec')"]],
-      right:{icon:'sliders',label:'Profile and specialty',on:'openSettings()'} }));
+      right:{icon:'sliders',label:'Your profile',on:'openSettings()'} }));
     if(!yearLocked()) append(feedSection('Activity', feed(e=>e.scope==='spec'&&inCurrentYear(e)), `${sp.short} entries in ${currentYear}`));
   }
   function renderGimScreen(){
@@ -8155,7 +8159,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       sub:`${r.met} of ${r.total} requirements met · DOPS ${d.met} of ${d.total}`,
       tab:{label:'Add evidence', on:"wQuick('procedures','gim')"},
       acts:[['clinic','Clinic',"wQuick('clinics','gim')"],['proc','Procedure',"wQuick('procedures','gim')"],['book','CPD',"wQuick('cpd','gim')"],['file','Summary',"wSummary('gim')"]],
-      right:{icon:'sliders',label:'Profile and specialty',on:'openSettings()'} }));
+      right:{icon:'sliders',label:'Your profile',on:'openSettings()'} }));
     if(!yearLocked()) append(feedSection('Activity', feed(e=>e.scope==='gim'&&inCurrentYear(e)), `GIM entries in ${currentYear}`));
   }
   function renderCpdScreen(){
@@ -8318,6 +8322,37 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     document.addEventListener('keydown',onKey,true); document.body.appendChild(wrap);
     try{ ta.focus({preventScroll:true}); }catch(e){}
   };
+  // ═══ Profile: only the details that can safely change. Specialty, deanery and when training started are set
+  // at sign-up and drive the requirements and ARCP dates, so they're shown here, not edited. The training year
+  // moves on by itself when the next year is started.
+  const PF_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  window.wProfile = function(){
+    const pr=state.profile; if(!pr) return;
+    const OTHER='Other / not listed', list=hospitalOptions().filter(h=>h!==OTHER);
+    const ys=pr.yearStart, started=ys?.year?`${PF_MONTHS[(Number(ys.month)||8)-1]} ${ys.year}`:'';
+    const fixed=[['Specialty',`${specCfg().label} + GIM`],['Deanery',pr.deanery||'Not set'],['Training year',pr.trainingYear||currentYear], ...(started?[[`${pr.trainingYear||currentYear} started`,started]]:[])];
+    const flash=i=>{ i.classList.remove('w-flash'); void i.offsetWidth; i.classList.add('w-flash'); try{ i.focus(); }catch(e){} return false; };
+    suSheet({ title:'Your profile',
+      body:`<div class="w-kd w-pf">
+        <div class="w-kd-f"><label class="w-sus-l" for="w-pf-name">Name</label><input class="input w-sus-in" id="w-pf-name" autocomplete="name" value="${safe(pr.name||'')}"></div>
+        <div class="w-kd-f"><label class="w-sus-l" for="w-pf-tn">Training number (NTN / GMC)</label><input class="input w-sus-in" id="w-pf-tn" placeholder="NTN or GMC number" value="${safe(pr.trainingNumber||'')}"></div>
+        <div class="w-kd-f"><label class="w-sus-l" for="w-pf-base">Base hospital</label><select class="input w-sus-in" id="w-pf-base">${list.map(h=>`<option ${h===pr.baseHospital?'selected':''}>${safe(h)}</option>`).join('')}<option>${OTHER}</option></select>
+          <input class="input w-sus-in w-pf-other" id="w-pf-other" placeholder="Type the hospital name" aria-label="Hospital not listed" style="display:none"></div>
+        <div class="w-kd-f"><span class="w-sus-l">Set at sign-up</span><div class="w-ent w-pf-fixed">${fixed.map(([k,v])=>`<div class="w-ent-r"><span>${k}</span><b>${safe(v)}</b></div>`).join('')}</div></div>
+      </div>`,
+      closeLabel:'Cancel',
+      onOpen:w=>{ const s=w.querySelector('#w-pf-base'), o=w.querySelector('#w-pf-other');
+        if(!list.includes(pr.baseHospital) && pr.baseHospital){ s.value=OTHER; o.value=pr.baseHospital; }
+        const up=()=>{ o.style.display=s.value===OTHER?'block':'none'; }; s.addEventListener('change',()=>{ up(); if(s.value===OTHER) o.focus(); }); up(); },
+      actions:[ { label:'Save', primary:true, on:w=>{
+          const nm=w.querySelector('#w-pf-name'), s=w.querySelector('#w-pf-base'), o=w.querySelector('#w-pf-other');
+          if(!nm.value.trim()) return flash(nm);
+          const base=s.value===OTHER ? o.value.trim() : s.value; if(!base) return flash(o);
+          state.profile={...state.profile, name:nm.value.trim(), trainingNumber:w.querySelector('#w-pf-tn').value.trim(), baseHospital:base};
+          if(!(DEANERIES[state.profile.deanery]||[]).includes(base)) state.hospitals=[...new Set([...(state.hospitals||[]),base])];
+          state.deletedHospitals=(state.deletedHospitals||[]).filter(h=>h!==base); state.hiddenHospitals=(state.hiddenHospitals||[]).filter(h=>h!==base);
+          saveState(); render(); wToast('Profile saved'); } } ]});
+  };
   function renderAdminScreen(){
     const pr=state.profile||{}, sp=specCfg(), dark=document.body.classList.contains('focus');
     O.admin();
@@ -8339,7 +8374,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     append(`<section class="section"><div class="sec-head"><span class="sec-title">App</span></div><div class="w-list">
       ${row('moon','Appearance',dark?'Dark mode':'Light mode','toggleFocus();render()',dark?'Use light':'Use dark')}
       ${isStandalone()?'':row('dl','Install on this phone', installPrompt?'Add Outcome1 as an app':'Home-screen app that works offline','wInstall()','Install')}
-      ${row('sliders','Profile and specialty',`${safe(sp.label)} · ${safe(currentYear)}`,'openSettings()','Edit')}
+      ${row('sliders','Profile','Name, training number and base hospital','openSettings()','Edit')}
       ${row('compass','Setup guide','Welcome tour and getting-started checklist','wSetupOpen()','Open')}
       ${row('ul','Import a logbook','From Excel or CSV, with a preview first','wImport()','Import')}
       ${row('lock','About and privacy','What Outcome1 is, what’s stored and where',"window.open('privacy.html','_blank','noopener')",'Open')}
@@ -8524,8 +8559,12 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   }
   const __initOnb=window.initOnboarding;
   window.initOnboarding=function(){ const r=__initOnb.apply(this,arguments); try{ arcpHint(); }catch(e){} return r; };
+  const __openSettings=window.openSettings;
+  window.openSettings=function(){ return state.profile ? wProfile() : __openSettings.apply(this,arguments); };
   const __saveOnb=window.saveOnboarding;
   window.saveOnboarding=function(){
+    // An account that already has a profile keeps it: the sign-up form never rewrites specialty, deanery or dates
+    if(state.profile){ document.getElementById('gate').classList.remove('show'); render(); return; }
     const before=state.profile; const r=__saveOnb.apply(this,arguments);
     if(state.profile && state.profile!==before){
       applyArcpDefaults();
