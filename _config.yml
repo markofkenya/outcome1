@@ -1,0 +1,2 @@
+# GitHub Pages: publish the .well-known folder (it starts with a dot, so it is skipped otherwise)
+include: [".well-known"]
