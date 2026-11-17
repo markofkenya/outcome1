@@ -4125,7 +4125,7 @@ function hideHospital(h){ deleteHospital(h); }
 function restoreDeaneryHospitals(){ state.deletedHospitals=[]; state.hiddenHospitals=[]; saveState(); renderAdmin(); }
 
 function optionsHtml(list, selected=''){ return list.map(x=>`<option value="${safe(x)}" ${selected===x?'selected':''}>${safe(x)}</option>`).join(''); }
-function renderLogbook(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const subs=[['clinics','Clinics'],['procedures','Procedures'],['cpd','Teaching/CPD'],['simulation','Simulation'],['teaching','Teaching done']]; document.getElementById('main').innerHTML=`<div class="subtabs">${subs.map(([id,l])=>`<button class="subtab ${logSubTab===id?'active':''}" onclick="logSubTab='${id}';renderLogbook()">${l}</button>`).join('')}</div><div class="row" style="justify-content:flex-end;margin-bottom:12px"><button class="btn small action" onclick="showPrintStylePicker()">⎙ Print Logbook Report</button></div><div id="log-content"></div>`; if(logSubTab==='clinics') renderLogClinics(); if(logSubTab==='procedures') renderLogProcedures(); if(logSubTab==='cpd') renderLogCPD(); if(logSubTab==='simulation') renderSimpleLog('simulation','Simulation session', ['date','course','title','hours','hospital','year','notes'], ['Course','Title','Hours','Hospital','Year','Notes'], null); if(logSubTab==='teaching') renderSimpleLog('teaching','Teaching session', ['date','type','topic','audience','supervisor','signoff','year','notes'], ['Type','Topic','Audience','Observed by','Sign-off','Year','Notes'], ['Bedside teaching','Tutorial / seminar','Grand round presentation','Journal club','Simulation facilitation','Medical student supervision','Other']); }
+function renderLogbook(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const subs=[['clinics','Clinics'],['procedures','Procedures'],['cpd','Teaching/CPD'],['simulation','Simulation'],['teaching','Teaching done']]; document.getElementById('main').innerHTML=`<div class="subtabs">${subs.map(([id,l])=>`<button class="subtab ${logSubTab===id?'active':''}" onclick="logSubTab='${id}';renderLogbook()">${l}</button>`).join('')}</div><div class="row" style="justify-content:flex-end;margin-bottom:12px"><button class="btn small action" onclick="showPrintStylePicker()">⎙ Print Logbook Report</button></div><div id="log-content"></div>`; if(logSubTab==='clinics') renderLogClinics(); if(logSubTab==='procedures') renderLogProcedures(); if(logSubTab==='cpd') renderLogCPD(); if(logSubTab==='simulation') renderSimpleLog('simulation','Simulation session', ['date','course','title','hours','hospital','year','notes'], ['Course','Title','Hours','Hospital','Year','Notes'], null); if(logSubTab==='teaching') renderSimpleLog('teaching','Teaching session', ['date','type','topic','audience','feedbackUploaded','year','notes'], ['Type','Topic','Audience','Feedback uploaded','Year','Notes'], ['Bedside teaching','Tutorial / seminar','Grand round presentation','Journal club','Simulation facilitation','Medical student supervision','Other']); }
 const __openForms=new Set();
 function formPanel(title, html, onsubmit){ const id='fp-'+String(title).replace(/[^a-z0-9]+/gi,'-').toLowerCase(); const open=__openForms.has(id); return `<details class="panel form-collapse" id="${id}" ${open?'open':''} ontoggle="formToggled(this)"><summary class="form-summary"><span class="form-title">${title}</span><span class="form-hint">${open?'':'Tap to add'}</span><span class="form-plus" aria-hidden="true"></span></summary><div class="form-grid">${html}<div class="field full form-actions"><button class="btn" type="button" onclick="this.closest('details').open=false">Cancel</button><button class="btn primary" onclick="__openForms.delete('${id}');${onsubmit}">ADD ENTRY ▸</button></div></div></details>`; }
 function formToggled(d){ if(d.open){ __openForms.add(d.id); const h=d.querySelector('.form-hint'); if(h) h.textContent=''; setTimeout(()=>{ const f=d.querySelector('input:not([type=hidden]):not([readonly]),select,textarea'); if(f && window.matchMedia('(hover:hover)').matches) f.focus({preventScroll:true}); },60); } else { __openForms.delete(d.id); const h=d.querySelector('.form-hint'); if(h) h.textContent='Tap to add'; } }
@@ -4528,7 +4528,8 @@ function saveCpdEdit(id){
   render();
 }
 function saveCPD(scope='spec'){ const prefix=`cpd-${scope}`; const cert=(window._cpdPendingCert&&window._cpdPendingCert[scope])||null; addEntry('cpd',{scope,type:val(`${prefix}-type`),category:val(`${prefix}-category`),date:val(`${prefix}-date`),title:val(`${prefix}-title`),provider:val(`${prefix}-provider`),hours:val(`${prefix}-hours`),year:val(`${prefix}-year`),learning:val(`${prefix}-learning`),reflection:val(`${prefix}-reflection`),cert}); if(window._cpdPendingCert) delete window._cpdPendingCert[scope]; }
-function renderSimpleLog(k,title,fields,cols,types){ const html=fields.map(f=>{ if(f==='date')return `<div class="field"><label>Date</label><input class="input" id="sl-date" type="date" value="${arcpIso(new Date())}"></div>`; if(f==='hospital')return hospitalField('sl-hospital'); if(f==='year')return `<div class="field"><label>Year</label><select class="input" id="sl-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div>`; if((f==='type'||f==='course') && Array.isArray(types))return `<div class="field"><label>${f}</label><select class="input" id="sl-${f}">${optionsHtml(types)}</select></div>`; return `<div class="field"><label>${f}</label><input class="input" id="sl-${f}" ${f==='hours'?'type="number" step="0.5" min="0"':''}></div>`; }).join(''); const arr=entries(k).filter(inCurrentYear); document.getElementById('log-content').innerHTML=formPanel(`Add ${title}`,html,`saveSimple('${k}','${fields.join('|')}')`)+section(`${title} log`,`${arr.length} entries`,[`<div class="card" style="grid-column:1/-1">${table(k, cols, e=>fields.slice(1).map(f=>f==='date'?fmtDate(e[f]):e[f]))}</div>`]); }
+function slLabel(f){ return ({type:'Type',course:'Course',title:'Title',hours:'Hours',topic:'Topic',audience:'Audience',notes:'Notes',feedbackUploaded:'Feedback uploaded?'})[f] || (f.charAt(0).toUpperCase()+f.slice(1)); }
+function renderSimpleLog(k,title,fields,cols,types){ const html=fields.map(f=>{ if(f==='feedbackUploaded')return `<div class="field"><label>Feedback uploaded?</label><select class="input" id="sl-feedbackUploaded"><option>Yes</option><option>No</option><option selected>Pending</option></select></div>`; if(f==='date')return `<div class="field"><label>Date</label><input class="input" id="sl-date" type="date" value="${arcpIso(new Date())}"></div>`; if(f==='hospital')return hospitalField('sl-hospital'); if(f==='year')return `<div class="field"><label>Year</label><select class="input" id="sl-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div>`; if((f==='type'||f==='course') && Array.isArray(types))return `<div class="field"><label>${slLabel(f)}</label><select class="input" id="sl-${f}">${optionsHtml(types)}</select></div>`; return `<div class="field"><label>${slLabel(f)}</label><input class="input" id="sl-${f}" ${f==='hours'?'type="number" step="0.5" min="0"':''}></div>`; }).join(''); const arr=entries(k).filter(inCurrentYear); document.getElementById('log-content').innerHTML=formPanel(`Add ${title}`,html,`saveSimple('${k}','${fields.join('|')}')`)+section(`${title} log`,`${arr.length} entries`,[`<div class="card" style="grid-column:1/-1">${table(k, cols, e=>fields.slice(1).map(f=>f==='date'?fmtDate(e[f]):e[f]))}</div>`]); }
 function saveSimple(k,fieldStr){ const data={}; fieldStr.split('|').forEach(f=>{ data[f]=val('sl-'+f); }); const before=entries(k).length; addEntry(k,data); if(data.hospital)addHospitalIfNew(data.hospital); if(k==='teaching'){ const arr=entries('teaching'); if(arr.length>before){ const last=arr[arr.length-1]; setTimeout(()=>{ o1Confirm('Teaching saved', ()=>{ window.__o1Ok=false; openFeedback(last.id); }, {sub:'Collect feedback for this session now? You’ll get a QR code and a link.', yes:'Get feedback', no:'Not now'}); },80); } } }
 function renderAcute(targetId){ const total=entries('acute').reduce((a,e)=>a+Number(e.estimated||0),0); const html=`${hospitalField('acute-hospital')}<div class="field"><label>Start</label><input class="input" id="acute-start" type="date" onchange="calcAcute()"></div><div class="field"><label>End</label><input class="input" id="acute-end" type="date" onchange="calcAcute()"></div><div class="field"><label>Takes / month</label><input class="input" id="acute-takes" type="number" oninput="calcAcute()"></div><div class="field"><label>Patients / take</label><input class="input" id="acute-patients" type="number" oninput="calcAcute()"></div><div class="field"><label>Estimated patients</label><input class="input" id="acute-estimated" readonly></div><div class="field"><label>Supervisor</label><input class="input" id="acute-supervisor"></div>`; const target=document.getElementById(targetId||'log-content'); if(!target) return; target.innerHTML=`<div class="summary-grid"><div class="summary"><div class="big blue">${Math.round(total)}</div><div class="hint">/ 750 estimated patients</div></div></div>`+formPanel('Add acute take placement',html,'saveAcute()')+section('Acute take log','Firth-style estimate', [`<div class="card" style="grid-column:1/-1">${table('acute',['Hospital','Start','End','Months','Takes/mo','Pts/take','Estimated','Year','Supervisor'], e=>[e.hospital,fmtDate(e.start),fmtDate(e.end),e.months,e.takes,e.patients,e.estimated,e.year,e.supervisor])}</div>`]); }
 function calcAcute(){ const s=val('acute-start'), e=val('acute-end'); const months=monthsBetween(s,e); const est=Math.round(months*Number(val('acute-takes')||0)*Number(val('acute-patients')||0)); document.getElementById('acute-estimated').value=est||''; }
@@ -4997,8 +4998,8 @@ function printReport(style){
   <div class="summary-line">Simulation \u2014 Total: <strong>${sumHours(simAll)} h</strong> against a 12-hour minimum. ST7: <strong>${sumHours(simAll,e=>e.year==='ST7')} h</strong> / 4 h.</div>
   ${formalScopedTable('Simulation', simAll, ['date','course','title','hours','hospital','year'], 'gim')}
 
-  ${formalSection('Teaching','V.','Teaching delivered, by activity type and observer.')}
-  ${formalScopedTable('Teaching', teachingYr, ['date','type','topic','audience','supervisor','signoff','year'], 'gim')}
+  ${formalSection('Teaching','V.','Teaching delivered, by activity type, and whether its feedback is uploaded.')}
+  ${formalScopedTable('Teaching', teachingYr, ['date','type','topic','audience','feedbackUploaded','year'], 'gim')}
 
   ${formalSection('Acute Medical Take','VI.','Firth-calculator estimate of unselected medical patients across general medicine on-call placements.')}
   <div class="summary-line">Estimated <strong>${acuteEstimate} patients</strong> against a 750-patient standard. ${safe(yr)} contribution: <strong>${acuteAll.filter(e=>e.year===yr).reduce((a,e)=>a+Number(e.estimated||0),0)}</strong>.</div>
@@ -5020,9 +5021,9 @@ function printReport(style){
 
 // Formal report helpers — used only by printReport
 function formalSection(title, numeral, subhead){ return `<h2 class="section"><span>${safe(title)}</span><span class="smallcaps">${safe(numeral)}</span></h2>${subhead?`<p class="subhead">${safe(subhead)}</p>`:''}`; }
-const FORMAL_COL = { date:'74px', start:'74px', end:'74px', months:'56px', type:'auto', course:'150px', topic:'auto', title:'auto', hospital:'160px', supervisor:'130px', patients:'52px', year:'42px', dops:'56px', hours:'52px', takes:'62px', estimated:'72px', audience:'100px', signoff:'70px' };
+const FORMAL_COL = { feedbackUploaded:'70px', date:'74px', start:'74px', end:'74px', months:'56px', type:'auto', course:'150px', topic:'auto', title:'auto', hospital:'160px', supervisor:'130px', patients:'52px', year:'42px', dops:'56px', hours:'52px', takes:'62px', estimated:'72px', audience:'100px', signoff:'70px' };
 const FORMAL_NUM_COLS = new Set(['patients','dops','hours','takes','estimated','months']);
-const FORMAL_LABELS = { date:'Date', start:'Start', end:'End', months:'Mo', type:'Type', course:'Course', topic:'Topic', title:'Title', hospital:'Hospital', supervisor:'Supervisor', patients:'Pts', year:'Yr', dops:'DOPS', hours:'Hrs', takes:'Takes', estimated:'Est.', audience:'Audience', signoff:'Sign-off' };
+const FORMAL_LABELS = { feedbackUploaded:'Feedback', date:'Date', start:'Start', end:'End', months:'Mo', type:'Type', course:'Course', topic:'Topic', title:'Title', hospital:'Hospital', supervisor:'Supervisor', patients:'Pts', year:'Yr', dops:'DOPS', hours:'Hrs', takes:'Takes', estimated:'Est.', audience:'Audience', signoff:'Sign-off' };
 // Short date for the formal report tables: "08 Apr" — year is implicit from the report header.
 function fmtDateShort(d){
   if(!d) return "\u2014";
@@ -5166,7 +5167,7 @@ async function exportLogbook(){
     procedures: ['date','scope','type','hospital','supervisor','dops','year','notes'],
     cpd:        ['date','scope','type','category','title','provider','hours','year','learning','reflection','notes'],
     simulation: ['date','course','title','hours','hospital','year','notes'],
-    teaching:   ['date','type','topic','audience','supervisor','signoff','year','notes'],
+    teaching:   ['date','type','topic','audience','feedbackUploaded','year','notes'],
     acute:      ['hospital','start','end','months','takes','patients','estimated','year','supervisor'],
     ward:       ['hospital','start','end','months','year','supervisor']
   };
@@ -5417,7 +5418,7 @@ const BULK_IMPORT_TYPES = {
   cpd_gim:          { label:'GIM CPD / study leave', key:'cpd', scope:'gim', fields:['date','type','title','hours','year','notes'] },
   cpd_spec:         { label:'Specialty CPD / study leave', key:'cpd', scope:'spec', fields:['date','type','title','hours','year','notes'] },
   simulation:       { label:'Simulation', key:'simulation', fields:['date','course','title','hours','hospital','year','notes'] },
-  teaching:         { label:'Teaching', key:'teaching', fields:['date','type','topic','audience','supervisor','signoff','year','notes'] },
+  teaching:         { label:'Teaching', key:'teaching', fields:['date','type','topic','audience','feedbackUploaded','year','notes'] },
   acute:            { label:'Acute take', key:'acute', fields:['hospital','start','end','months','takes','patients','estimated','year','supervisor'] },
   ward:             { label:'Ward cover', key:'ward', fields:['hospital','start','end','months','year','supervisor'] },
 };
@@ -5472,7 +5473,7 @@ function bulkImportTemplate(){
     cpd_gim:'2026-03-19,Regional GIM training day,Yorkshire GIM Training Day — Haematology,6,ST4,',
     cpd_spec:'2026-03-18,Specialty study day,Specialty teaching day,6,ST4,',
     simulation:'2026-03-20,GIMME,Human factors simulation,4,Rotherham DGH,ST4,',
-    teaching:'2026-03-20,Tutorial / seminar,AKI management,FY1s,Dr Smith,Informal — not observed,ST4,',
+    teaching:'2026-03-20,Tutorial / seminar,AKI management,FY1s,Pending,ST4,',
     acute:'Rotherham DGH,2026-02-04,2026-05-05,3,5,10,150,ST4,Dr Solomon Muzulu',
     ward:'Rotherham DGH,2026-02-04,2026-05-05,3,ST4,Dr Solomon Muzulu'
   };
@@ -6855,7 +6856,9 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   function sotTable(head, rows, opts){
     opts=opts||{}; const num=opts.num||[], bold=opts.bold||[], raw=opts.raw||[];
     if(!rows.length) return `<div class="empty">No entries logged.</div>`;
-    const cell=(c,i)=>`<td${num.includes(i)?' class="num"':''}${bold.includes(i)?' style="font-weight:700"':''}>${raw.includes(i)?c:E(c)}</td>`;
+    const dt=head.map((h,i)=>/^(date|start|end|start date|end date)$/i.test(String(h).trim())?i:-1).filter(i=>i>=0);   // dates stay on one line
+    const cls=i=>[num.includes(i)?'num':'', dt.includes(i)?'dt':''].filter(Boolean).join(' ');
+    const cell=(c,i)=>`<td${cls(i)?` class="${cls(i)}"`:''}${bold.includes(i)?' style="font-weight:700"':''}>${raw.includes(i)?c:E(c)}</td>`;
     const colgroup=opts.cols?`<colgroup>${opts.cols.map(w=>`<col style="width:${w}">`).join('')}</colgroup>`:'';
     let html=`<table${opts.cls?` class="${opts.cls}"`:''}>${colgroup}<thead><tr>${head.map((h,i)=>`<th${num.includes(i)?' class="num"':''}>${E(h)}</th>`).join('')}</tr></thead><tbody>`;
     html+=rows.map(r=>`<tr>${r.map(cell).join('')}</tr>`).join('');
@@ -6887,9 +6890,10 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   .summary .warn{color:#b42318;font-weight:700}
   table{width:100%;border-collapse:collapse;table-layout:auto}
   th{background:${tint};border:1px solid #9aa3b8;padding:5px;font-size:7.8pt;text-align:left;vertical-align:bottom;font-weight:700;line-height:1.25}
-  td{border:1px solid #c3c9d6;padding:4px 5px;font-size:8.8pt;vertical-align:top;overflow-wrap:anywhere}
+  td{border:1px solid #c3c9d6;padding:4px 5px;font-size:8.8pt;vertical-align:top;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}   /* whole words; long ones hyphenate */
   .num{text-align:right;white-space:nowrap}
   th.num{white-space:normal}
+  td.dt{white-space:nowrap;overflow-wrap:normal}
   tr.total td{border:none;font-weight:700;padding-top:6px}
   tr.total td.tv{border:1px solid #9aa3b8;background:#f4f6fb}
   table.fixed{table-layout:fixed}
@@ -7007,10 +7011,9 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       sotTable(['Date','Type','Title / Event','Hours','Year'], cpd.map(e=>[sotDate(e.date), e.type||'', e.title||'', e.hours?sotNum(e.hours,1):'', e.year||'']), {num:[3], total:{labelCol:2, valueCol:3, value:hrsAll.toFixed(1)}}), []));
 
     const tp=entries('teaching').filter(keep).sort(asc('date'));
-    const tpSigned=tp.filter(e=>/signed off|^yes/i.test(String(e.signoff||''))).length;
-    const tpObserved=tp.filter(e=>String(e.supervisor||'').trim()).length;
-    S.push(sotSection('Teaching participation', `${E(yr)}: <strong>${tp.filter(isThisYear).length}</strong>${yrOnly?` session${tp.length===1?'':'s'}`:` · All years: <strong>${tp.length}</strong> session${tp.length===1?'':'s'}`} · Observed: ${tpObserved} · Signed off: ${tpSigned}`,
-      sotTable(['Date','Type','Topic','Audience','Observed by','Sign-off','Year'], tp.map(e=>[sotDate(e.date), e.type||'', e.topic||'', e.audience||'', e.supervisor||'', e.signoff||'', e.year||'']), {}), []));
+    const tpUp=tp.filter(e=>e.feedbackUploaded==='Yes').length, tpPend=tp.filter(e=>e.feedbackUploaded==='Pending').length;
+    S.push(sotSection('Teaching participation', `${E(yr)}: <strong>${tp.filter(isThisYear).length}</strong>${yrOnly?` session${tp.length===1?'':'s'}`:` · All years: <strong>${tp.length}</strong> session${tp.length===1?'':'s'}`} · Feedback uploaded: ${tpUp}${tpPend?` · Pending: ${tpPend}`:''}`,
+      sotTable(['Date','Type','Topic','Audience','Feedback uploaded','Year'], tp.map(e=>[sotDate(e.date), e.type||'', e.topic||'', e.audience||'', e.feedbackUploaded||'', e.year||'']), {}), []));
 
     sotOpen(`${sp.short} — Summary of Training`, 'spec', S.join(''), mode);
   };
@@ -7043,7 +7046,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     // rows hold pre-escaped HTML
     const tbl=(heads,rows,ac)=>{
       if(!rows.length) return `<p class="empty-note">No entries logged</p>`;
-      return `<table><thead style="--ac:${ac}"><tr>${heads.map(h=>`<th>${E(h)}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr class="${i%2===0?'even':'odd'}">${r.map(c=>`<td>${c===''||c==null?'—':c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+      const dt=heads.map((h,i)=>/^(date|start|end|start date|end date)$/i.test(String(h).trim())?i:-1).filter(i=>i>=0);   // dates stay on one line
+      return `<table><thead style="--ac:${ac}"><tr>${heads.map(h=>`<th>${E(h)}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr class="${i%2===0?'even':'odd'}">${r.map((c,j)=>`<td${dt.includes(j)?' class="dt"':''}>${c===''||c==null?'—':c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
     };
     const secHead=(t,s)=>`<div class="section-head"><h2 class="${s==='gim'?'gim':s==='spec'?'renal':''}">${E(t)}</h2><div class="rule"></div></div>`;
     const badge=(t,c)=>`<span class="stream-badge ${c}">${E(t)}</span>`;
@@ -7088,7 +7092,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   thead th{padding:5px 7px;text-align:left;font-size:7.5pt;letter-spacing:.05em;text-transform:uppercase;font-weight:600}
   tr.even{background:#f5f8ff}
   tr.odd{background:#fff}
-  td{padding:4px 7px;border-bottom:1px solid #e8eef8;vertical-align:top;overflow-wrap:anywhere}
+  td{padding:4px 7px;border-bottom:1px solid #e8eef8;vertical-align:top;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
+  td.dt{white-space:nowrap;overflow-wrap:normal}
   .dops-yes{color:#166534;font-weight:700}
   .cpd-summary{background:#f0f4ff;border:1px solid #ccd6e8;border-left:3px solid #003087;padding:7px 11px;margin-bottom:9px;font-size:8.5pt;color:#333}
   .cpd-summary.renal{border-left-color:${SPC};background:#f8f5ff}
@@ -7149,7 +7154,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
 
   ${secHead('Teaching Participation','both')}
   ${subHead('', `${teaching.length} sessions · ${E(yr)}`)}
-  <div class="tw">${tbl(['Date','Type','Topic','Audience','Observed by','Sign-off','Notes'], teaching.map(e=>[fmt(e.date),E(e.type),E(e.topic),E(e.audience),E(e.supervisor)||'—',E(e.signoff),E(e.notes)]), '#92400e')}</div>
+  <div class="tw">${tbl(['Date','Type','Topic','Audience','Feedback uploaded','Notes'], teaching.map(e=>[fmt(e.date),E(e.type),E(e.topic),E(e.audience),E(e.feedbackUploaded)||'—',E(e.notes)]), '#92400e')}</div>
 
   ${secHead('Acute Take (Firth Calculator)','gim')}
   <div class="cpd-summary"><strong>Acute Take Summary:</strong> &nbsp; Estimated total: <strong style="color:#005EB8">${Math.round(totalAcute)}</strong> / 750 patients</div>
@@ -8538,7 +8543,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     procedures:['date','scope','type','hospital','supervisor','dops','year','notes'],
     cpd:['date','scope','type','category','title','provider','hours','year','learning','reflection','notes'],
     simulation:['date','course','title','hours','hospital','year','notes'],
-    teaching:['date','type','topic','audience','supervisor','signoff','year','notes'],
+    teaching:['date','type','topic','audience','feedbackUploaded','year','notes'],
     acute:['hospital','start','end','months','takes','patients','estimated','year','supervisor'],
     ward:['hospital','start','end','months','year','supervisor']
   };
@@ -8551,7 +8556,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     return ({date:'Date', scope:`${sp} or GIM`, type:k==='clinics'?'Clinic type':k==='procedures'?'Procedure':k==='cpd'?'CPD type':'Type',
       hospital:'Hospital', supervisor:k==='teaching'?'Observed by':'Supervisor', patients:k==='acute'?'Patients per take':'Patients',
       dops:'DOPS signed', category:'Internal or external', title:'Title', provider:'Provider', hours:'Hours', year:'Training year',
-      learning:'Learning', reflection:'Reflection', notes:'Notes', course:'Course', topic:'Topic', audience:'Audience', signoff:'Sign-off',
+      learning:'Learning', reflection:'Reflection', notes:'Notes', course:'Course', topic:'Topic', audience:'Audience', signoff:'Sign-off', feedbackUploaded:'Feedback uploaded?',
       start:'Start date', end:'End date', months:'Months', takes:'Takes per month', estimated:'Estimated patients'})[f]||f;
   }
   function typeOptions(k,scope){
@@ -8619,6 +8624,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       if(['patients','hours','months','takes','estimated'].includes(f)) return lab+`<input ${at} type="number" inputmode="decimal" step="any" min="0" value="${safe(v)}">`;
       if(f==='scope') return lab+`<select ${at}><option value="spec" ${v!=='gim'?'selected':''}>${safe(specCfg().short)}</option><option value="gim" ${v==='gim'?'selected':''}>GIM</option></select>`;
       if(f==='dops') return lab+`<select ${at}><option ${v!=='Yes'?'selected':''}>No</option><option ${v==='Yes'?'selected':''}>Yes</option></select>`;
+      if(f==='feedbackUploaded') return lab+`<select ${at}>${v?'':'<option value="" selected>Not recorded</option>'}${['Yes','No','Pending'].map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select>`;
       if(f==='category') return lab+`<select ${at}><option value="" ${!v?'selected':''}>Work it out from the type</option><option ${v==='Internal'?'selected':''}>Internal</option><option ${v==='External'?'selected':''}>External</option></select>`;
       if(f==='year'){ const ys=[...new Set([...YEARS, v].filter(Boolean))]; return lab+`<select ${at}>${ys.map(y=>`<option ${y===v?'selected':''}>${safe(y)}</option>`).join('')}</select>`; }
       if(['notes','learning','reflection'].includes(f)) return lab+`<textarea ${at} rows="3">${safe(v)}</textarea>`;
@@ -8716,7 +8722,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     course:['course','coursetype','simulationtype','simulationcourse','programme'],
     topic:['topic','subject','teachingtopic'],
     audience:['audience','learners','attendees','taught','whotaught','group'],
-    signoff:['signoff','signedoff','feedback','observed','observation','teachingobservation'],
+    signoff:['signoff','signedoff','observed','observation','teachingobservation'],
+    feedbackUploaded:['feedbackuploaded','feedback','feedbackstatus','feedbackdone','feedbackreceived'],
     start:['start','startdate','from','datefrom','placementstart','begin'],
     end:['end','enddate','to','dateto','placementend','finish'],
     months:['months','noofmonths','durationmonths','monthsduration'],
@@ -8978,7 +8985,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       ['Procedures',[['Date','02/10/2026'],[`${short} or GIM`,'GIM'],['Procedure','Ascitic tap'],['Hospital',base],['Supervisor','Dr Jones'],['DOPS signed','Yes'],['Notes',EX],[OPT,'']]],
       ['CPD',[['Date','19/09/2026'],[`${short} or GIM`,short],['CPD type','Conference'],['Internal or external','External'],['Title','Regional training day'],['Provider','Deanery'],['Hours',6],['Learning',''],['Reflection',''],['Notes',EX],[OPT,'']]],
       ['Simulation',[['Date','20/03/2026'],['Course','GIMME'],['Title','Human factors simulation'],['Hours',4],['Hospital',base],['Notes',EX],[OPT,'']]],
-      ['Teaching',[['Date','20/03/2026'],['Type','Tutorial / seminar'],['Topic','AKI management'],['Audience','FY1s'],['Observed by','Dr Smith'],['Sign-off',''],['Notes',EX],[OPT,'']]],
+      ['Teaching',[['Date','20/03/2026'],['Type','Tutorial / seminar'],['Topic','AKI management'],['Audience','FY1s'],['Feedback uploaded?','Pending'],['Notes',EX],[OPT,'']]],
       ['Acute take',[['Hospital',base],['Start date','04/02/2026'],['End date','05/05/2026'],['Takes per month',5],['Patients per take',10],['Supervisor',EX],[OPT,'']]],
       ['Ward cover',[['Hospital',base],['Start date','04/02/2026'],['End date','05/05/2026'],['Supervisor',EX],[OPT,'']]]
     ];
