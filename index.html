@@ -94,8 +94,9 @@
       if (!u) throw Object.assign(new Error('Not signed in'), { code: 'auth/no-current-user' });
       await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, password));
       const left = [];
-      for (const p of (extra?.certPaths || [])) { try { await deleteObject(sRef(storage, p)); } catch (e) { if (e?.code !== 'storage/object-not-found') left.push('certificate'); } }
-      for (const id of (extra?.feedbackIds || [])) { try { await remove(ref(db, 'arcpFeedback/' + id)); } catch (e) { left.push('feedback'); } }
+      // Only this account's own files and feedback sessions, even if another account's entries ever got copied in
+      for (const p of (extra?.certPaths || [])) { if (!String(p).startsWith('cpdCerts/' + u.uid + '/')) continue; try { await deleteObject(sRef(storage, p)); } catch (e) { if (e?.code !== 'storage/object-not-found') left.push('certificate'); } }
+      for (const id of (extra?.feedbackIds || [])) { try { const o = await get(ref(db, 'arcpFeedback/' + id + '/meta/owner')); if (o.exists() && o.val() !== u.uid) continue; await remove(ref(db, 'arcpFeedback/' + id)); } catch (e) { left.push('feedback'); } }
       await remove(ref(db, 'arcpV2/users/' + u.uid));
       await deleteUser(u);
       try { Object.keys(localStorage).filter(k=>k.startsWith('arcp_v2_')||k==='w_quicklog').forEach(k=>localStorage.removeItem(k)); } catch {}
@@ -2205,6 +2206,12 @@ let currentTab = localStorage.getItem("arcp_v2_tab") || "roadmap"; if(currentTab
 let logSubTab = "clinics";
 let suppressRemote = false;
 let remoteReady = false;   // true once the first Firebase snapshot has been reconciled this session
+// Whose records this page loaded. Older copies were only marked by the session flag, which held the account id.
+window.__o1Owner = (()=>{ try{ const o=localStorage.getItem('arcp_v2_owner'); if(o) return o; const s=localStorage.getItem('arcp_v2_session')||''; if(s.length>12 && localStorage.getItem('arcp_v2_state')){ localStorage.setItem('arcp_v2_owner', s); return s; } return null; }catch(e){ return null; } })();
+function o1WipeLocal(){ try{ Object.keys(localStorage).filter(k=>k.startsWith('arcp_v2_')||k==='w_quicklog').forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+// Is the copy on this device still the one this page loaded? (Another tab may have switched accounts or signed out.)
+function o1CopyIsMine(){ try{ return (localStorage.getItem('arcp_v2_owner')||null)===(window.__o1Owner||null); }catch(e){ return true; } }
+window.addEventListener('storage', e=>{ if((e.key==='arcp_v2_owner' || e.key===null) && !o1CopyIsMine() && !window.__o1Switch){ window.__o1Switch=true; suppressRemote=true; location.reload(); } });
 let pendingPush = false;   // a save happened before remoteReady — push after reconcile
 const BETA_TRIAL_DAYS = 180;
 const BETA_FEEDBACK_EMAIL = "markmaugo@gmail.com";
@@ -2413,6 +2420,7 @@ function fbNorm(v){ if(v===null||v===undefined) return undefined; if(Array.isArr
 syncSnapshot();
 function loadState(){ try { return Object.assign(blankState(), JSON.parse(localStorage.getItem(STATE_KEY)||"{}")); } catch { return blankState(); } }
 function saveState(push=true){
+  if(window.__o1Switch || !o1CopyIsMine()) return;   // this page is holding another account's records: never save them over this one's
   try{ stampChanges(); }catch(e){ console.warn('[Outcome1] stamp failed', e); }
   try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); window.__o1SaveFailed=false; }
   catch(e){ console.error('[Outcome1] could not save on this device', e); if(!window.__o1SaveFailed){ window.__o1SaveFailed=true; try{ (window.wToast||alert)('Couldn’t save on this phone. Its storage may be full. Stay online so your changes reach your account.'); }catch(_){} } }
@@ -2421,7 +2429,10 @@ function saveState(push=true){
   if(push){ try{ localStorage.setItem('arcp_v2_remote_ts', String(Date.now())); }catch(e){} fbSave(); }
 }
 function fbSave(){
-  if(suppressRemote) return;
+  if(suppressRemote || window.__o1Switch) return;
+  // Only ever write this page's records to the account they belong to
+  const uidNow=window.ARCP_FB?.user?.uid;
+  if(uidNow && window.__o1Owner && uidNow!==window.__o1Owner) return;
   if(!remoteReady){ pendingPush = true; return; }  // never clobber the cloud before first sync
   if(!window.ARCP_FB?.online || !window.ARCP_FB.userRoot) return;
   const payload={ state: JSON.parse(JSON.stringify(encodeStateForFirebase(state))), updatedAt:Date.now(), version:"2.3-keyed-sync" };
@@ -3389,7 +3400,7 @@ function arcpAddDoc(){ const n=prompt('Document name'); if(!n||!n.trim()) return
 function arcpRemoveDoc(id){ const y=arcpData(); if(!o1Confirm('Remove this document from the list?', ()=>arcpRemoveDoc(id), {yes:'Remove', danger:true})) return; y.custom=y.custom.filter(c=>c.id!==id); delete y.docs[id]; saveState(); render(); }
 function arcpToggleStep(id){ const y=arcpData(); const cur=y.steps[id]||{}; y.steps[id]={...cur, done:!cur.done}; saveState(); render(); }
 function arcpSetStepDate(id,v){ const y=arcpData(); const cur=y.steps[id]||{}; y.steps[id]={...cur, date:v||null}; saveState(); render(); }
-function arcpSetNotes(v){ arcpData().notes=v; localStorage.setItem(STATE_KEY, JSON.stringify(state)); clearTimeout(window.__arcpNotesT); window.__arcpNotesT=setTimeout(()=>saveState(),1200); }
+function arcpSetNotes(v){ arcpData().notes=v; if(o1CopyIsMine() && !window.__o1Switch) localStorage.setItem(STATE_KEY, JSON.stringify(state)); clearTimeout(window.__arcpNotesT); window.__arcpNotesT=setTimeout(()=>saveState(),1200); }
 function arcpFlushNotes(v){ clearTimeout(window.__arcpNotesT); arcpData().notes=v; saveState(); const s=document.getElementById('arcp-notes-saved'); if(s){ s.textContent='Saved'; } }
 
 function arcpEvidence(){
@@ -5261,8 +5272,8 @@ function renderWhenIdle(){
   if(window.__renderPending) return; window.__renderPending=true;
   a.addEventListener('blur', ()=>{ window.__renderPending=false; setTimeout(()=>{ const n=document.activeElement; if(!(n && n.closest && n.closest('#main') && (n.tagName==='TEXTAREA'||n.tagName==='INPUT'))) render(); else renderWhenIdle(); },50); }, {once:true});
 }
-window.addEventListener('firebase-load', e=>{ if(!e.detail?.state) return; try{ reconcileRemote(e.detail.state, e.detail.updatedAt||0); }catch(err){ console.error('[Outcome1] reconcile failed:', err); } });
-window.addEventListener('firebase-no-data', ()=>{ remoteReady=true; const has=(state?.logbook && Object.values(state.logbook).some(a=>Array.isArray(a)&&a.length)); if(pendingPush || has){ pendingPush=false; saveState(); } });
+window.addEventListener('firebase-load', e=>{ if(!e.detail?.state || window.__o1Switch) return; try{ reconcileRemote(e.detail.state, e.detail.updatedAt||0); }catch(err){ console.error('[Outcome1] reconcile failed:', err); } });
+window.addEventListener('firebase-no-data', ()=>{ if(window.__o1Switch) return; remoteReady=true; const has=(state?.logbook && Object.values(state.logbook).some(a=>Array.isArray(a)&&a.length)); if(pendingPush || has){ pendingPush=false; saveState(); } });
 
 // ─── AUTH GATE ────────────────────────────────────────
 let authMode='signin'; // or 'signup'
@@ -5356,13 +5367,29 @@ window.authReset=authReset;
 window.signOutUser=signOutUser;
 
 window.addEventListener('firebase-signed-out', ()=>{
-  // Firebase says nobody is signed in: stop trusting this device and show the sign-in screen
+  // Firebase says nobody is signed in: stop trusting this device and show the sign-in screen.
+  // Nothing more is sent until an account signs in and its records have been loaded.
+  remoteReady=false; pendingPush=false;
   try{ localStorage.removeItem('arcp_v2_session'); }catch(err){}
   document.documentElement.classList.remove('o1-trusted');
   authShow();
 });
 window.addEventListener('firebase-signed-in', e=>{
-  try{ localStorage.setItem('arcp_v2_session', e.detail?.uid||'1'); }catch(err){}
+  const uid=e.detail?.uid;
+  if(uid){
+    let saved=null; try{ saved=localStorage.getItem('arcp_v2_owner'); }catch(err){}
+    const mine=window.__o1Owner;
+    if((mine && mine!==uid) || (saved && saved!==uid)){
+      // This page, or the copy on this device, holds another account's records: start clean for this account
+      window.__o1Switch=true; suppressRemote=true; remoteReady=false; pendingPush=false;
+      if(saved!==uid) o1WipeLocal();
+      try{ localStorage.setItem('arcp_v2_owner', uid); localStorage.setItem('arcp_v2_session', uid); }catch(err){}
+      location.reload();
+      return;
+    }
+    window.__o1Owner=uid; try{ localStorage.setItem('arcp_v2_owner', uid); }catch(err){}
+  }
+  try{ localStorage.setItem('arcp_v2_session', uid||'1'); }catch(err){}
   authHide();
   // Existing onboarding gate / app boot will take over from here
 });
