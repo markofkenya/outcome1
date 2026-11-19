@@ -2068,6 +2068,45 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
 /* Profile sheet: the editable details, then what was fixed at sign-up */
 .w-pf-fixed .w-ent-r b{text-align:right}
 .w-pf .w-sus-note{margin-top:8px}
+
+/* Badges: trophy cabinet, stamps, detail sheet */
+.w-head .w-acts:empty{display:none}
+.w-bd-sec{max-width:680px;margin-left:auto;margin-right:auto}
+.w-bd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px 8px;background:var(--bg2);border-radius:28px;padding:24px 10px 20px}
+@media (min-width:600px){.w-bd-grid{grid-template-columns:repeat(4,1fr)}}
+.w-bd{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;border-radius:18px;padding:2px 2px 4px}
+.w-bd:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.w-bd-st{width:80px;height:80px;border-radius:50%;display:grid;place-items:center;position:relative;flex:none;box-sizing:border-box}
+.w-bd-st.on{background:var(--gc);border:2.5px solid #1E1E1E;color:#1E1E1E;transform:rotate(var(--rot,-6deg))}
+.w-bd-st.on::before{content:'';position:absolute;inset:5px;border:1.5px dashed rgba(30,30,30,.5);border-radius:50%}
+.w-bd-st.off{border:2px dashed var(--line-strong);color:var(--mute)}
+.w-bd-st.q{font:800 34px/1 var(--font);color:var(--mute)}
+.w-bd-st.on.hid{background:#1E1E1E;color:var(--c-quick);border-color:#1E1E1E}
+.w-bd-st.on.hid::before{border-color:rgba(211,246,156,.55)}
+body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
+.w-bd-lv{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#1E1E1E;border:2px solid var(--bg2);border-radius:99px;padding:4px 7px}
+.w-bd-lv i{width:7px;height:7px;border-radius:50%;background:#F4F3EE}
+.w-bd-lv i.o{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(244,243,238,.6)}
+.w-bd-seal{position:absolute;top:-4px;right:-4px;width:26px;height:26px;border-radius:50%;background:#1E1E1E;color:#F4F3EE;display:grid;place-items:center;border:2.5px solid var(--bg2);transform:rotate(calc(-1 * var(--rot,-6deg)))}
+.w-bd-n{font:700 15px/1.2 var(--font);letter-spacing:-.01em;margin-top:12px;color:var(--text);overflow-wrap:break-word;max-width:100%}
+.w-bd-s{font:500 13px/1.3 var(--font);color:var(--dim);margin-top:3px}
+.w-bd.off .w-bd-n{color:var(--dim)}
+.w-bd-line{display:block;height:12px;border:2px solid #1E1E1E;border-radius:99px;overflow:hidden;background:#FAF9F5;margin:2px 0 12px}
+.w-bd-line i{display:block;height:100%;background:var(--c-quick);border-right:2px solid #1E1E1E}
+.w-bd-big{display:grid;place-items:center;margin:8px 0 22px}
+.w-bd-big .w-bd-st{width:120px;height:120px}
+.w-bd-big .w-bd-st>.w-i{width:40px;height:40px}
+.w-bd-big .w-bd-st.q{font-size:52px}
+.w-bd-big .w-bd-lv{bottom:-10px;padding:5px 9px;gap:5px}
+.w-bd-big .w-bd-lv i{width:9px;height:9px}
+.w-bd-big .w-bd-seal{width:34px;height:34px}
+.w-bd-tiers b.ok{color:var(--green)}
+.w-bd-toast{pointer-events:none}
+
+/* Section pages and section badges */
+.w-sec-row{cursor:default}
+.w-sec-row.none .w-row-t{color:var(--dim)}
+.w-bd-sheet .w-bd-grid{padding:8px 0 2px;gap:22px 4px;background:transparent}
 </style>
 
 </head>
@@ -8146,8 +8185,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     O.spec();
     prepend(head({ title:sp.short, color:'var(--c-spec)', kicker:`${currentYear} · ${sp.label}`, big:String(r.pct), unit:'%',
       sub:`${r.met} of ${r.total} requirements met${r.open?` · ${r.open} still open`:''}`,
-      tab:{label:'Add evidence', on:"wQuick('procedures','spec')"},
-      acts:[['clinic','Clinic',"wQuick('clinics','spec')"],['proc','Procedure',"wQuick('procedures','spec')"],['book','CPD',"wQuick('cpd','spec')"],['file','Summary',"wSummary('spec')"]],
+      tab:secTab('spec'),
+      acts:[['clinic','Clinic',"wSec('clinics','spec')"],['proc','Procedure',"wSec('procedures','spec')"],['book','CPD',"wSec('cpd','spec')"],['file','Summary',"wSummary('spec')"]],
       right:{icon:'sliders',label:'Your profile',on:'openSettings()'} }));
     if(!yearLocked()) append(feedSection('Activity', feed(e=>e.scope==='spec'&&inCurrentYear(e)), `${sp.short} entries in ${currentYear}`));
   }
@@ -8157,8 +8196,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const dops=main().querySelector('.dops-grid'); if(dops){ const s=dops.closest('section'); if(s) s.id='w-dops'; }
     prepend(head({ title:'GIM', color:'var(--c-gim)', kicker:`${currentYear} · General Internal Medicine`, big:String(r.pct), unit:'%',
       sub:`${r.met} of ${r.total} requirements met · DOPS ${d.met} of ${d.total}`,
-      tab:{label:'Add evidence', on:"wQuick('procedures','gim')"},
-      acts:[['clinic','Clinic',"wQuick('clinics','gim')"],['proc','Procedure',"wQuick('procedures','gim')"],['book','CPD',"wQuick('cpd','gim')"],['file','Summary',"wSummary('gim')"]],
+      tab:secTab('gim'),
+      acts:[['clinic','Clinic',"wSec('clinics','gim')"],['proc','Procedure',"wSec('procedures','gim')"],['book','CPD',"wSec('cpd','gim')"],['file','Summary',"wSummary('gim')"]],
       right:{icon:'sliders',label:'Your profile',on:'openSettings()'} }));
     if(!yearLocked()) append(feedSection('Activity', feed(e=>e.scope==='gim'&&inCurrentYear(e)), `GIM entries in ${currentYear}`));
   }
@@ -8358,7 +8397,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     O.admin();
     prepend(head({ title:'Account', color:'var(--c-admin)', dark, kicker:window.ARCP_FB?.user?.email||pr.email||'Profile', big:pr.name||'Your profile', bigText:true,
       sub:`${safe(sp.label)} + GIM · ${safe(pr.deanery||'')}${pr.baseHospital?' · '+safe(pr.baseHospital):''}`,
-      acts:[['sliders','Profile','openSettings()'],['moon',dark?'Light':'Dark','toggleFocus();render()'],['dl','Excel','exportLogbook()'],['print','Report','showPrintStylePicker()']] }));
+      acts:[['sliders','Profile','openSettings()'], bdOn()?['medal','Badges',"setTab('badges')"]:['moon',dark?'Light':'Dark','toggleFocus();render()'],['dl','Excel','exportLogbook()'],['print','Report','showPrintStylePicker()']] }));
     const row=(ic,t,s,on,btn,danger)=>`<div class="w-row"><span class="w-tile">${I(ic,22)}</span><span class="w-row-m"><span class="w-row-t">${t}</span><span class="w-row-s">${s}</span></span><span class="w-row-r"><button class="btn small ${danger?'danger':''}" onclick="${on}">${btn}</button></span></div>`;
     const signEmail=window.ARCP_FB?.user?.email||'';
     append(`<section class="section"><div class="sec-head"><span class="sec-title">Sign-in</span></div><div class="w-list">
@@ -8375,6 +8414,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       ${row('moon','Appearance',dark?'Dark mode':'Light mode','toggleFocus();render()',dark?'Use light':'Use dark')}
       ${isStandalone()?'':row('dl','Install on this phone', installPrompt?'Add Outcome1 as an app':'Home-screen app that works offline','wInstall()','Install')}
       ${row('sliders','Profile','Name, training number and base hospital','openSettings()','Edit')}
+      ${row('medal','Badges',bdOn()?'On':'Off','wBadgesToggle()',bdOn()?'Turn off':'Turn on')}
       ${row('compass','Setup guide','Welcome tour and getting-started checklist','wSetupOpen()','Open')}
       ${row('ul','Import a logbook','From Excel or CSV, with a preview first','wImport()','Import')}
       ${row('lock','About and privacy','What Outcome1 is, what’s stored and where',"window.open('privacy.html','_blank','noopener')",'Open')}
@@ -8474,7 +8514,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     if(e.key!=='Escape' || currentTab==='home') return;
     if(document.querySelector('#w-cele,#w-ask,#fb-modal,#fb-qr-full,#print-style-modal,#cpd-edit-modal,#wrapped-overlay.show,#gate.show,#auth-gate.show')) return;
     if(/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')) return;
-    currentTab==='logbook-form' ? setTab(window.__wPrev||'home') : wHome();
+    currentTab==='logbook-form' ? setTab(window.__wPrev||'home') : currentTab==='badges' ? setTab('admin') : currentTab==='seclist' ? setTab(window.__wSec?.scope==='gim'?'gim':'specialty') : wHome();
   });
 
   const isDate = el => el && el.tagName==='INPUT' && el.type==='date';
@@ -9758,7 +9798,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       try{ prev&&prev.isConnected&&prev.focus&&prev.focus({preventScroll:true}); }catch(e){}
       if(dismissed && o.onDismiss) o.onDismiss();
     };
-    const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(true); } };
+    // a sheet replaced by another one is gone: its Escape handler must not outlive it
+    const onKey=e=>{ if(!wrap.isConnected || wrap._held){ document.removeEventListener('keydown',onKey,true); return; } if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); close(true); } };
     wrap.addEventListener('click',e=>{
       if(wrap._held) return;
       if(e.target===wrap||e.target.closest('[data-x]')){ close(true); return; }
@@ -10614,6 +10655,233 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     document.body.appendChild(wrap);
     try{ wrap.querySelector('#w-del-pw').focus({preventScroll:true}); }catch(e){}
   };
+
+  // ═══ Badges ═══
+  // Worked out afresh from the logbook and the requirement ticks every time, so deleting entries takes a badge
+  // (or a level) back. Imported entries only ever count towards Archivist. Stored in state.badges: which levels
+  // have been announced (so each is celebrated once), three dated moments that can't be rebuilt later (ARCP ready,
+  // early and clean sweep), and the on/off switch. Nothing is split by training year: it all runs to CCT.
+  Object.assign(IC, {
+    medal:'<circle cx="12" cy="9" r="6"/><path d="M8.6 13.8L7 21l5-2.6 5 2.6-1.6-7.2"/>',
+    bed:'<path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 00-3-3h-8v5"/><circle cx="6.5" cy="11" r="1.5"/>',
+    grad:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
+    cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    kidney:'<path d="M13.5 3.5C8.8 3.5 4.5 6.6 4.5 12s4.3 8.5 9 8.5c2.6 0 4.2-1.6 4.2-3.7 0-1.9-2.1-2.7-2.1-4.8s2.1-2.9 2.1-4.8c0-2.1-1.6-3.7-4.2-3.7z"/><path d="M15.6 12h2.4c1.2 0 2 .8 2 2v6.5"/>',
+    line:'<path d="M3.5 20.5c4.5-.8 6.5-4 7.5-8s3.2-7.2 9.5-8"/><circle cx="3.5" cy="20.5" r="1.6"/><path d="M17.5 2.5l3.5 3.5"/>',
+    chat:'<path d="M20 11.5a8 8 0 01-11.7 7.1L4 20l1.3-4A8 8 0 1120 11.5z"/><path d="M9 11.5h.01M12 11.5h.01M15 11.5h.01"/>'
+  });
+  const BD_KINDS=['clinics','procedures','cpd','teaching','simulation'];
+  const BD_CATS=['Clinical','Teaching','Learning','Portfolio','Hidden'];
+  const BD_COL={Clinical:'var(--c-spec)',Teaching:'var(--c-quick)',Learning:'var(--c-cpd)',Portfolio:'var(--c-gim)'};
+  const bdOwn=k=>(state.logbook?.[k]||[]).filter(e=>e && e.src!=='import');
+  const bdSum=(a,f)=>Math.round(a.reduce((t,e)=>t+(Number(e[f])||0),0)*10)/10;
+  const bdDay=t=>{ const d=new Date(t); return isNaN(d)?'':`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+  const bdState=()=>state.badges||{};
+  const bdOn=()=>!!state.profile && !bdState().off;
+  function badgeList(){
+    const sp=specCfg(), reqs=specReqs(), mo=bdState().moments||{};
+    const types=(sp.logbook?.clinics||[]).filter(t=>t && t!=='Other');
+    const cl=bdOwn('clinics'), pr=bdOwn('procedures'), cpd=bdOwn('cpd'), te=bdOwn('teaching'), sim=bdOwn('simulation');
+    const placed=[...cl,...pr,...sim,...bdOwn('acute'),...bdOwn('ward')];
+    const gimTicks=Object.keys(state.req||{}).filter(k=>k.startsWith('dops.') && state.req[k]===true).length;
+    const dops=pr.filter(e=>e.scope!=='gim' && e.dops==='Yes').length + Math.max(gimTicks, pr.filter(e=>e.scope==='gim' && e.dops==='Yes').length);
+    let ext=0; try{ ext=gimExternalCpdHours(e=>e.src!=='import'); }catch(e){}
+    const months=new Set(); BD_KINDS.forEach(k=>bdOwn(k).forEach(e=>{ if(/^\d{4}-\d{2}/.test(String(e.date||''))) months.add(String(e.date).slice(0,7)); }));
+    const sce=reqs.spec_sce, qips=Object.entries(reqs).filter(([id,r])=>/qip/i.test(id) && r.type==='checkbox');
+    const tick=(id,r)=>{ try{ return !!getReqVal(id,r); }catch(e){ return false; } };
+    const words=s=>String(s||'').trim().split(/\s+/).filter(Boolean).length;
+    const ptypes=sp.logbook?.procedures||[], isBx=x=>/kidney biopsy/i.test(String(x||'')), isTemp=x=>/^temp hd catheter/i.test(String(x||''));
+    const surveys=Object.entries(reqs).filter(([id,r])=>/survey/i.test(id) && r.type==='checkbox');
+    const svDone=surveys.length ? surveys.filter(([id,r])=>tick(id,r)).length : (GIM_REQS.gim_survey && tick('gim_survey',GIM_REQS.gim_survey) ? 1 : 0);
+    const n=x=>Object.keys(x||{}).length;
+    return [
+      {id:'clinics',cat:'Clinical',icon:'clinic',name:'Clinic regular',tiers:[10,25,50],unit:'clinics',d:'Clinics logged',v:cl.length},
+      {id:'house',cat:'Clinical',icon:'list',name:'Full house',tiers:[types.length],unit:`${sp.short} clinic types`,d:`Every clinic type on your ${sp.short} list, at least once`,v:new Set(cl.filter(e=>e.scope!=='gim' && types.includes(e.type)).map(e=>e.type)).size,show:types.length>1},
+      {id:'procs',cat:'Clinical',icon:'proc',name:'Hands on',tiers:[5,15,30],unit:'procedures',d:'Procedures logged',v:pr.length},
+      {id:'dops',cat:'Clinical',icon:'check',name:'Signed off',tiers:[1,5,10],unit:'DOPS signed',d:'Signed DOPS only',v:dops,verified:true},
+      {id:'biopsy',cat:'Clinical',icon:'kidney',name:'Nephron ninja',tiers:[10],unit:'kidney biopsies',d:'Native and transplant kidney biopsies logged',v:pr.filter(e=>isBx(e.type)).length,show:ptypes.some(isBx)},
+      {id:'tline',cat:'Clinical',icon:'line',name:'Line slinger',tiers:[10],unit:'temporary HD lines',d:'Temporary dialysis catheters logged, femoral or jugular',v:pr.filter(e=>isTemp(e.type)).length,show:ptypes.some(isTemp)},
+      {id:'take',cat:'Clinical',icon:'pulse',name:'On take',tiers:[500],unit:'acute patients',d:'Acute GIM patients, from your take log',v:bdSum(bdOwn('acute'),'estimated')},
+      {id:'ward',cat:'Clinical',icon:'bed',name:'Ward cover',tiers:[3,6,12],unit:'months',d:'Months of IM ward cover',v:bdSum(bdOwn('ward'),'months')},
+      {id:'teach',cat:'Teaching',icon:'board',name:'Teacher',tiers:[1,5,15],unit:'sessions taught',d:'Teaching sessions you gave',v:te.length},
+      {id:'heard',cat:'Teaching',icon:'qr',name:'Heard back',tiers:[1,5,10],unit:'sessions with feedback',d:'Sessions with feedback collected through Outcome1',v:te.filter(e=>Number(e.feedbackCount)>0).length,verified:true},
+      {id:'loop',cat:'Teaching',icon:'reset',name:'Closed the loop',tiers:[3,10],unit:'feedback uploaded',d:'Sessions marked “Feedback uploaded: Yes”',v:te.filter(e=>e.feedbackUploaded==='Yes').length},
+      {id:'cpd',cat:'Learning',icon:'book',name:'Learner',tiers:[25,50,100],unit:'CPD hours',d:'All CPD hours',v:bdSum(cpd,'hours')},
+      {id:'ext',cat:'Learning',icon:'flag',name:'Out and about',tiers:[100],unit:'GIM external hours',d:'External GIM CPD hours',v:ext},
+      {id:'sim',cat:'Learning',icon:'pulse',name:'Simulation',tiers:[4,12],unit:'simulation hours',d:'Simulation hours',v:bdSum(sim,'hours')},
+      {id:'notes',cat:'Learning',icon:'file',name:'Takeaways',tiers:[5,15],unit:'CPD with learning points',d:'CPD entries with 20 or more words of key learning points',v:cpd.filter(e=>words(e.learning)>=20).length},
+      {id:'ready',cat:'Portfolio',icon:'flag',name:'ARCP ready',tiers:[1],unit:'ARCP list complete',d:'Every item on your ARCP list ticked before the panel',v:n(mo.ready)},
+      {id:'early',cat:'Portfolio',icon:'road',name:'Early bird',tiers:[1],unit:'ready early',d:'ARCP list complete at least 4 weeks before your portfolio locks',v:n(mo.early)},
+      {id:'exam',cat:'Portfolio',icon:'file',name:'Exam passed',tiers:[1],unit:`${examShort()} passed`,d:`${examShort()} ticked as passed`,v:sce&&tick('spec_sce',sce)?1:0,show:!!sce},
+      {id:'qip',cat:'Portfolio',icon:'chart',name:'QIP done',tiers:[1],unit:'QIP + QIPAT',d:'A QIP + QIPAT requirement ticked',v:(qips.some(([id,r])=>tick(id,r)) || (GIM_REQS.gim_qip && tick('gim_qip',GIM_REQS.gim_qip)))?1:0},
+      {id:'survey',cat:'Portfolio',icon:'chat',name:'Bedside manner',tiers:surveys.length>1?[1,surveys.length]:[1],unit:'patient surveys',d:'Patient surveys ticked as done',v:svDone},
+      {id:'cct',cat:'Portfolio',icon:'grad',name:'Finish line',tiers:[1],unit:'CCT',d:'Outcome 6: training complete',v:Object.values(state.years||{}).some(y=>y&&y.outcome==='6')?1:0},
+      {id:'arch',cat:'Portfolio',icon:'ul',name:'Archivist',tiers:[1],unit:'old logbook brought in',d:'An old logbook imported',v:[...BD_KINDS,'acute','ward'].some(k=>(state.logbook?.[k]||[]).some(e=>e&&e.src==='import'))?1:0},
+      {id:'steady',cat:'Portfolio',icon:'cal',name:'Steady',tiers:[3,6,12],unit:'active months',d:'Months with something logged. They don’t need to be in a row',v:months.size},
+      {id:'h_first',cat:'Hidden',hidden:true,icon:'spark',name:'First steps',tiers:[1],unit:'first entry',d:'Your first logbook entry',v:BD_KINDS.some(k=>bdOwn(k).length)?1:0},
+      {id:'h_same',cat:'Hidden',hidden:true,icon:'check',name:'Same day',tiers:[10],unit:'logged on the day',d:'10 entries logged on the day they happened',v:BD_KINDS.reduce((a,k)=>a+bdOwn(k).filter(e=>e.date && e.createdAt && bdDay(e.createdAt)===String(e.date).slice(0,10)).length,0)},
+      {id:'h_tour',cat:'Hidden',hidden:true,icon:'road',name:'Grand tour',tiers:[3],unit:'hospitals',d:'Entries at 3 different hospitals',v:new Set(placed.map(e=>String(e.hospital||'').trim()).filter(Boolean)).size},
+      {id:'h_set',cat:'Hidden',hidden:true,icon:'list',name:'All-rounder',tiers:[5],unit:'kinds of entry',d:'A clinic, procedure, CPD, teaching session and simulation, all logged',v:BD_KINDS.filter(k=>bdOwn(k).length).length},
+      {id:'h_sweep',cat:'Hidden',hidden:true,icon:'flag',name:'Clean sweep',tiers:[1],unit:'all met',d:`Every ${sp.short} and GIM requirement met at the same time`,v:mo.sweep?1:0},
+      {id:'h_room',cat:'Hidden',hidden:true,icon:'board',name:'Packed room',tiers:[20],unit:'responses',d:'20 or more feedback responses on one teaching session',v:Math.max(0,...te.map(e=>Number(e.feedbackCount)||0))}
+    ].filter(b=>b.show!==false);
+  }
+  const bdLvl=b=>b.tiers.filter(t=>b.v>=t).length;
+  const bdNext=b=>b.tiers.find(t=>b.v<t);
+  const bdRot=i=>[-7,5,-3,8,-5,3,-8,6][i%8]+'deg';
+  const bdNum=v=>String(Math.round(v*10)/10);
+  function bdStamp(b,i,big){
+    const L=bdLvl(b);
+    if(b.hidden && !L) return `<span class="w-bd-st off q" aria-hidden="true">?</span>`;
+    return `<span class="w-bd-st ${L?'on':'off'} ${b.hidden?'hid':''}" style="--gc:${BD_COL[b.cat]||'#1E1E1E'};--rot:${bdRot(i)}" aria-hidden="true">${I(b.icon,big?40:26)}${L&&b.tiers.length>1?`<span class="w-bd-lv">${b.tiers.map((x,k)=>`<i class="${k<L?'':'o'}"></i>`).join('')}</span>`:''}${L&&b.verified?`<span class="w-bd-seal">${I('check',big?18:14)}</span>`:''}</span>`;
+  }
+  function bdTile(b,i){
+    const L=bdLvl(b), nx=bdNext(b);
+    if(b.hidden && !L) return `<button class="w-bd off" onclick="wBadge('${b.id}')" aria-label="Hidden badge, not found yet">${bdStamp(b,i)}<span class="w-bd-n">Hidden</span></button>`;
+    const sub = b.hidden ? 'Found' : !nx ? (b.tiers.length>1?'All levels':'Earned') : (b.tiers.length===1 && nx===1) ? 'Not yet' : `${bdNum(b.v)} / ${nx}`;
+    const lab = `${b.name}. ${L?(b.tiers.length>1?`Level ${L} of ${b.tiers.length}`:'Earned'):'Not earned yet'}. ${sub}`;
+    return `<button class="w-bd ${L?'on':'off'}" onclick="wBadge('${b.id}')" aria-label="${safe(lab)}">${bdStamp(b,i)}<span class="w-bd-n">${safe(b.name)}</span><span class="w-bd-s">${safe(sub)}</span></button>`;
+  }
+  function renderBadgesScreen(){
+    if(!bdOn()){ currentTab='admin'; return renderAdminScreen(); }
+    const list=badgeList(), vis=list.filter(b=>!b.hidden);
+    const got=vis.reduce((a,b)=>a+bdLvl(b),0), all=vis.reduce((a,b)=>a+b.tiers.length,0);
+    const earned=list.filter(b=>bdLvl(b)>0).length, found=list.filter(b=>b.hidden && bdLvl(b)>0).length;
+    main().innerHTML='';
+    let i=0;
+    append(BD_CATS.map(c=>{
+      const g=list.filter(b=>b.cat===c); if(!g.length) return '';
+      if(c==='Hidden') g.sort((a,b)=>(bdLvl(b)>0)-(bdLvl(a)>0));
+      return `<section class="section w-bd-sec"><div class="sec-head"><span class="sec-title">${c}</span><span class="sec-note">${g.filter(b=>bdLvl(b)).length} of ${g.length}${c==='Hidden'?' found':''}</span></div><div class="w-bd-grid">${g.map(b=>bdTile(b,i++)).join('')}</div></section>`;
+    }).join(''));
+    prepend(head({ title:'Badges', color:'var(--c-quick)', kicker:'Trophy cabinet', big:String(got), unit:` of ${all} steps`,
+      sub:`<span class="w-bd-line" role="progressbar" aria-label="Steps earned" aria-valuemin="0" aria-valuemax="${all}" aria-valuenow="${got}"><i style="width:${Math.max(2,Math.round(got/all*100))}%"></i></span>${earned} badge${earned===1?'':'s'} · ${found} hidden found`,
+      back:"setTab('admin')", backLabel:'Back to Account' }));
+  }
+  SCREENS.badges=renderBadgesScreen; SCREEN_TINT.badges='#D3F69C';
+  window.wBadge=function(id){
+    const list=badgeList(), b=list.find(x=>x.id===id); if(!b) return;
+    const i=list.indexOf(b), L=bdLvl(b);
+    if(b.hidden && !L){ suSheet({ title:'Hidden badge', sub:'It shows itself when you earn it.', body:`<div class="w-bd-big">${bdStamp(b,i,true)}</div>`, actions:[] }); return; }
+    const mo=bdState().moments||{}, when={ready:mo.ready, early:mo.early}[b.id], sweep=b.id==='h_sweep'&&mo.sweep;
+    const dates=when?Object.values(when).sort():sweep?[mo.sweep]:[];
+    const rows = b.tiers.length>1
+      ? b.tiers.map((t,k)=>`<div class="w-ent-r"><span>Level ${k+1} · ${t} ${safe(b.unit)}</span><b class="${b.v>=t?'ok':''}">${b.v>=t?'Earned':`${bdNum(t-b.v)} to go`}</b></div>`).join('')
+      : `<div class="w-ent-r"><span>${dates.length?`Earned ${suDate(dates[0])}`:safe(b.unit.replace(/^./,c=>c.toUpperCase()))}</span><b class="${L?'ok':''}">${L?(dates.length>1?`${dates.length} times`:'Earned'):(b.tiers[0]>1?`${bdNum(b.v)} / ${b.tiers[0]}`:'Not yet')}</b></div>`;
+    suSheet({ title:safe(b.name), kicker:b.hidden?'Hidden badge':'', sub:safe(b.d), body:`<div class="w-bd-big">${bdStamp(b,i,true)}</div><div class="w-ent w-bd-tiers">${rows}</div>`, actions:[] });
+  };
+  window.wBadgesToggle=function(){
+    state.badges=state.badges||{};
+    if(state.badges.off){ state.badges.off=false; state.badges.seen=Object.fromEntries(badgeList().map(b=>[b.id,bdLvl(b)])); wToast('Badges are on'); }
+    else state.badges.off=true;
+    saveState(); render();
+  };
+  function bdToast(msg){
+    if(document.querySelector('.w-toast,.w-ask')){ setTimeout(()=>bdToast(msg),1500); return; }   // never on top of another message or an open sheet
+    const t=document.createElement('div'); t.className='w-toast w-bd-toast'; t.setAttribute('role','status'); t.innerHTML=`${I('medal',18)}<span>${safe(msg)}</span>`;
+    document.body.appendChild(t); setTimeout(()=>t.classList.add('out'),2600); setTimeout(()=>t.remove(),3100);
+  }
+  function bdReveal(b){
+    if(document.querySelector('.w-toast')){ setTimeout(()=>bdReveal(b),800); return; }   // let any message finish first
+    const list=badgeList(), i=Math.max(0,list.findIndex(x=>x.id===b.id));
+    suSheet({ kicker:'Hidden badge found', title:safe(b.name), sub:safe(b.d), body:`<div class="w-bd-big">${bdStamp({...b,v:Math.max(b.v,b.tiers[0])},i,true)}</div>`,
+      actions:[{ label:'See your badges', primary:true, on:()=>{ setTimeout(()=>setTab('badges'),0); } }] });
+    try{ confetti(document.body,'party'); }catch(e){}
+  }
+  // After each render: note any dated moments, then announce new levels. Badges lost by deleting entries
+  // are noted quietly, so earning them again is celebrated again.
+  let bdT=null;
+  function bdCheck(){
+    if(!bdOn()) return;
+    if(document.querySelector('#gate.show,#auth-gate.show,#beta-expired-lock.show')){ clearTimeout(bdT); bdT=setTimeout(bdCheck,2500); return; }   // try again once signed in
+    const b=state.badges=state.badges||{}; let dirty=false;
+    const mo=b.moments=b.moments||{}, today=bdDay(Date.now());
+    try{ if(arcpReadyHome()){ mo.ready=mo.ready||{}; if(!mo.ready[currentYear]){ mo.ready[currentYear]=today; dirty=true; }
+      if(panelInfo().lockDays>=28){ mo.early=mo.early||{}; if(!mo.early[currentYear]){ mo.early[currentYear]=today; dirty=true; } } } }catch(e){}
+    try{ if(!mo.sweep){ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats());
+      if(s.total && g.total && s.pct>=100 && g.pct>=100){ mo.sweep=today; dirty=true; } } }catch(e){}
+    const list=badgeList(), lv=Object.fromEntries(list.map(x=>[x.id,bdLvl(x)]));
+    if(!b.seen){ b.seen=lv; saveState(); return; }   // first time: what's already earned is simply there in the cabinet
+    list.forEach(x=>{ if(lv[x.id]<(b.seen[x.id]||0)){ b.seen[x.id]=lv[x.id]; dirty=true; } });
+    const fresh=list.filter(x=>lv[x.id]>(b.seen[x.id]||0)), vis=fresh.filter(x=>!x.hidden), hid=fresh.filter(x=>x.hidden);
+    if(vis.length){
+      vis.forEach(x=>{ b.seen[x.id]=lv[x.id]; }); dirty=true;
+      const x=vis[0]; bdToast(vis.length>1 ? `${vis.length} badges earned` : `Badge earned: ${x.name}${x.tiers.length>1?`, level ${lv[x.id]}`:''}`);
+    }
+    // Hidden ones get their moment, but never over setup, another sheet or a celebration: they wait for a clear screen
+    const setupBusy=state.setup && !state.setup.completedAt && !state.setup.dismissed;
+    if(hid.length && !setupBusy && !document.querySelector('.w-ask,#w-cele,#w-welcome,#wrapped-overlay.show,#fb-modal,#print-style-modal,#cpd-edit-modal,.w-cont')){
+      const x=hid[0]; b.seen[x.id]=lv[x.id]; dirty=true; setTimeout(()=>bdReveal(x), vis.length?3300:0);
+    }
+    if(dirty) saveState();
+  }
+  window.wBadgeCheck=bdCheck;
+  const __renderBd=window.render;
+  window.render=function(){ const r=__renderBd.apply(this,arguments); clearTimeout(bdT); bdT=setTimeout(()=>{ try{ bdCheck(); }catch(e){ console.warn('[Outcome1] badges', e); } },700); return r; };
+
+  // ═══ Section pages: Renal clinics, GIM procedures, Renal CPD … ═══
+  // The Clinic / Procedure / CPD buttons on the Renal and GIM screens open a page for that kind of entry
+  // (totals, a breakdown by type, its badges and this year's entries) with Add at the top, instead of going
+  // straight to the form. The Renal and GIM screens show their own badges where “Add evidence” was.
+  const BD_SEC={ spec:['house','biopsy','tline','dops','survey','exam'], gim:['take','ward','ext','dops','qip'],
+    'clinics.spec':['clinics','house'], 'clinics.gim':['clinics'],
+    'procedures.spec':['procs','dops','biopsy','tline'], 'procedures.gim':['procs','dops'],
+    'cpd.spec':['cpd','notes'], 'cpd.gim':['cpd','ext','notes'] };
+  function bdFor(key){ const ids=BD_SEC[key]||[], list=badgeList(); return ids.map(id=>list.find(b=>b.id===id)).filter(Boolean); }
+  function bdGrid(bs){ const all=badgeList(); return `<div class="w-bd-grid">${bs.map(b=>bdTile(b, all.findIndex(x=>x.id===b.id))).join('')}</div>`; }
+  // the pocket tab on Renal / GIM: this section's badges, or Add evidence if badges are off
+  function secTab(sc){
+    if(!bdOn()) return {label:'Add evidence', on:`wQuick('procedures','${sc}')`};
+    const bs=bdFor(sc), got=bs.filter(b=>bdLvl(b)>0).length;
+    return {icon:'medal', label:`${sc==='gim'?'GIM':specCfg().short} badges`, right:`${got} of ${bs.length}`, on:`wSecBadges('${sc}')`};
+  }
+  window.wSecBadges=function(sc){
+    const bs=bdFor(sc), got=bs.filter(b=>bdLvl(b)>0).length;
+    suSheet({ title:`${sc==='gim'?'GIM':safe(specCfg().short)} badges`, sub:`${got} of ${bs.length} earned`, body:`<div class="w-bd-sheet">${bdGrid(bs)}</div>`,
+      actions:[{ label:'See all badges', primary:true, on:()=>{ setTimeout(()=>setTab('badges'),0); } }] });
+  };
+  const SEC_WORD={clinics:['clinic','clinics'], procedures:['procedure','procedures'], cpd:['CPD','CPD']};
+  window.wSec=function(type, scope){
+    window.__wSec={type:SEC_WORD[type]?type:'clinics', scope:scope==='gim'?'gim':'spec'};
+    try{ sessionStorage.setItem('o1_sec', JSON.stringify(window.__wSec)); }catch(e){}
+    if(currentTab==='seclist'){ render(); window.scrollTo(0,0); } else setTab('seclist');
+  };
+  function secParent(){ return (window.__wSec?.scope==='gim')?'gim':'specialty'; }
+  function renderSecScreen(){
+    let o=window.__wSec; if(!o){ try{ o=JSON.parse(sessionStorage.getItem('o1_sec')||'null'); }catch(e){} }
+    o=o||{type:'clinics',scope:'spec'}; window.__wSec=o;
+    const k=o.type, sc=o.scope, sp=specCfg(), lab=sc==='gim'?'GIM':sp.short;
+    const mine=e=>e.scope===sc, all=entries(k).filter(mine), yr=all.filter(inCurrentYear);
+    const types=((sc==='gim'?GIM_LOGBOOK:sp.logbook)?.[k]||[]).filter(t=>t && t!=='Other');
+    const keyOf=e=>k==='procedures'?(normProcName(e.type)||e.type||'Other'):(e.type||'Other');
+    // headline numbers
+    let big, unit='', sub;
+    if(k==='cpd'){ const n=splitNum(hrs(yr)); big=n.big; unit=n.frac+'h'; sub=`${yr.length} entr${yr.length===1?'y':'ies'} · ${r1(hrs(all))}h in all training`; }
+    else if(k==='clinics'){ const pts=yr.reduce((a,e)=>a+(parseInt(e.patients,10)||0),0); big=String(yr.length); sub=`${pts} patient${pts===1?'':'s'} · ${all.length} in all training`; }
+    else { const d=yr.filter(e=>e.dops==='Yes').length; big=String(yr.length); sub=`${d} with DOPS signed · ${all.length} in all training`; }
+    // by type: everything on the list, logged ones first
+    const names=[...new Set([...types, ...all.map(keyOf)])];
+    const rows=names.map(t=>{ const a=all.filter(e=>keyOf(e)===t), y=a.filter(inCurrentYear); return {t,a,y}; })
+      .sort((p,q)=>(q.a.length>0)-(p.a.length>0) || q.y.length-p.y.length || q.a.length-p.a.length);
+    const rowHTML=rows.map(({t,a,y})=>{
+      const s = k==='procedures' ? (a.length ? (procHasDops({type:t})?'DOPS on file':'No DOPS yet') : 'Not logged yet')
+              : k==='clinics' ? (a.length ? `${a.reduce((n,e)=>n+(parseInt(e.patients,10)||0),0)} patients in all` : 'Not logged yet')
+              : (a.length ? `${r1(hrs(a))}h in all` : 'Not logged yet');
+      const v = k==='cpd' ? `${r1(hrs(y))}h` : String(y.length);
+      return `<div class="w-row w-sec-row ${a.length?'':'none'}"><span class="w-row-m"><span class="w-row-t">${safe(t)}</span><span class="w-row-s">${safe(s)}</span></span><span class="w-row-r"><span class="w-row-v">${safe(v)}</span><span class="w-row-s">${a.length?`${k==='cpd'?r1(hrs(a))+'h':a.length} in all`:''}</span></span></div>`;
+    }).join('');
+    const bs=bdOn()?bdFor(`${k}.${sc}`):[];
+    main().innerHTML='';
+    append((bs.length?`<section class="section w-bd-sec"><div class="sec-head"><span class="sec-title">Badges</span><span class="sec-note">${bs.filter(b=>bdLvl(b)>0).length} of ${bs.length}</span></div>${bdGrid(bs)}</section>`:'')
+      + `<section class="section"><div class="sec-head"><span class="sec-title">By type</span><span class="sec-note">${currentYear} · in all</span></div><div class="w-list">${rowHTML||'<div class="w-empty">Nothing logged yet.</div>'}</div></section>`
+      + feedSection(`This year`, yr.map(e=>({...e,_kind:k})).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))), `${yr.length} in ${currentYear}`, 40));
+    const word=SEC_WORD[k];
+    prepend(head({ title:`${lab} ${word[1]}`, color:sc==='gim'?'var(--c-gim)':'var(--c-spec)', kicker:`${currentYear} · ${sc==='gim'?'General Internal Medicine':sp.label}`, big, unit, sub,
+      tab: yearLocked()?null:{label:k==='cpd'?'Add CPD':`Add a ${word[0]}`, right:lab, on:`wQuick('${k}','${sc}')`},
+      back:`setTab('${secParent()}')`, backLabel:`Back to ${lab}` }));
+  }
+  SCREENS.seclist=renderSecScreen;
+  Object.defineProperty(SCREEN_TINT,'seclist',{ get(){ return (window.__wSec?.scope==='gim')?'#F4B683':'#C8BFF1'; }, enumerable:true });
 
   // ── Labels: tie each visible label to its box, so screen readers announce it and tapping the label focuses the box ──
   let __lblN=0, __lblT=null;
