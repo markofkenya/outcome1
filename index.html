@@ -2084,9 +2084,16 @@ body:has(#beta-banner.show):not(.w-detail) #main{padding-top:16px!important}
 .w-bd-st.on.hid{background:#1E1E1E;color:var(--c-quick);border-color:#1E1E1E}
 .w-bd-st.on.hid::before{border-color:rgba(211,246,156,.55)}
 body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
-.w-bd-lv{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#1E1E1E;border:2px solid var(--bg2);border-radius:99px;padding:4px 7px}
-.w-bd-lv i{width:7px;height:7px;border-radius:50%;background:#F4F3EE}
-.w-bd-lv i.o{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(244,243,238,.6)}
+.gr-b{--gr:#C27C3E}.gr-s{--gr:#A9B0BA}.gr-g{--gr:#E1B43A}.gr-p{--gr:#8FD3E3}
+.w-bd-st.on{box-shadow:0 0 0 3.5px var(--gr,transparent)}
+.w-bd-gr{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);background:#1E1E1E;color:var(--gr);border:2px solid var(--bg2);border-radius:99px;padding:3px 8px;font:800 9.5px/1 var(--font);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.w-bd-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gr);margin-right:8px;vertical-align:0;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.18)}
+.w-bd-plat{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:22px;width:100%;background:var(--bg2);border-radius:28px;padding:22px 22px 24px}
+.w-bd-plat:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.w-bd-pm{display:flex;flex-direction:column;min-width:0}
+.w-bd-pk{font:800 12px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.w-bd-pn{font:800 22px/1.15 var(--font);letter-spacing:-.02em;color:var(--text);margin:3px 0 2px}
+.w-bd-plat .w-bd-st{width:84px;height:84px}
 .w-bd-seal{position:absolute;top:-4px;right:-4px;width:26px;height:26px;border-radius:50%;background:#1E1E1E;color:#F4F3EE;display:grid;place-items:center;border:2.5px solid var(--bg2);transform:rotate(calc(-1 * var(--rot,-6deg)))}
 .w-bd-n{font:700 15px/1.2 var(--font);letter-spacing:-.01em;margin-top:12px;color:var(--text);overflow-wrap:break-word;max-width:100%}
 .w-bd-s{font:500 13px/1.3 var(--font);color:var(--dim);margin-top:3px}
@@ -2097,8 +2104,7 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
 .w-bd-big .w-bd-st{width:120px;height:120px}
 .w-bd-big .w-bd-st>.w-i{width:40px;height:40px}
 .w-bd-big .w-bd-st.q{font-size:52px}
-.w-bd-big .w-bd-lv{bottom:-10px;padding:5px 9px;gap:5px}
-.w-bd-big .w-bd-lv i{width:9px;height:9px}
+.w-bd-big .w-bd-gr{bottom:-11px;font-size:11px;padding:4px 10px}
 .w-bd-big .w-bd-seal{width:34px;height:34px}
 .w-bd-tiers b.ok{color:var(--green)}
 .w-bd-toast{pointer-events:none}
@@ -2107,6 +2113,10 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
 .w-sec-row{cursor:default}
 .w-sec-row.none .w-row-t{color:var(--dim)}
 .w-bd-sheet .w-bd-grid{padding:8px 0 2px;gap:22px 4px;background:transparent}
+
+/* Setup: badges preview */
+.w-su-bd{display:flex;justify-content:center;gap:22px;padding:14px 0 18px}
+.w-su-bd .w-bd-st{width:72px;height:72px}
 </style>
 
 </head>
@@ -3785,7 +3795,7 @@ blockquote{background:#fff;border:1px solid #E8E2DA;border-radius:12px;padding:1
 <dl class="info"><div><dt>Presenter</dt><dd>${esc(state.profile?.name||'')}</dd></div><div><dt>Session</dt><dd>${esc(e.topic||e.type||'')}</dd></div><div><dt>Date</dt><dd>${esc(fmtDate(e.date))}</dd></div><div><dt>Audience</dt><dd>${esc(e.audience||'—')}</dd></div></dl>
 <div class="stat"><b>${resp.length}</b><span>${resp.length===1?'response':'responses'} collected anonymously via the JRCPTB evaluation form questions${e.type?' · '+esc(e.type):''}</span></div>
 ${qs}
-<div class="ft"><span>Teaching feedback summary · ${esc(state.profile?.name||'')}</span><span>Generated ${gen}</span></div>
+<div class="ft"><span>Teaching feedback summary · ${esc(state.profile?.name||'')}</span></div>
 </div></body></html>`;
   return html;
 }
@@ -3828,7 +3838,7 @@ ul{margin:0;padding-left:18px}li{margin:2px 0;white-space:pre-wrap}
 <h2>EVALUATION — ${resp.length} ${resp.length===1?'response':'responses'}</h2>
 <table class="ev">${rows}</table>
 <div class="meta">${e.audience?'Audience: '+fbEsc(e.audience)+' · ':''}${e.type?'Session type: '+fbEsc(e.type):''}</div>
-<div class="ft"><span>Collected electronically via Outcome1</span><span>Generated ${gen}</span></div></div>`);
+<div class="ft"><span>Collected electronically via Outcome1</span></div></div>`);
 }
 // 2. One copy of the form per respondent, each on its own page
 function fbHtmlIndividual(e, resp){
@@ -3875,7 +3885,7 @@ td.n{font:600 9pt ui-monospace,Menlo,monospace;color:#2F7A50}
 <table><thead><tr><th>#</th>${short.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
 ${resp.map((r,i)=>`<tr><td class="n">${i+1}</td>${FB_QUESTIONS.map(q=>`<td>${r[q.k]?fbEsc(r[q.k]):'<span class="empty">—</span>'}</td>`).join('')}</tr>`).join('')}
 </tbody></table>
-<div class="ft"><span>Evaluation form for teaching and presentations · response grid</span><span>Generated ${gen}</span></div>`);
+<div class="ft"><span>Evaluation form for teaching and presentations · response grid</span></div>`);
 }
 
 // ── Summary PDF: response grid + one JRCPTB evaluation form per respondent ──
@@ -3897,7 +3907,7 @@ function fbHtmlJrcptb(e, resp){
     <h2>EVALUATION – ${resp.length} ${resp.length===1?'response':'responses'}</h2>
     <table class="grid"><thead><tr><th class="n">#</th>${short.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
       <tbody>${resp.map((r,i)=>`<tr><td class="n">${i+1}</td>${FB_QUESTIONS.map(q=>`<td>${r[q.k]?fbEsc(r[q.k]):'<span class="dash">—</span>'}</td>`).join('')}</tr>`).join('')}</tbody></table>
-    <p class="note">Individual forms follow, one per respondent. Responses were submitted anonymously online. Generated ${gen}.</p>
+    <p class="note">Individual forms follow, one per respondent. Responses were submitted anonymously online.</p>
   </section>`;
   const forms=resp.map((r,i)=>{
     const when=r.ts?new Date(r.ts).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'';
@@ -4397,7 +4407,7 @@ function exportCpdDiary(){
     </div>
     <div class="body">${all.length?yearsHtml:'<p style="padding:30px 0;color:#9a8f6a;font-style:italic">No CPD entries logged yet.</p>'}</div>
     
-    <div class="ft"><span>CPD Diary · Reflective record for appraisal</span><span>Generated ${gen}</span></div>
+    <div class="ft"><span>CPD Diary · Reflective record for appraisal</span></div>
   </div>
   </body></html>`;
 
@@ -5000,7 +5010,7 @@ function printReport(style){
 <style>${REPORT_CSS(style)}</style></head><body data-report-style="${style}">
 <div class="page">
   <div class="toolbar"><button onclick="window.print()">Print / Save PDF</button></div>
-  <div class="colophon"><span>Volume \u2014 ${safe(yr)}</span><span>Generated ${safe(generatedShort)}</span></div>
+  <div class="colophon"><span>Volume \u2014 ${safe(yr)}</span></div>
   <header class="masthead">
     <div class="left">
       <div class="eyebrow">Trainee Record</div>
@@ -5009,8 +5019,7 @@ function printReport(style){
     <div class="right">
       Trainee: <b>${safe(traineeName)}</b><br>
       Programme: <b>${safe(sp.short)} + GIM</b><br>
-      Year: <b>${safe(yr)}</b><br>
-      Generated: <b>${safe(generatedDate)}</b>
+      Year: <b>${safe(yr)}</b>
     </div>
   </header>
   <dl class="info">
@@ -5055,7 +5064,7 @@ function printReport(style){
   <div class="ai-disclosure"></div>
   <footer class="colophon-foot">
     <span>ARCP Logbook \u00b7 ${safe(traineeName)} \u00b7 ${safe(trainingNumber)}</span>
-    <em>Generated ${safe(generatedDate)} \u2014 confidential record</em>
+    <em>Confidential record</em>
   </footer>
 </div>
 </body></html>`;
@@ -6957,7 +6966,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
 <div class="page">
   <header>
     <h1>${E(title)}${mode==='year'?' · '+E(currentYear):''}</h1>
-    <div class="who"><b>${E(who())}</b> · ${E(streamLabel)}<br>${mode==='year'?`Entries from ${E(currentYear)} only`:'Entries from all training years'} · Generated ${E(today)}</div>
+    <div class="who"><b>${E(who())}</b> · ${E(streamLabel)}<br>${mode==='year'?`Entries from ${E(currentYear)} only`:'Entries from all training years'}</div>
   </header>
   ${sectionsHtml}
   <footer><span>${E(title)}</span><span>${E(who())}</span></footer>
@@ -7021,7 +7030,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     S.push(sotSection('GIM teaching',
       `${yrOnly?`${E(yr)} external GIM hours: <strong>${countedCpd.toFixed(1)}h</strong> · 100h needed by CCT`:`Total external GIM hours: <strong>${countedCpd.toFixed(1)}h</strong> / 100h${countedCpd>=100?' ✓':''}`} · External: ${extHrs.toFixed(1)}h · Online: ${onlineCapped.toFixed(1)}h / 15h max${onlineHrs>15?` (${onlineHrs.toFixed(1)}h logged)`:''}`,
       sotTable(['Date','Type','Title / Event','Counts as','Hours','Year'], cpd.map(e=>[sotDate(e.date), e.type||'', e.title||'', lab(e), e.hours?sotNum(e.hours,1):'', e.year||'']), {num:[4]}),
-      ['Note - 100 hours of external GIM CPD by CCT; online/e-learning counts up to 15 hours. Internal teaching (grand rounds, departmental) is listed but not counted.']));
+      ['Note - 100 hours of external GIM CPD by CCT; online/e-learning counts up to 15 hours.']));
 
     // GIM procedures
     S.push(sotProcSection('GIM procedures','gim',mode));
@@ -7150,7 +7159,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   <div class="no-print"><button onclick="window.print()">⎙ Print / Save as PDF</button></div>
   <div class="doc-header">
     <div><h1>Logbook Report</h1><div class="subtitle">${E(sp.label)} &amp; General Internal Medicine · Dual CCT Training</div></div>
-    <div class="doc-meta"><div><strong>Generated:</strong> ${today}</div><div><strong>Training Year:</strong> ${E(yr)}</div><div><strong>Trainee:</strong> ${E(who())}</div></div>
+    <div class="doc-meta"><div><strong>Training Year:</strong> ${E(yr)}</div><div><strong>Trainee:</strong> ${E(who())}</div></div>
   </div>
   <div class="page-inner">
   <div class="info-box">
@@ -7209,91 +7218,259 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   ${subHead(badge('GIM','badge-gim'), `${ward.length} placements · all years`)}
   <div class="tw">${tbl(['Hospital','Start','End','Months','Year','Supervisor'], ward.map(e=>[E(e.hospital),fmt(e.start),fmt(e.end),e.months?E(e.months)+'mo':'—',E(e.year)||'—',E(e.supervisor)||'—']), '#005EB8')}</div>
 
-  <div class="doc-footer"><span>ARCP Logbook · ${E(who())}</span><span>Generated ${fullDate} · Confidential</span></div>
+  <div class="doc-footer"><span>ARCP Logbook · ${E(who())}</span><span>Confidential</span></div>
   </div>
 </div></body></html>`;
     openReportDoc(html);
   };
 
   // ── CPD Diary (reflective record, current training year only) ──
-  window.exportCpdDiary = function(){
+  // CPD diary, in two layouts. Register (default): one table the panel can scan, with key learning and reflection
+  // under each row. Journal: date down the left, learning and reflection as prose. Asks which, remembering the last.
+  window.exportCpdDiary = function(style){
+    if(style!=='a' && style!=='c'){
+      let last='a'; try{ last=localStorage.getItem('o1_cpd_style')==='c'?'c':'a'; }catch(e){}
+      const tag=s=>s===last?' · last used':'';
+      if(window.wAsk) return wAsk({ title:'CPD diary', sub:'Which layout?', options:[
+        {label:'Register', sub:'A table the panel can scan'+tag('a'), on:()=>exportCpdDiary('a')},
+        {label:'Journal', sub:'Reads like a reflective record'+tag('c'), on:()=>exportCpdDiary('c')} ]});
+      style=last;
+    }
+    try{ localStorage.setItem('o1_cpd_style', style); }catch(e){}
     const sp=specCfg();
-    const all=entries('cpd').filter(isThisYear).map(e=>Object.assign({stream:isGim(e)?'GIM':sp.short},e)).sort(asc('date'));
-    const fmt=d=>{ if(!d) return '—'; const p=String(d).split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d; };
-    const total=r1(H(all)), ext=r1(H(all.filter(e=>(e.category||cpdCategoryFor(e.type))==='External')));
-    const intl=r1(total-ext), gimExt=r1(H(all.filter(e=>isGim(e)&&cpdIsExternal(e))));
-    const gen=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
-    const byYear={}; all.forEach(e=>{ const y=e.year||'Unassigned'; (byYear[y]=byYear[y]||[]).push(e); });
-    const entryBlock=e=>{
-      const cat=e.category||cpdCategoryFor(e.type), url=safeUrl(e.cert&&e.cert.url);
-      return `<div class="entry">
-      <div class="entry-head"><div class="entry-title">${E(e.title)||E(e.type)||'CPD activity'}</div>
-        <div class="badges"><span class="badge str ${e.stream==='GIM'?'gim':'ren'}">${E(e.stream)}</span><span class="badge ${cat==='Internal'?'int':'ext'}">${E(cat)}</span></div></div>
-      <div class="entry-meta">${E(fmt(e.date))} · ${E(e.type)}${e.provider?' · '+E(e.provider):''} · <strong>${E(e.hours)||0} h</strong></div>
-      ${e.learning?`<div class="entry-field"><span class="lbl">Key learning</span>${E(e.learning)}</div>`:''}
-      ${e.reflection?`<div class="entry-field"><span class="lbl">Reflection</span>${E(e.reflection)}</div>`:''}
-      ${e.notes?`<div class="entry-field"><span class="lbl">Notes</span>${E(e.notes)}</div>`:''}
-      ${url?`<div class="entry-field"><span class="lbl">Evidence</span><a href="${url}">${E(e.cert.name)||'Certificate attached'}</a></div>`:''}
-    </div>`;
-    };
-    const yearsHtml=Object.keys(byYear).sort().map(y=>`
-    <h2 class="yr">${E(y)} <span class="yr-n">${byYear[y].length} entr${byYear[y].length===1?'y':'ies'} · ${r1(H(byYear[y]))} h</span></h2>
-    ${byYear[y].map(entryBlock).join('')}`).join('');
+    const all=entries('cpd').filter(isThisYear).sort(asc('date'));
+    const fmt=d=>{ if(!d) return '—'; const p=String(d).split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:E(d); };
+    const catOf=e=>cpdIsExternal(e)?'External':'Internal';
+    const total=r1(H(all)), ext=r1(H(all.filter(e=>catOf(e)==='External'))), intl=r1(total-ext);
+    let gimAll=0; try{ gimAll=gimExternalCpdHours(); }catch(e){}
+    const pct=Math.max(2,Math.min(100,Math.round(gimAll)));
     const deanery=prof().deanery||'';
-    const html=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CPD Diary ${E(currentYear)} — ${E(who())}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+    const row=e=>{
+      const url=safeUrl(e.cert&&e.cert.url), gim=isGim(e);
+      const notes=[ e.learning?`<p><b>Key learning.</b> ${E(e.learning)}</p>`:'', e.reflection?`<p><b>Reflection.</b> ${E(e.reflection)}</p>`:'',
+        e.notes?`<p><b>Notes.</b> ${E(e.notes)}</p>`:'', url?`<p><b>Evidence.</b> <a href="${url}">${E(e.cert.name)||'Certificate'}</a></p>`:'' ].join('');
+      return `<tbody class="en"><tr><td class="dt">${fmt(e.date)}</td><td><b>${E(e.title)||E(e.type)||'CPD activity'}</b><span class="m">${E(e.type)}${e.provider?' · '+E(e.provider):''}</span></td>
+        <td><span class="tg ${gim?'g':'r'}">${gim?'GIM':E(sp.short)}</span></td><td class="ty">${catOf(e)}</td><td class="n">${e.hours?r1(e.hours):'—'}</td></tr>
+        ${notes?`<tr class="rf"><td></td><td colspan="4">${notes}</td></tr>`:''}</tbody>`;
+    };
+    const jrow=e=>{
+      const url=safeUrl(e.cert&&e.cert.url), gim=isGim(e), d=new Date(String(e.date||'')+'T00:00:00'), ok=!isNaN(d);
+      const parts=[ e.learning?`<div class="q"><h3>What I learned</h3><p>${E(e.learning)}</p></div>`:'', e.reflection?`<div class="q"><h3>What I’ll do differently</h3><p>${E(e.reflection)}</p></div>`:'',
+        e.notes?`<div class="q"><h3>Notes</h3><p>${E(e.notes)}</p></div>`:'', url?`<div class="q"><h3>Evidence</h3><p><a href="${url}">${E(e.cert.name)||'Certificate'}</a></p></div>`:'' ].join('');
+      return `<div class="je"><div class="jl"><b>${ok?d.getDate():'—'}</b><span>${ok?d.toLocaleDateString('en-GB',{month:'short',year:'numeric'}):''}</span><em>${e.hours?r1(e.hours):'—'} h</em></div>
+        <div class="jr"><h2>${E(e.title)||E(e.type)||'CPD activity'}</h2><div class="jm">${E(e.type)}${e.provider?' · '+E(e.provider):''} · <span class="${gim?'g':'rn'}">${gim?'GIM':E(sp.short)}</span> · ${catOf(e)}</div>
+        ${parts||'<div class="none">No learning points recorded</div>'}</div></div>`;
+    };
+    const html=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CPD diary ${E(currentYear)} · ${E(who())}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Newsreader',Georgia,serif;color:#1a1a1a;background:#f5f3ee;font-size:11pt;line-height:1.55;padding:24px}
-    .page{max-width:780px;margin:0 auto;background:#fff;padding:0 0 40px;box-shadow:0 2px 20px rgba(0,0,0,.08)}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1d1d1f;background:#eceae4;font-size:11pt;line-height:1.5;padding:24px}
+    .page{max-width:794px;margin:0 auto;background:#fff;box-shadow:0 2px 18px rgba(0,0,0,.08);padding-bottom:28px}
     .toolbar{padding:16px 36px 0;text-align:right}
-    .toolbar button{font-family:'Spline Sans Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:#1a1a1a;color:#fff;border:none;padding:9px 16px;border-radius:4px;cursor:pointer}
-    .hd{padding:26px 36px 18px;border-bottom:2px solid #1a1a1a}
-    .hd .ec{font-family:'Spline Sans Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#9a8f6a;margin-bottom:12px}
-    .hd h1{font-size:30px;font-weight:600;letter-spacing:-.01em}
-    .hd .sub{font-size:12px;color:#6b6657;margin-top:4px}
-    .stats{display:flex;border-bottom:1px solid #e2ddd0;padding:14px 36px}
-    .stats div{flex:1}
-    .stats .k{font-family:'Spline Sans Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#9a8f6a;margin-bottom:3px}
-    .stats .v{font-size:18px;font-weight:600}
-    .body{padding:8px 36px}
-    h2.yr{font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:24px 0 12px;padding-bottom:5px;border-bottom:1px solid #c9bfa6;display:flex;justify-content:space-between;align-items:baseline}
-    h2.yr .yr-n{font-family:'Newsreader',serif;font-size:10pt;color:#9a8f6a;text-transform:none;letter-spacing:0}
-    .entry{padding:12px 0;border-bottom:1px solid #eee7d8;break-inside:avoid}
-    .entry-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-    .entry-title{font-size:13pt;font-weight:600}
-    .badges{display:flex;gap:5px;flex-shrink:0}
-    .badge{font-family:'Spline Sans Mono',monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap}
-    .badge.int{background:#eef6ee;color:#2e7d32}.badge.ext{background:#eef2fb;color:#1d4ed8}
-    .badge.str.gim{background:#eef2fb;color:#3730a3}.badge.str.ren{background:#fdeef4;color:#9d174d}
-    .entry-meta{font-family:'Spline Sans Mono',monospace;font-size:9.5px;color:#6b6657;margin-top:3px}
-    .entry-field{font-size:11pt;margin-top:7px;padding-left:12px;border-left:2px solid #e2ddd0}
-    .entry-field .lbl{display:block;font-family:'Spline Sans Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#9a8f6a;margin-bottom:2px}
-    .entry-field a{color:#1d4ed8}
-    .ft{padding:10px 36px 0;font-family:'Spline Sans Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#9a8f6a;display:flex;justify-content:space-between;gap:12px}
-    @media screen and (max-width:640px){body{padding:8px}.toolbar,.hd,.body,.ft{padding-left:16px;padding-right:16px}.stats{flex-wrap:wrap;gap:10px 0;padding:14px 16px}.stats div{flex:1 1 33%}.entry-head{flex-wrap:wrap}}
-    @media print{.toolbar{display:none}body{background:#fff;padding:0}.page{box-shadow:none}.badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+    .toolbar button{font:600 10pt -apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#1d1d1f;color:#fff;border:0;padding:9px 16px;border-radius:8px;cursor:pointer}
+    .hd{padding:14px 36px 20px;border-bottom:3px solid #1d1d1f}
+    .hd h1{font-size:24pt;line-height:1.1;letter-spacing:-.02em}
+    .hd p{color:#555;font-size:10.5pt;margin-top:6px}
+    .sum{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #ddd}
+    .sum div{padding:14px 36px;border-right:1px solid #eee}.sum div:last-child{border-right:0}
+    .sum b{display:block;font-size:17pt;letter-spacing:-.01em}.sum span{font-size:9.5pt;color:#555}
+    .pbw{padding:14px 36px;border-bottom:1px solid #ddd;font-size:10pt;color:#333}
+    .pb{height:8px;background:#eee;border-radius:9px;margin-top:6px;overflow:hidden}.pb i{display:block;height:100%;background:#B85A14}
+    table{width:calc(100% - 72px);margin:18px 36px 0;border-collapse:collapse;font-size:10.5pt}
+    th{text-align:left;font-size:9.5pt;color:#555;font-weight:600;border-bottom:2px solid #1d1d1f;padding:6px 8px}
+    td{padding:9px 8px;vertical-align:top}
+    tbody.en{break-inside:avoid}tbody.en tr:first-child td{border-top:1px solid #ddd}
+    td.dt{white-space:nowrap;color:#333}td.n,th.n{text-align:right;white-space:nowrap}
+    td .m{display:block;color:#555;font-size:9.5pt}
+    td:nth-child(2){overflow-wrap:anywhere}
+    tr.rf td{padding-top:0;padding-bottom:12px}
+    tr.rf p{background:#f6f5f1;border-radius:6px;padding:7px 10px;margin-top:5px;font-size:10.5pt;color:#222}
+    tr.rf a{color:#1d4ed8}
+    .tg{font-size:9pt;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+    .tg.r{background:#ECE9FB;color:#5B4BC4}.tg.g{background:#FCEBDD;color:#B85A14}
+    tfoot td{border-top:2px solid #1d1d1f;font-weight:700}
+    .empty{padding:30px 36px;color:#555;font-style:italic}
+    .jw{padding:6px 36px 0}
+    .je{display:grid;grid-template-columns:86px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid #e3e0d8;break-inside:avoid}
+    .jl{text-align:right;border-right:2px solid #e3e0d8;padding-right:14px}.jl b{display:block;font-size:20pt;line-height:1}.jl span{display:block;font-size:9.5pt;color:#555;margin-top:2px}
+    .jl em{display:inline-block;font-style:normal;font-weight:700;font-size:10pt;margin-top:8px;background:#f1efe9;border-radius:6px;padding:1px 7px;white-space:nowrap}
+    .jr{min-width:0;overflow-wrap:anywhere}.jr h2{font-family:Georgia,"Times New Roman",serif;font-size:14pt;font-weight:600;line-height:1.3}.jm{font-size:10pt;color:#444;margin-top:2px}.jm .rn{color:#5B4BC4;font-weight:700}.jm .g{color:#B85A14;font-weight:700}
+    .q{margin-top:9px}.q h3{font-size:9.5pt;font-weight:700;color:#333}.q p{font-family:Georgia,"Times New Roman",serif;font-size:11.5pt;line-height:1.55}.q a{color:#1d4ed8}
+    .none{font-size:9.5pt;color:#666;margin-top:8px;font-style:italic}
+    @media (max-width:640px){body{padding:0}.toolbar,.hd,.pbw{padding-left:16px;padding-right:16px}.sum{grid-template-columns:1fr 1fr}.sum div{padding:10px 16px}
+      table{width:calc(100% - 32px);margin:14px 16px 0}th.ty,td.ty{display:none}
+      .jw{padding:4px 16px 0}.je{grid-template-columns:64px 1fr;gap:12px}.jl{padding-right:10px}.jl b{font-size:17pt}}
+    @media print{body{background:#fff;padding:0}.page{box-shadow:none;max-width:none}.toolbar{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
   </style></head><body>
   <div class="page">
-    <div class="toolbar"><button onclick="window.print()">⎙ Print / Save as PDF</button></div>
-    <div class="hd">
-      <div class="ec">Continuing Professional Development · Reflective Record</div>
-      <h1>CPD Diary · ${E(currentYear)}</h1>
-      <div class="sub">${E(who())} · ${E(sp.label)} · GIM${deanery?' · '+E(deanery):''}</div>
-    </div>
-    <div class="stats">
-      <div><div class="k">Total hours</div><div class="v">${total} h</div></div>
-      <div><div class="k">External</div><div class="v">${ext} h</div></div>
-      <div><div class="k">Internal</div><div class="v">${intl} h</div></div>
-      <div><div class="k">GIM external</div><div class="v">${gimExt} h</div></div>
-      <div><div class="k">Entries</div><div class="v">${all.length}</div></div>
-    </div>
-    <div class="body">${all.length?yearsHtml:`<p style="padding:30px 0;color:#9a8f6a;font-style:italic">No CPD entries logged in ${E(currentYear)} yet.</p>`}</div>
-    <div class="ft"><span>CPD Diary · Reflective record for appraisal</span><span>Generated ${gen}</span></div>
+    <div class="toolbar"><button onclick="window.print()">Print / Save as PDF</button></div>
+    <div class="hd"><h1>CPD diary · ${E(currentYear)}</h1><p>${E(who())} · ${E(sp.label)} and GIM${deanery?' · '+E(deanery):''}</p></div>
+    <div class="sum"><div><b>${total} h</b><span>Total CPD</span></div><div><b>${ext} h</b><span>External</span></div><div><b>${intl} h</b><span>Internal</span></div><div><b>${all.length}</b><span>Entr${all.length===1?'y':'ies'}</span></div></div>
+    <div class="pbw">GIM external CPD: <b>${r1(gimAll)} h</b> of 100 h needed by CCT<div class="pb"><i style="width:${pct}%"></i></div></div>
+    ${all.length&&style==='c'?`<div class="jw">${all.map(jrow).join('')}</div>`:all.length?`<table><thead><tr><th>Date</th><th>Activity</th><th>Stream</th><th class="ty">Type</th><th class="n">Hours</th></tr></thead>
+      ${all.map(row).join('')}
+      <tfoot><tr><td></td><td>Total</td><td></td><td class="ty"></td><td class="n">${total}</td></tr></tfoot></table>`
+      :`<p class="empty">No CPD logged in ${E(currentYear)} yet.</p>`}
   </div>
   </body></html>`;
     openReportDoc(html);
+  };
+
+  // ── Logbook spreadsheet for the panel ──
+  // Summary first, then one formatted sheet per kind of entry: bold header, frozen and filterable, real dates,
+  // totals that follow the filter, wrapped notes, landscape A4 printing with the header on every page.
+  // Written as an .xlsx right here (no library to download), so it also works on locked-down hospital networks.
+  const XE = s => String(s==null?'':s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const colL = n => { let s=''; n++; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
+  const xlDate = v => { const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(v||'')); return m ? (Date.UTC(+m[1],+m[2]-1,+m[3])-Date.UTC(1899,11,30))/86400000 : null; };
+  const xlNum = v => { const n=parseFloat(v); return isFinite(n) ? n : null; };
+  function xlStyles(){
+    const fonts=['<font><sz val="11"/><name val="Calibri"/><family val="2"/></font>'], fills=['<fill><patternFill patternType="none"/></fill>','<fill><patternFill patternType="gray125"/></fill>'],
+      borders=['<border><left/><right/><top/><bottom/><diagonal/></border>'], xfs=['<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'], cache={};
+    const add=(arr,x)=>{ let i=arr.indexOf(x); if(i<0){ arr.push(x); i=arr.length-1; } return i; };
+    const font=f=>add(fonts,`<font>${f.b?'<b/>':''}${f.i?'<i/>':''}<sz val="${f.sz||11}"/><color rgb="FF${f.c||'1F1F1F'}"/><name val="Calibri"/><family val="2"/></font>`);
+    const fill=c=>c?add(fills,`<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/><bgColor indexed="64"/></patternFill></fill>`):0;
+    const border=b=>b==='head'?add(borders,'<border><left/><right/><top/><bottom style="medium"><color rgb="FF1F1F1F"/></bottom><diagonal/></border>')
+      : b==='row'?add(borders,'<border><left/><right/><top/><bottom style="thin"><color rgb="FFD9D6CE"/></bottom><diagonal/></border>')
+      : b==='total'?add(borders,'<border><left/><right/><top style="medium"><color rgb="FF1F1F1F"/></top><bottom/><diagonal/></border>') : 0;
+    // st({b,i,sz,c,fill,border,fmt:'date'|'num'|'dec',wrap,h}) → style index
+    const st=o=>{ const k=JSON.stringify(o); if(cache[k]!=null) return cache[k];
+      const nf=o.fmt==='date'?164:o.fmt==='dec'?165:0;
+      xfs.push(`<xf numFmtId="${nf}" fontId="${font(o)}" fillId="${fill(o.fill)}" borderId="${border(o.border)}" xfId="0"${nf?' applyNumberFormat="1"':''} applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="${o.v||'top'}"${o.wrap?' wrapText="1"':''}${o.h?` horizontal="${o.h}"`:''}${o.h&&o.h!=='center'?' indent="1"':''}/></xf>`);
+      return cache[k]=xfs.length-1; };
+    const xml=()=>`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/><numFmt numFmtId="165" formatCode="0.0"/></numFmts>
+<fonts count="${fonts.length}">${fonts.join('')}</fonts><fills count="${fills.length}">${fills.join('')}</fills><borders count="${borders.length}">${borders.join('')}</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${xfs.length}">${xfs.join('')}</cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+    return {st, xml};
+  }
+  // one cell: v is a string, a number, a date (kind 'date') or {f:formula, v:cached}
+  function xlCell(r,c,v,s,kind){
+    const ref=colL(c)+r;
+    if(v==null || v==='') return s?`<c r="${ref}" s="${s}"/>`:'';
+    if(typeof v==='object' && v.f!=null) return `<c r="${ref}" s="${s}"${typeof v.v==='string'?' t="str"':''}><f>${XE(v.f)}</f><v>${XE(v.v)}</v></c>`;
+    if(kind==='date'){ const d=xlDate(v); if(d!=null) return `<c r="${ref}" s="${s}"><v>${d}</v></c>`; }
+    if(typeof v==='number') return `<c r="${ref}" s="${s}"><v>${v}</v></c>`;
+    return `<c r="${ref}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${XE(v)}</t></is></c>`;
+  }
+  function xlSheet(S, o){
+    // o: {title, sub, cols:[{h,w,kind:'date'|'num'|'dec'|'text'|'long',total:'sum'|'count'}], rows:[[...]], footer}
+    const n=o.cols.length, last=colL(n-1), HR=3, first=HR+1;
+    const al=k=>k==='num'||k==='dec'?'right':k==='code'?'center':'left';
+    const hd=k=>S.st({b:1,c:'FFFFFF',fill:'2F2F2F',border:'head',v:'center',wrap:1,h:al(k)});
+    const body=(k,z)=>S.st({fill:z?'F4F3EE':0,border:'row',fmt:k==='date'?'date':k==='dec'?'dec':0,wrap:k==='long'||k==='text'?1:0,h:al(k)});
+    let x=`<row r="1" ht="24" customHeight="1">${xlCell(1,0,o.title,S.st({b:1,sz:16,v:'center'}))}</row>`;
+    if(o.sub) x+=`<row r="2">${xlCell(2,0,o.sub,S.st({c:'595959',sz:10}))}</row>`;
+    x+=`<row r="${HR}" ht="34" customHeight="1">${o.cols.map((c,i)=>xlCell(HR,i,c.h,hd(c.kind))).join('')}</row>`;
+    o.rows.forEach((row,ri)=>{ const r=first+ri, z=ri%2===1;
+      x+=`<row r="${r}">${o.cols.map((c,i)=>xlCell(r,i,row[i],body(c.kind,z),c.kind)).join('')}</row>`; });
+    const lastRow=first+o.rows.length-1;
+    if(!o.rows.length) x+=`<row r="${first}">${xlCell(first,0,'No entries logged.',S.st({i:1,c:'595959'}))}</row>`;
+    else if(o.cols.some(c=>c.total)){
+      const r=lastRow+1, tl=S.st({b:1,border:'total',h:'left'}), tn=S.st({b:1,border:'total',h:'right'}), td=S.st({b:1,border:'total',h:'right',fmt:'dec'});
+      x+=`<row r="${r}">${o.cols.map((c,i)=>{
+        const rng=`${colL(i)}${first}:${colL(i)}${lastRow}`;
+        if(i===0) return xlCell(r,i,'Total',tl);
+        if(c.total==='sum'){ const v=o.rows.reduce((a,row)=>a+(typeof row[i]==='number'?row[i]:0),0); return xlCell(r,i,{f:`SUBTOTAL(109,${rng})`,v:Math.round(v*10)/10},c.kind==='dec'?td:tn); }
+        if(c.total==='count'){ const v=o.rows.filter(row=>row[i]!=null&&row[i]!=='').length; return xlCell(r,i,{f:`SUBTOTAL(103,${rng})&IF(SUBTOTAL(103,${rng})=1," entry"," entries")`,v:`${v} entr${v===1?'y':'ies'}`},tl); }
+        return xlCell(r,i,'',tl); }).join('')}</row>`;
+    }
+    const filter=o.rows.length?`<autoFilter ref="A${HR}:${last}${lastRow}"/>`:'';
+    const xml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:${last}${Math.max(lastRow+1,first)}"/>
+<sheetViews><sheetView workbookViewId="0" zoomScale="110" zoomScaleNormal="110"><pane ySplit="${HR}" topLeftCell="A${first}" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A${first}" sqref="A${first}"/></sheetView></sheetViews>
+<sheetFormatPr defaultRowHeight="15"/><cols>${o.cols.map((c,i)=>`<col min="${i+1}" max="${i+1}" width="${c.w}" customWidth="1"/>`).join('')}</cols>
+<sheetData>${x}</sheetData>${filter}
+<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
+<headerFooter><oddFooter>&amp;L${XE(String(o.footer||'').replace(/&/g,'&&'))}&amp;RPage &amp;P of &amp;N</oddFooter></headerFooter></worksheet>`;
+    return {xml, filter:o.rows.length?`$A$${HR}:$${last}$${lastRow}`:null, titles:`$${HR}:$${HR}`};
+  }
+  window.exportLogbook = function(){
+    const sp=specCfg(), p=prof(), me=who(), S=xlStyles();
+    const KINDS7=['clinics','procedures','cpd','teaching','simulation','acute','ward'];
+    if(!KINDS7.some(k=>entries(k).length)){ (window.wToast||alert)('No logbook entries to export yet.'); return; }
+    const stream=e=>isGim(e)?'GIM':sp.short, yrOf=e=>e.year||'';
+    const byDate=k=>(a,b)=>String(a[k]||'').localeCompare(String(b[k]||''));
+    const D=k=>entries(k).slice().sort(byDate(k==='acute'||k==='ward'?'start':'date'));
+    const txt=v=>v==null?'':String(v);
+    const SHEETS=[
+      ['Clinics','clinics',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'Clinic type',w:28,kind:'text',total:'count'},{h:'Hospital',w:28,kind:'text'},{h:'Supervisor',w:20,kind:'text'},{h:'Patients',w:10,kind:'num',total:'sum'},{h:'Notes',w:40,kind:'long'}],
+        e=>[e.date,yrOf(e),stream(e),txt(e.type),txt(e.hospital),txt(e.supervisor),xlNum(e.patients),txt(e.notes)]],
+      ['Procedures','procedures',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'Procedure',w:32,kind:'text',total:'count'},{h:'Hospital',w:28,kind:'text'},{h:'Supervisor',w:20,kind:'text'},{h:'DOPS signed',w:11,kind:'code'},{h:'Notes',w:40,kind:'long'}],
+        e=>[e.date,yrOf(e),stream(e),txt(normProcName(e.type)||e.type),txt(e.hospital),txt(e.supervisor),e.dops==='Yes'?'Yes':e.dops?String(e.dops):'',txt(e.notes)]],
+      ['CPD','cpd',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'CPD type',w:20,kind:'text',total:'count'},{h:'Internal or external',w:11,kind:'code'},{h:'Title',w:26,kind:'text'},{h:'Provider',w:13,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Key learning',w:36,kind:'long'},{h:'Reflection',w:36,kind:'long'},{h:'Notes',w:20,kind:'long'},{h:'Certificate',w:13,kind:'text'}],
+        e=>[e.date,yrOf(e),stream(e),txt(e.type),cpdIsExternal(e)?'External':'Internal',txt(e.title),txt(e.provider),xlNum(e.hours),txt(e.learning),txt(e.reflection),txt(e.notes),e.cert&&(e.cert.name||e.cert.url)?txt(e.cert.name||'Attached'):'']],
+      ['Teaching','teaching',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Type',w:24,kind:'text',total:'count'},{h:'Topic',w:32,kind:'text'},{h:'Audience',w:20,kind:'text'},{h:'Feedback uploaded',w:12,kind:'code'},{h:'Feedback responses',w:12,kind:'num',total:'sum'},{h:'Notes',w:40,kind:'long'}],
+        e=>[e.date,yrOf(e),txt(e.type),txt(e.topic),txt(e.audience),txt(e.feedbackUploaded),xlNum(e.feedbackCount),txt(e.notes)]],
+      ['Simulation','simulation',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Course',w:28,kind:'text',total:'count'},{h:'Title',w:30,kind:'text'},{h:'Hospital',w:26,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Notes',w:40,kind:'long'}],
+        e=>[e.date,yrOf(e),txt(e.course),txt(e.title),txt(e.hospital),xlNum(e.hours),txt(e.notes)]],
+      ['Acute take','acute',[{h:'Start',w:12,kind:'date'},{h:'End',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Hospital',w:30,kind:'text',total:'count'},{h:'Months',w:9,kind:'dec',total:'sum'},{h:'Takes per month',w:11,kind:'num'},{h:'Patients per take',w:11,kind:'num'},{h:'Estimated patients',w:12,kind:'num',total:'sum'},{h:'Supervisor',w:22,kind:'text'}],
+        e=>[e.start,e.end,yrOf(e),txt(e.hospital),xlNum(e.months),xlNum(e.takes),xlNum(e.patients),xlNum(e.estimated),txt(e.supervisor)]],
+      ['Ward cover','ward',[{h:'Start',w:12,kind:'date'},{h:'End',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Hospital',w:30,kind:'text',total:'count'},{h:'Months',w:9,kind:'dec',total:'sum'},{h:'Supervisor',w:22,kind:'text'}],
+        e=>[e.start,e.end,yrOf(e),txt(e.hospital),xlNum(e.months),txt(e.supervisor)]]
+    ];
+    // Summary: entries by type (this year and all training), then by training year
+    const cy=currentYear, inY=y=>e=>e.year===y;
+    const M={ clinics:['Patients seen',a=>a.reduce((t,e)=>t+(xlNum(e.patients)||0),0)], procedures:['DOPS signed',a=>a.filter(e=>e.dops==='Yes').length],
+      cpd:['CPD hours',a=>r1(H(a))], teaching:['With feedback',a=>a.filter(e=>Number(e.feedbackCount)>0).length], simulation:['Simulation hours',a=>r1(H(a))],
+      acute:['Patients (estimated)',a=>a.reduce((t,e)=>t+(xlNum(e.estimated)||0),0)], ward:['Months',a=>r1(a.reduce((t,e)=>t+(xlNum(e.months)||0),0))] };
+    const hd=S.st({b:1,c:'FFFFFF',fill:'2F2F2F',border:'head',v:'center',wrap:1,h:'left'}), hdN=S.st({b:1,c:'FFFFFF',fill:'2F2F2F',border:'head',v:'center',wrap:1,h:'right'}), sec=S.st({b:1,sz:13});
+    const cellS=z=>S.st({fill:z?'F4F3EE':0,border:'row',h:'left'}), numS=z=>S.st({fill:z?'F4F3EE':0,border:'row',h:'right'});
+    const totL=S.st({b:1,border:'total',h:'left'}), totN=S.st({b:1,border:'total',h:'right'});
+    let sx='', r=1;
+    const row=(cells,ht)=>{ sx+=`<row r="${r}"${ht?` ht="${ht}" customHeight="1"`:''}>${cells.map(([v,s],i)=>xlCell(r,i,v,s)).join('')}</row>`; r++; };
+    row([[`${me} · Logbook`,S.st({b:1,sz:16,v:'center'})]],26);
+    row([[[`${sp.label} and GIM`, p.deanery, p.trainingNumber?`Training number ${p.trainingNumber}`:'', `Current year ${cy}`].filter(Boolean).join(' · '),S.st({c:'595959',sz:10})]]);
+    r++;
+    row([['Entries by type',sec]],20);
+    row([['Type',hd],[`Entries ${cy}`,hdN],['Entries, all training',hdN],['Measure',hd],[cy,hdN],['All training',hdN]],34);
+    const t0=r;
+    SHEETS.forEach(([name,k],i)=>{ const all=entries(k), y=all.filter(inY(cy)), z=i%2===1; row([[name,cellS(z)],[y.length,numS(z)],[all.length,numS(z)],[M[k][0],cellS(z)],[M[k][1](y),numS(z)],[M[k][1](all),numS(z)]]); });
+    row([['Total',totL],[{f:`SUM(B${t0}:B${r-1})`,v:SHEETS.reduce((a,[,k])=>a+entries(k).filter(inY(cy)).length,0)},totN],[{f:`SUM(C${t0}:C${r-1})`,v:SHEETS.reduce((a,[,k])=>a+entries(k).length,0)},totN],['',totL],['',totL],['',totL]]);
+    r++;
+    const yrs=[...new Set([...YEARS, ...KINDS7.flatMap(k=>entries(k).map(yrOf))].filter(Boolean))].filter(y=>KINDS7.some(k=>entries(k).some(inY(y))));
+    const yrsSorted=yrs.sort((a,b)=>String(a).localeCompare(String(b),'en',{numeric:true}));
+    if(yrsSorted.length){
+      row([['By training year',sec]],20);
+      const cols=[['Clinics','clinics',a=>a.length],['Procedures','procedures',a=>a.length],['CPD hours','cpd',a=>r1(H(a))],['Teaching','teaching',a=>a.length],['Simulation hours','simulation',a=>r1(H(a))],['Acute take patients','acute',M.acute[1]],['Ward cover months','ward',M.ward[1]]];
+      row([['Year',hd],...cols.map(c=>[c[0],hdN])],34);
+      const y0=r;
+      yrsSorted.forEach((y,i)=>{ const z=i%2===1; row([[y,cellS(z)],...cols.map(c=>[c[2](entries(c[1]).filter(inY(y))),numS(z)])]); });
+      row([['Total',totL],...cols.map((c,i)=>[{f:`SUM(${colL(i+1)}${y0}:${colL(i+1)}${r-1})`,v:r1(yrsSorted.reduce((a,y)=>a+c[2](entries(c[1]).filter(inY(y))),0))},totN])]);
+    }
+    const sumXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" tabSelected="1" zoomScale="110" zoomScaleNormal="110"/></sheetViews><sheetFormatPr defaultRowHeight="15"/>
+<cols><col min="1" max="1" width="22" customWidth="1"/><col min="2" max="3" width="14" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="8" width="16" customWidth="1"/></cols>
+<sheetData>${sx}</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
+<headerFooter><oddFooter>&amp;L${XE(String(me).replace(/&/g,'&&'))} · Logbook summary&amp;RPage &amp;P of &amp;N</oddFooter></headerFooter></worksheet>`;
+    const built=SHEETS.map(([name,k,cols,map])=>{ const a=D(k);
+      const extra=M[k]?` · ${M[k][0]}: ${M[k][1](a)}`:'';
+      return [name, xlSheet(S,{ title:name, sub:`${me} · ${a.length} entr${a.length===1?'y':'ies'} across training${a.length?extra:''}`, cols, rows:a.map(map), footer:`${me} · ${name}` })]; });
+    const names=['Summary',...built.map(b=>b[0])], q=n=>`'${n.replace(/'/g,"''")}'`;
+    const defs=built.flatMap(([name,s],i)=>[s.filter?`<definedName name="_xlnm._FilterDatabase" localSheetId="${i+1}" hidden="1">${q(name)}!${s.filter}</definedName>`:'', `<definedName name="_xlnm.Print_Titles" localSheetId="${i+1}">${q(name)}!${s.titles}</definedName>`]).join('');
+    const files={
+      '[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`,
+      '_rels/.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
+      'xl/workbook.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><bookViews><workbookView activeTab="0"/></bookViews>
+<sheets>${names.map((n,i)=>`<sheet name="${XE(n)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets><definedNames>${defs}</definedNames><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`,
+      'xl/_rels/workbook.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${names.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${names.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+      'xl/worksheets/sheet1.xml':sumXml
+    };
+    built.forEach(([,s],i)=>{ files[`xl/worksheets/sheet${i+2}.xml`]=s.xml; });
+    files['xl/styles.xml']=S.xml();   // last: every style is known by now
+    const blob=new Blob([makeZip(files)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const fname=`Logbook ${String(me).replace(/[^A-Za-z0-9 .'-]+/g,'').trim()||'Outcome1'}.xlsx`;
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
   };
 
   // Every "Logbook report" entry point (Logbook, ARCP prep, Account) now opens the combined report
@@ -9667,6 +9844,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
         sub: s.done.import?'Done':'From a spreadsheet, with our template', open:suImport },
       { k:'teach', icon:'qr', t:'Teaching and feedback', done:!!s.done.teach || teachFb,
         sub: teachFb?'Feedback link ready':'See how a QR code collects feedback for you', open:suTeach },
+      { k:'badges', icon:'medal', t:'Badges', done:!!s.done.badges,
+        sub: s.done.badges?(bdOn()?'On':'Off'):'Trophies as your logbook grows, or none', open:suBadges },
       { k:'first', icon:'plus', t:'Log your first entry', done:suAnyEntry(),
         sub:'Clinic, procedure, CPD and more', open:suFirst },
       { k:'install', icon:'phone', t:'Install on your phone', done:isStandalone() || !!s.done.install,
@@ -9905,6 +10084,14 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     else if(phone){ sub='Open your browser menu, then choose <b>Install app</b> or <b>Add to Home screen</b>.'; acts=[{ label:'I’ve added it', primary:true, on:()=>suMark('install') }, later]; }
     else { sub=`On your phone, open <b>${safe(host)}</b> and add it to your home screen. It’s the same account, so everything is already there.`; acts=[{ label:'Done', primary:true, on:()=>suMark('install') }, later]; }
     suSheet({ title:'Install on your phone', sub, actions:acts });
+  }
+  // Badges: on or off from the start. Three sample stamps show what they look like.
+  function suBadges(){
+    const demo=[{icon:'proc',cat:'Clinical',tiers:[1],grades:['b'],v:1},{icon:'qr',cat:'Teaching',tiers:[1],grades:['s'],v:1},{icon:'bed',cat:'Learning',tiers:[1],grades:['g'],v:1}];
+    const set=on=>{ state.badges=state.badges||{}; state.badges.off=!on; if(on) state.badges.seen=Object.fromEntries(badgeList().map(b=>[b.id,bdLvl(b)])); suMark('badges'); };
+    suSheet({ title:'Badges', sub:'Earn Bronze, Silver and Gold trophies as your logbook grows.',
+      body:`<div class="w-su-bd" aria-hidden="true">${demo.map((b,i)=>bdStamp(b,i)).join('')}</div>`,
+      actions:[ { label:'Turn badges on', primary:true, on:()=>set(true) }, { label:'No badges for me', on:()=>set(false) } ]});
   }
   function suImport(){
     suSheet({ title:'Bring in your old logbook', sub:'Kept your logbook in a spreadsheet? Bring it in so your totals start in the right place.',
@@ -10668,7 +10855,15 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
     kidney:'<path d="M13.5 3.5C8.8 3.5 4.5 6.6 4.5 12s4.3 8.5 9 8.5c2.6 0 4.2-1.6 4.2-3.7 0-1.9-2.1-2.7-2.1-4.8s2.1-2.9 2.1-4.8c0-2.1-1.6-3.7-4.2-3.7z"/><path d="M15.6 12h2.4c1.2 0 2 .8 2 2v6.5"/>',
     line:'<path d="M3.5 20.5c4.5-.8 6.5-4 7.5-8s3.2-7.2 9.5-8"/><circle cx="3.5" cy="20.5" r="1.6"/><path d="M17.5 2.5l3.5 3.5"/>',
-    chat:'<path d="M20 11.5a8 8 0 01-11.7 7.1L4 20l1.3-4A8 8 0 1120 11.5z"/><path d="M9 11.5h.01M12 11.5h.01M15 11.5h.01"/>'
+    chat:'<path d="M20 11.5a8 8 0 01-11.7 7.1L4 20l1.3-4A8 8 0 1120 11.5z"/><path d="M9 11.5h.01M12 11.5h.01M15 11.5h.01"/>',
+    drop:'<path d="M12 3.5c3.5 4.2 6 7.4 6 10.5a6 6 0 01-12 0c0-3.1 2.5-6.3 6-10.5z"/>',
+    bolt:'<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/>',
+    spine:'<rect x="9" y="3" width="6" height="4" rx="1.5"/><rect x="9" y="10" width="6" height="4" rx="1.5"/><rect x="9" y="17" width="6" height="4" rx="1.5"/><path d="M5.5 5h3.5M15 5h3.5M5.5 12h3.5M15 12h3.5M5.5 19h3.5M15 19h3.5"/>',
+    tunnel:'<path d="M3 20v-8a9 9 0 0118 0v8"/><path d="M8 20v-7a4 4 0 018 0v7M2 20h20"/>',
+    heart:'<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0112 7.3a4.2 4.2 0 017.5 2.5C19.5 15.4 12 20 12 20z"/>',
+    mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21M8.5 21h7"/>',
+    star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+    sun:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>'
   });
   const BD_KINDS=['clinics','procedures','cpd','teaching','simulation'];
   const BD_CATS=['Clinical','Teaching','Learning','Portfolio','Hidden'];
@@ -10686,89 +10881,128 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const gimTicks=Object.keys(state.req||{}).filter(k=>k.startsWith('dops.') && state.req[k]===true).length;
     const dops=pr.filter(e=>e.scope!=='gim' && e.dops==='Yes').length + Math.max(gimTicks, pr.filter(e=>e.scope==='gim' && e.dops==='Yes').length);
     let ext=0; try{ ext=gimExternalCpdHours(e=>e.src!=='import'); }catch(e){}
+    let gd={met:0,total:0}; try{ gd=gimDopsStats(); }catch(e){}
     const months=new Set(); BD_KINDS.forEach(k=>bdOwn(k).forEach(e=>{ if(/^\d{4}-\d{2}/.test(String(e.date||''))) months.add(String(e.date).slice(0,7)); }));
     const sce=reqs.spec_sce, qips=Object.entries(reqs).filter(([id,r])=>/qip/i.test(id) && r.type==='checkbox');
     const tick=(id,r)=>{ try{ return !!getReqVal(id,r); }catch(e){ return false; } };
     const words=s=>String(s||'').trim().split(/\s+/).filter(Boolean).length;
-    const ptypes=sp.logbook?.procedures||[], isBx=x=>/kidney biopsy/i.test(String(x||'')), isTemp=x=>/^temp hd catheter/i.test(String(x||''));
+    const n=x=>Object.keys(x||{}).length;
+    const ptypes=sp.logbook?.procedures||[], pn=e=>String(normProcName(e.type)||e.type||'');
+    const has=re=>ptypes.some(t=>re.test(t)), cnt=re=>pr.filter(e=>re.test(pn(e))).length;
+    const RE={bx:/kidney biopsy/i, temp:/^temp hd catheter/i, tunnel:/^tunnelled dialysis catheter/i, pull:/^tunnelled line removal/i, tap:/pleural|intercostal|chest drain|ascitic|paracentesis/i, dc:/cardioversion/i, lp:/lumbar puncture/i};
     const surveys=Object.entries(reqs).filter(([id,r])=>/survey/i.test(id) && r.type==='checkbox');
     const svDone=surveys.length ? surveys.filter(([id,r])=>tick(id,r)).length : (GIM_REQS.gim_survey && tick('gim_survey',GIM_REQS.gim_survey) ? 1 : 0);
-    const n=x=>Object.keys(x||{}).length;
+    const outs=Object.values(state.years||{}).map(y=>y&&y.outcome).filter(Boolean);
+    const als=state.als?new Date(state.als):null;
+    const cs=state.cct?.start, ce=state.profile?.cctDate; let half=0;
+    if(state.cct?.done && /^\d{4}-\d{2}-\d{2}/.test(cs||'') && /^\d{4}-\d{2}-\d{2}/.test(ce||'')){ const a=new Date(cs+'T00:00:00'), z=new Date(String(ce).slice(0,10)+'T00:00:00'); if(Date.now()>=a.getTime()+(z-a)/2) half=1; }
+    const B='b', S='s', G='g';
     return [
-      {id:'clinics',cat:'Clinical',icon:'clinic',name:'Clinic regular',tiers:[10,25,50],unit:'clinics',d:'Clinics logged',v:cl.length},
-      {id:'house',cat:'Clinical',icon:'list',name:'Full house',tiers:[types.length],unit:`${sp.short} clinic types`,d:`Every clinic type on your ${sp.short} list, at least once`,v:new Set(cl.filter(e=>e.scope!=='gim' && types.includes(e.type)).map(e=>e.type)).size,show:types.length>1},
-      {id:'procs',cat:'Clinical',icon:'proc',name:'Hands on',tiers:[5,15,30],unit:'procedures',d:'Procedures logged',v:pr.length},
-      {id:'dops',cat:'Clinical',icon:'check',name:'Signed off',tiers:[1,5,10],unit:'DOPS signed',d:'Signed DOPS only',v:dops,verified:true},
-      {id:'biopsy',cat:'Clinical',icon:'kidney',name:'Nephron ninja',tiers:[10],unit:'kidney biopsies',d:'Native and transplant kidney biopsies logged',v:pr.filter(e=>isBx(e.type)).length,show:ptypes.some(isBx)},
-      {id:'tline',cat:'Clinical',icon:'line',name:'Line slinger',tiers:[10],unit:'temporary HD lines',d:'Temporary dialysis catheters logged, femoral or jugular',v:pr.filter(e=>isTemp(e.type)).length,show:ptypes.some(isTemp)},
-      {id:'take',cat:'Clinical',icon:'pulse',name:'On take',tiers:[500],unit:'acute patients',d:'Acute GIM patients, from your take log',v:bdSum(bdOwn('acute'),'estimated')},
-      {id:'ward',cat:'Clinical',icon:'bed',name:'Ward cover',tiers:[3,6,12],unit:'months',d:'Months of IM ward cover',v:bdSum(bdOwn('ward'),'months')},
-      {id:'teach',cat:'Teaching',icon:'board',name:'Teacher',tiers:[1,5,15],unit:'sessions taught',d:'Teaching sessions you gave',v:te.length},
-      {id:'heard',cat:'Teaching',icon:'qr',name:'Heard back',tiers:[1,5,10],unit:'sessions with feedback',d:'Sessions with feedback collected through Outcome1',v:te.filter(e=>Number(e.feedbackCount)>0).length,verified:true},
-      {id:'loop',cat:'Teaching',icon:'reset',name:'Closed the loop',tiers:[3,10],unit:'feedback uploaded',d:'Sessions marked “Feedback uploaded: Yes”',v:te.filter(e=>e.feedbackUploaded==='Yes').length},
-      {id:'cpd',cat:'Learning',icon:'book',name:'Learner',tiers:[25,50,100],unit:'CPD hours',d:'All CPD hours',v:bdSum(cpd,'hours')},
-      {id:'ext',cat:'Learning',icon:'flag',name:'Out and about',tiers:[100],unit:'GIM external hours',d:'External GIM CPD hours',v:ext},
-      {id:'sim',cat:'Learning',icon:'pulse',name:'Simulation',tiers:[4,12],unit:'simulation hours',d:'Simulation hours',v:bdSum(sim,'hours')},
-      {id:'notes',cat:'Learning',icon:'file',name:'Takeaways',tiers:[5,15],unit:'CPD with learning points',d:'CPD entries with 20 or more words of key learning points',v:cpd.filter(e=>words(e.learning)>=20).length},
-      {id:'ready',cat:'Portfolio',icon:'flag',name:'ARCP ready',tiers:[1],unit:'ARCP list complete',d:'Every item on your ARCP list ticked before the panel',v:n(mo.ready)},
-      {id:'early',cat:'Portfolio',icon:'road',name:'Early bird',tiers:[1],unit:'ready early',d:'ARCP list complete at least 4 weeks before your portfolio locks',v:n(mo.early)},
-      {id:'exam',cat:'Portfolio',icon:'file',name:'Exam passed',tiers:[1],unit:`${examShort()} passed`,d:`${examShort()} ticked as passed`,v:sce&&tick('spec_sce',sce)?1:0,show:!!sce},
-      {id:'qip',cat:'Portfolio',icon:'chart',name:'QIP done',tiers:[1],unit:'QIP + QIPAT',d:'A QIP + QIPAT requirement ticked',v:(qips.some(([id,r])=>tick(id,r)) || (GIM_REQS.gim_qip && tick('gim_qip',GIM_REQS.gim_qip)))?1:0},
-      {id:'survey',cat:'Portfolio',icon:'chat',name:'Bedside manner',tiers:surveys.length>1?[1,surveys.length]:[1],unit:'patient surveys',d:'Patient surveys ticked as done',v:svDone},
-      {id:'cct',cat:'Portfolio',icon:'grad',name:'Finish line',tiers:[1],unit:'CCT',d:'Outcome 6: training complete',v:Object.values(state.years||{}).some(y=>y&&y.outcome==='6')?1:0},
-      {id:'arch',cat:'Portfolio',icon:'ul',name:'Archivist',tiers:[1],unit:'old logbook brought in',d:'An old logbook imported',v:[...BD_KINDS,'acute','ward'].some(k=>(state.logbook?.[k]||[]).some(e=>e&&e.src==='import'))?1:0},
-      {id:'steady',cat:'Portfolio',icon:'cal',name:'Steady',tiers:[3,6,12],unit:'active months',d:'Months with something logged. They don’t need to be in a row',v:months.size},
-      {id:'h_first',cat:'Hidden',hidden:true,icon:'spark',name:'First steps',tiers:[1],unit:'first entry',d:'Your first logbook entry',v:BD_KINDS.some(k=>bdOwn(k).length)?1:0},
-      {id:'h_same',cat:'Hidden',hidden:true,icon:'check',name:'Same day',tiers:[10],unit:'logged on the day',d:'10 entries logged on the day they happened',v:BD_KINDS.reduce((a,k)=>a+bdOwn(k).filter(e=>e.date && e.createdAt && bdDay(e.createdAt)===String(e.date).slice(0,10)).length,0)},
-      {id:'h_tour',cat:'Hidden',hidden:true,icon:'road',name:'Grand tour',tiers:[3],unit:'hospitals',d:'Entries at 3 different hospitals',v:new Set(placed.map(e=>String(e.hospital||'').trim()).filter(Boolean)).size},
-      {id:'h_set',cat:'Hidden',hidden:true,icon:'list',name:'All-rounder',tiers:[5],unit:'kinds of entry',d:'A clinic, procedure, CPD, teaching session and simulation, all logged',v:BD_KINDS.filter(k=>bdOwn(k).length).length},
-      {id:'h_sweep',cat:'Hidden',hidden:true,icon:'flag',name:'Clean sweep',tiers:[1],unit:'all met',d:`Every ${sp.short} and GIM requirement met at the same time`,v:mo.sweep?1:0},
-      {id:'h_room',cat:'Hidden',hidden:true,icon:'board',name:'Packed room',tiers:[20],unit:'responses',d:'20 or more feedback responses on one teaching session',v:Math.max(0,...te.map(e=>Number(e.feedbackCount)||0))}
+      {id:'clinics',cat:'Clinical',icon:'clinic',name:'The Doctor Will See You Now',tiers:[20,50,100],grades:[B,S,G],unit:'clinics',d:'Clinics logged',v:cl.length},
+      {id:'patients',cat:'Clinical',icon:'user',name:'Next Patient, Please',tiers:[100,500,1000],grades:[B,S,G],unit:'clinic patients',d:'Patients seen in the clinics you’ve logged',v:cl.reduce((a,e)=>a+(parseInt(e.patients,10)||0),0)},
+      {id:'house',cat:'Clinical',icon:'list',name:'Full House',tiers:[types.length],grades:[S],unit:`${sp.short} clinic types`,d:`Every clinic type on your ${sp.short} list, at least once`,v:new Set(cl.filter(e=>e.scope!=='gim' && types.includes(e.type)).map(e=>e.type)).size,show:types.length>1},
+      {id:'procs',cat:'Clinical',icon:'proc',name:'Safe Pair of Hands',tiers:[10,25,50],grades:[B,S,G],unit:'procedures',d:'Procedures logged',v:pr.length},
+      {id:'dops',cat:'Clinical',icon:'check',name:'Signed, Sealed, Delivered',tiers:[5,10,15],grades:[B,S,G],unit:'DOPS signed',d:'Signed DOPS only',v:dops,verified:true},
+      {id:'nine',cat:'Clinical',icon:'check',name:'The Whole Nine Yards',tiers:[1],grades:[G],unit:'every GIM DOPS signed',d:`All ${gd.total} GIM DOPS signed`,v:gd.total&&gd.met>=gd.total?1:0,show:gd.total>0,verified:true},
+      {id:'biopsy',cat:'Clinical',icon:'kidney',name:'Nephron Ninja',tiers:[5,10,25],grades:[B,S,G],unit:'kidney biopsies',d:'Native and transplant kidney biopsies logged',v:cnt(RE.bx),show:has(RE.bx)},
+      {id:'tline',cat:'Clinical',icon:'line',name:'Line Slinger',tiers:[5,10,25],grades:[B,S,G],unit:'temporary HD lines',d:'Temporary dialysis catheters logged, femoral or jugular',v:cnt(RE.temp),show:has(RE.temp)},
+      {id:'tunnel',cat:'Clinical',icon:'tunnel',name:'Tunnel Vision',tiers:[5,10],grades:[B,S],unit:'tunnelled catheters',d:'Tunnelled dialysis catheters inserted',v:cnt(RE.tunnel),show:has(RE.tunnel)},
+      {id:'pull',cat:'Clinical',icon:'ul',name:'Pulling Power',tiers:[5,10,25],grades:[B,S,G],unit:'tunnelled line removals',d:'Tunnelled lines removed',v:cnt(RE.pull),show:has(RE.pull)},
+      {id:'taps',cat:'Clinical',icon:'drop',name:'Tap Dancer',tiers:[5,10,20],grades:[B,S,G],unit:'taps and drains',d:'Pleural taps, ascitic taps, paracentesis and chest drains',v:cnt(RE.tap)},
+      {id:'shock',cat:'Clinical',icon:'bolt',name:'Shock to the System',tiers:[1],grades:[B],unit:'DC cardioversion',d:'Your first DC cardioversion',v:cnt(RE.dc)},
+      {id:'lp',cat:'Clinical',icon:'spine',name:'Spinal Tap',tiers:[3,5],grades:[B,S],unit:'lumbar punctures',d:'Lumbar punctures logged',v:cnt(RE.lp)},
+      {id:'take',cat:'Clinical',icon:'pulse',name:'Take That',tiers:[500,750],grades:[S,G],unit:'acute patients',d:'Acute GIM patients, from your take log. 750 is the GIM target',v:bdSum(bdOwn('acute'),'estimated')},
+      {id:'ward',cat:'Clinical',icon:'bed',name:'Holding the Fort',tiers:[6,12],grades:[S,G],unit:'months of ward cover',d:'Months of IM ward cover. 12 is the GIM target',v:bdSum(bdOwn('ward'),'months')},
+      {id:'teach',cat:'Teaching',icon:'board',name:'See One, Do One, Teach One',tiers:[1,10,25],grades:[B,S,G],unit:'sessions taught',d:'Teaching sessions you gave',v:te.length},
+      {id:'heard',cat:'Teaching',icon:'qr',name:'The Verdict Is In',tiers:[1,5,10],grades:[B,S,G],unit:'sessions with feedback',d:'Sessions with feedback collected through Outcome1',v:te.filter(e=>Number(e.feedbackCount)>0).length,verified:true},
+      {id:'loop',cat:'Teaching',icon:'reset',name:'Full Circle',tiers:[3,10],grades:[B,S],unit:'feedback uploaded',d:'Sessions marked “Feedback uploaded: Yes”',v:te.filter(e=>e.feedbackUploaded==='Yes').length},
+      {id:'cpd',cat:'Learning',icon:'book',name:'Hitting the Books',tiers:[50,100,250],grades:[B,S,G],unit:'CPD hours',d:'All CPD hours',v:bdSum(cpd,'hours')},
+      {id:'ext',cat:'Learning',icon:'flag',name:'Away Days',tiers:[50,100],grades:[S,G],unit:'GIM external hours',d:'External GIM CPD hours. 100 is the GIM target',v:ext},
+      {id:'conf',cat:'Learning',icon:'mic',name:'On the Circuit',tiers:[3],grades:[S],unit:'conferences',d:'Conferences logged as CPD',v:cpd.filter(e=>/conference|congress/i.test(`${e.type||''} ${e.title||''}`)).length},
+      {id:'sim',cat:'Learning',icon:'pulse',name:'Dress Rehearsal',tiers:[4,12],grades:[B,S],unit:'simulation hours',d:'Simulation hours. 12 is the GIM target',v:bdSum(sim,'hours')},
+      {id:'notes',cat:'Learning',icon:'file',name:'Food for Thought',tiers:[5,15],grades:[B,S],unit:'CPD with learning points',d:'CPD entries with 20 or more words of key learning points',v:cpd.filter(e=>words(e.learning)>=20).length},
+      {id:'ready',cat:'Portfolio',icon:'flag',name:'Ducks in a Row',tiers:[1],grades:[S],unit:'ARCP list complete',d:'Every item on your ARCP list ticked before the panel',v:n(mo.ready)},
+      {id:'early',cat:'Portfolio',icon:'sun',name:'The Early Bird',tiers:[1],grades:[G],unit:'ready early',d:'ARCP list complete at least 4 weeks before your portfolio locks',v:n(mo.early)},
+      {id:'exam',cat:'Portfolio',icon:'grad',name:'Flying Colours',tiers:[1],grades:[G],unit:`${examShort()} passed`,d:`${examShort()} ticked as passed`,v:sce&&tick('spec_sce',sce)?1:0,show:!!sce},
+      {id:'qip',cat:'Portfolio',icon:'chart',name:'Quality Street',tiers:[1],grades:[S],unit:'QIP + QIPAT',d:'A QIP + QIPAT requirement ticked',v:(qips.some(([id,r])=>tick(id,r)) || (GIM_REQS.gim_qip && tick('gim_qip',GIM_REQS.gim_qip)))?1:0},
+      {id:'survey',cat:'Portfolio',icon:'chat',name:'Bedside Manner',tiers:surveys.length>1?[1,surveys.length]:[1],grades:surveys.length>1?[B,S]:[B],unit:'patient surveys',d:'Patient surveys ticked as done',v:svDone},
+      {id:'steady',cat:'Portfolio',icon:'cal',name:'Slow and Steady',tiers:[6,12,24],grades:[B,S,G],unit:'active months',d:'Months with something logged. They don’t need to be in a row',v:months.size},
+      {id:'clean',cat:'Portfolio',icon:'star',name:'Clean Sheet',tiers:[1],grades:[G],unit:'Outcome 1 every time',d:'Outcome 1 at every ARCP so far, with at least two',v:outs.length>=2 && outs.every(o=>o==='1'||o==='6')?1:0},
+      {id:'half',cat:'Portfolio',icon:'road',name:'Halfway House',tiers:[1],grades:[S],unit:'halfway to CCT',d:'Halfway between your training start and CCT date, from the CCT calculator',v:half},
+      {id:'als',cat:'Portfolio',icon:'heart',name:'Staying Alive',tiers:[1],grades:[B],unit:'ALS in date',d:'Your ALS certificate is in date',v:als&&!isNaN(als)&&als>=today0()?1:0},
+      {id:'arch',cat:'Portfolio',icon:'ul',name:'Blast from the Past',tiers:[1],grades:[B],unit:'old logbook brought in',d:'An old logbook imported',v:[...BD_KINDS,'acute','ward'].some(k=>(state.logbook?.[k]||[]).some(e=>e&&e.src==='import'))?1:0,noPlat:true},
+      {id:'cct',cat:'Portfolio',icon:'grad',name:'Fully Fledged',tiers:[1],grades:[G],unit:'CCT',d:'Outcome 6: training complete',v:outs.includes('6')?1:0},
+      {id:'h_first',cat:'Hidden',hidden:true,icon:'spark',name:'Off the Mark',tiers:[1],grades:[B],unit:'first entry',d:'Your first logbook entry',v:BD_KINDS.some(k=>bdOwn(k).length)?1:0},
+      {id:'h_same',cat:'Hidden',hidden:true,icon:'check',name:'No Time Like the Present',tiers:[10],grades:[B],unit:'logged on the day',d:'10 entries logged on the day they happened',v:BD_KINDS.reduce((a,k)=>a+bdOwn(k).filter(e=>e.date && e.createdAt && bdDay(e.createdAt)===String(e.date).slice(0,10)).length,0)},
+      {id:'h_tour',cat:'Hidden',hidden:true,icon:'road',name:'Have Stethoscope, Will Travel',tiers:[3],grades:[S],unit:'hospitals',d:'Entries at 3 different hospitals',v:new Set(placed.map(e=>String(e.hospital||'').trim()).filter(Boolean)).size},
+      {id:'h_set',cat:'Hidden',hidden:true,icon:'list',name:'Jack of All Trades',tiers:[5],grades:[B],unit:'kinds of entry',d:'A clinic, procedure, CPD, teaching session and simulation, all logged',v:BD_KINDS.filter(k=>bdOwn(k).length).length},
+      {id:'h_sweep',cat:'Hidden',hidden:true,icon:'flag',name:'Clean Sweep',tiers:[1],grades:[G],unit:'all met',d:`Every ${sp.short} and GIM requirement met at the same time`,v:mo.sweep?1:0},
+      {id:'h_room',cat:'Hidden',hidden:true,icon:'board',name:'Standing Room Only',tiers:[20],grades:[S],unit:'responses',d:'20 or more feedback responses on one teaching session',v:Math.max(0,...te.map(e=>Number(e.feedbackCount)||0))}
     ].filter(b=>b.show!==false);
+  }
+  // Platinum: every other trophy at its top grade (hidden ones and an imported logbook aside)
+  function bdPlat(list){
+    const pool=(list||badgeList()).filter(b=>!b.hidden && !b.noPlat), done=pool.filter(b=>bdLvl(b)>=b.tiers.length).length;
+    return {id:'plat', name:'Consultant Material', d:'Every other trophy, at its top grade', v:done, total:pool.length, L:pool.length&&done>=pool.length?1:0};
   }
   const bdLvl=b=>b.tiers.filter(t=>b.v>=t).length;
   const bdNext=b=>b.tiers.find(t=>b.v<t);
   const bdRot=i=>[-7,5,-3,8,-5,3,-8,6][i%8]+'deg';
   const bdNum=v=>String(Math.round(v*10)/10);
+  const GRADE={b:'Bronze', s:'Silver', g:'Gold', p:'Platinum'};
+  const bdGrade=b=>{ const L=bdLvl(b); return L ? b.grades[L-1] : ''; };
   function bdStamp(b,i,big){
-    const L=bdLvl(b);
+    const L=bdLvl(b), gr=bdGrade(b);
     if(b.hidden && !L) return `<span class="w-bd-st off q" aria-hidden="true">?</span>`;
-    return `<span class="w-bd-st ${L?'on':'off'} ${b.hidden?'hid':''}" style="--gc:${BD_COL[b.cat]||'#1E1E1E'};--rot:${bdRot(i)}" aria-hidden="true">${I(b.icon,big?40:26)}${L&&b.tiers.length>1?`<span class="w-bd-lv">${b.tiers.map((x,k)=>`<i class="${k<L?'':'o'}"></i>`).join('')}</span>`:''}${L&&b.verified?`<span class="w-bd-seal">${I('check',big?18:14)}</span>`:''}</span>`;
+    return `<span class="w-bd-st ${L?'on gr-'+gr:'off'} ${b.hidden?'hid':''}" style="--gc:${BD_COL[b.cat]||'#1E1E1E'};--rot:${bdRot(i)}" aria-hidden="true">${I(b.icon,big?40:26)}${L?`<span class="w-bd-gr">${GRADE[gr]}</span>`:''}${L&&b.verified?`<span class="w-bd-seal">${I('check',big?18:14)}</span>`:''}</span>`;
   }
   function bdTile(b,i){
     const L=bdLvl(b), nx=bdNext(b);
-    if(b.hidden && !L) return `<button class="w-bd off" onclick="wBadge('${b.id}')" aria-label="Hidden badge, not found yet">${bdStamp(b,i)}<span class="w-bd-n">Hidden</span></button>`;
-    const sub = b.hidden ? 'Found' : !nx ? (b.tiers.length>1?'All levels':'Earned') : (b.tiers.length===1 && nx===1) ? 'Not yet' : `${bdNum(b.v)} / ${nx}`;
-    const lab = `${b.name}. ${L?(b.tiers.length>1?`Level ${L} of ${b.tiers.length}`:'Earned'):'Not earned yet'}. ${sub}`;
-    return `<button class="w-bd ${L?'on':'off'}" onclick="wBadge('${b.id}')" aria-label="${safe(lab)}">${bdStamp(b,i)}<span class="w-bd-n">${safe(b.name)}</span><span class="w-bd-s">${safe(sub)}</span></button>`;
+    if(b.hidden && !L) return `<button class="w-bd off" data-lv="0" onclick="wBadge('${b.id}')" aria-label="Hidden trophy, not found yet">${bdStamp(b,i)}<span class="w-bd-n">Hidden</span></button>`;
+    const sub = b.hidden ? GRADE[bdGrade(b)] : !nx ? (b.tiers.length>1?'Top grade':GRADE[bdGrade(b)]) : (b.tiers.length===1 && nx===1) ? 'Not yet' : `${bdNum(b.v)} / ${nx}`;
+    const lab = `${b.name}. ${L?GRADE[bdGrade(b)]:'Not earned yet'}. ${sub}`;
+    return `<button class="w-bd ${L?'on':'off'}" data-lv="${L}" data-gr="${bdGrade(b)}" onclick="wBadge('${b.id}')" aria-label="${safe(lab)}">${bdStamp(b,i)}<span class="w-bd-n">${safe(b.name)}</span><span class="w-bd-s">${safe(sub)}</span></button>`;
+  }
+  // every grade earned counts as one trophy, as on a console: Bronze then Silver then Gold
+  function bdCounts(list){
+    const c={b:0,s:0,g:0,p:0}; let all=0;
+    list.forEach(b=>{ const L=bdLvl(b); b.grades.forEach((g,k)=>{ if(!b.hidden) all++; if(k<L) c[g]++; }); });
+    const pl=bdPlat(list); all++; if(pl.L) c.p++;
+    return {c, got:c.b+c.s+c.g+c.p, all:all+list.filter(b=>b.hidden&&bdLvl(b)>0).length};
   }
   function renderBadgesScreen(){
     if(!bdOn()){ currentTab='admin'; return renderAdminScreen(); }
-    const list=badgeList(), vis=list.filter(b=>!b.hidden);
-    const got=vis.reduce((a,b)=>a+bdLvl(b),0), all=vis.reduce((a,b)=>a+b.tiers.length,0);
-    const earned=list.filter(b=>bdLvl(b)>0).length, found=list.filter(b=>b.hidden && bdLvl(b)>0).length;
+    const list=badgeList(), found=list.filter(b=>b.hidden && bdLvl(b)>0).length, pl=bdPlat(list), {c,got,all}=bdCounts(list);
     main().innerHTML='';
     let i=0;
-    append(BD_CATS.map(c=>{
-      const g=list.filter(b=>b.cat===c); if(!g.length) return '';
-      if(c==='Hidden') g.sort((a,b)=>(bdLvl(b)>0)-(bdLvl(a)>0));
-      return `<section class="section w-bd-sec"><div class="sec-head"><span class="sec-title">${c}</span><span class="sec-note">${g.filter(b=>bdLvl(b)).length} of ${g.length}${c==='Hidden'?' found':''}</span></div><div class="w-bd-grid">${g.map(b=>bdTile(b,i++)).join('')}</div></section>`;
+    const plat=`<section class="section w-bd-sec"><button class="w-bd-plat ${pl.L?'on':''}" onclick="wBadge('plat')" aria-label="Platinum trophy, Consultant Material. ${pl.v} of ${pl.total}"><span class="w-bd-st ${pl.L?'on gr-p':'off'}" style="--gc:#DCEFF3;--rot:-4deg">${I('medal',30)}${pl.L?'<span class="w-bd-gr">Platinum</span>':''}</span>
+      <span class="w-bd-pm"><span class="w-bd-pk">Platinum</span><span class="w-bd-pn">Consultant Material</span><span class="w-bd-s">${pl.L?'Earned':`${pl.v} of ${pl.total} trophies at top grade`}</span></span></button></section>`;
+    append(plat + BD_CATS.map(cat=>{
+      const g=list.filter(b=>b.cat===cat); if(!g.length) return '';
+      if(cat==='Hidden') g.sort((a,b)=>(bdLvl(b)>0)-(bdLvl(a)>0));
+      return `<section class="section w-bd-sec"><div class="sec-head"><span class="sec-title">${cat}</span><span class="sec-note">${g.filter(b=>bdLvl(b)).length} of ${g.length}${cat==='Hidden'?' found':''}</span></div><div class="w-bd-grid">${g.map(b=>bdTile(b,i++)).join('')}</div></section>`;
     }).join(''));
-    prepend(head({ title:'Badges', color:'var(--c-quick)', kicker:'Trophy cabinet', big:String(got), unit:` of ${all} steps`,
-      sub:`<span class="w-bd-line" role="progressbar" aria-label="Steps earned" aria-valuemin="0" aria-valuemax="${all}" aria-valuenow="${got}"><i style="width:${Math.max(2,Math.round(got/all*100))}%"></i></span>${earned} badge${earned===1?'':'s'} · ${found} hidden found`,
+    const tally=[c.p?`${c.p} Platinum`:'', `${c.g} Gold`, `${c.s} Silver`, `${c.b} Bronze`].filter(Boolean).map(x=>`<span class="w-nw">${x}</span>`).join(' · ');
+    prepend(head({ title:'Badges', color:'var(--c-quick)', kicker:'Trophy cabinet', big:String(got), unit:` of ${all}`,
+      sub:`<span class="w-bd-line" role="progressbar" aria-label="Trophies earned" aria-valuemin="0" aria-valuemax="${all}" aria-valuenow="${got}"><i style="width:${Math.max(2,Math.round(got/all*100))}%"></i></span>${tally}`,
       back:"setTab('admin')", backLabel:'Back to Account' }));
   }
   SCREENS.badges=renderBadgesScreen; SCREEN_TINT.badges='#D3F69C';
   window.wBadge=function(id){
-    const list=badgeList(), b=list.find(x=>x.id===id); if(!b) return;
+    const list=badgeList();
+    if(id==='plat'){ const pl=bdPlat(list), pool=list.filter(b=>!b.hidden && !b.noPlat), left=pool.filter(b=>bdLvl(b)<b.tiers.length);
+      suSheet({ kicker:'Platinum', title:'Consultant Material', sub:pl.L?'Every other trophy, at its top grade. Earned.':`Every other trophy at its top grade: ${pl.v} of ${pl.total} so far.`,
+        body:`<div class="w-bd-big"><span class="w-bd-st ${pl.L?'on gr-p':'off'}" style="--gc:#DCEFF3;--rot:-4deg">${I('medal',40)}${pl.L?'<span class="w-bd-gr">Platinum</span>':''}</span></div>${left.length?`<div class="w-ent w-bd-tiers">${left.slice(0,6).map(b=>`<div class="w-ent-r"><span>${safe(b.name)}</span><b>needs ${GRADE[b.grades[b.grades.length-1]]}</b></div>`).join('')}${left.length>6?`<div class="w-ent-r"><span>and ${left.length-6} more</span><b></b></div>`:''}</div>`:''}`, actions:[] });
+      return; }
+    const b=list.find(x=>x.id===id); if(!b) return;
     const i=list.indexOf(b), L=bdLvl(b);
-    if(b.hidden && !L){ suSheet({ title:'Hidden badge', sub:'It shows itself when you earn it.', body:`<div class="w-bd-big">${bdStamp(b,i,true)}</div>`, actions:[] }); return; }
+    if(b.hidden && !L){ suSheet({ title:'Hidden trophy', sub:'It shows itself when you earn it.', body:`<div class="w-bd-big">${bdStamp(b,i,true)}</div>`, actions:[] }); return; }
     const mo=bdState().moments||{}, when={ready:mo.ready, early:mo.early}[b.id], sweep=b.id==='h_sweep'&&mo.sweep;
     const dates=when?Object.values(when).sort():sweep?[mo.sweep]:[];
     const rows = b.tiers.length>1
-      ? b.tiers.map((t,k)=>`<div class="w-ent-r"><span>Level ${k+1} · ${t} ${safe(b.unit)}</span><b class="${b.v>=t?'ok':''}">${b.v>=t?'Earned':`${bdNum(t-b.v)} to go`}</b></div>`).join('')
-      : `<div class="w-ent-r"><span>${dates.length?`Earned ${suDate(dates[0])}`:safe(b.unit.replace(/^./,c=>c.toUpperCase()))}</span><b class="${L?'ok':''}">${L?(dates.length>1?`${dates.length} times`:'Earned'):(b.tiers[0]>1?`${bdNum(b.v)} / ${b.tiers[0]}`:'Not yet')}</b></div>`;
-    suSheet({ title:safe(b.name), kicker:b.hidden?'Hidden badge':'', sub:safe(b.d), body:`<div class="w-bd-big">${bdStamp(b,i,true)}</div><div class="w-ent w-bd-tiers">${rows}</div>`, actions:[] });
+      ? b.tiers.map((t,k)=>`<div class="w-ent-r"><span><i class="w-bd-dot gr-${b.grades[k]}"></i>${GRADE[b.grades[k]]} · ${t} ${safe(b.unit)}</span><b class="${b.v>=t?'ok':''}">${b.v>=t?'Earned':`${bdNum(t-b.v)} to go`}</b></div>`).join('')
+      : `<div class="w-ent-r"><span><i class="w-bd-dot gr-${b.grades[0]}"></i>${GRADE[b.grades[0]]}${dates.length?` · earned ${suDate(dates[0])}`:''}</span><b class="${L?'ok':''}">${L?(dates.length>1?`${dates.length} times`:'Earned'):(b.tiers[0]>1?`${bdNum(b.v)} / ${b.tiers[0]}`:'Not yet')}</b></div>`;
+    suSheet({ title:safe(b.name), kicker:b.hidden?'Hidden trophy':'', sub:safe(b.d), body:`<div class="w-bd-big">${bdStamp(b,i,true)}</div><div class="w-ent w-bd-tiers">${rows}</div>`, actions:[] });
   };
   window.wBadgesToggle=function(){
     state.badges=state.badges||{};
@@ -10784,7 +11018,8 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   function bdReveal(b){
     if(document.querySelector('.w-toast')){ setTimeout(()=>bdReveal(b),800); return; }   // let any message finish first
     const list=badgeList(), i=Math.max(0,list.findIndex(x=>x.id===b.id));
-    suSheet({ kicker:'Hidden badge found', title:safe(b.name), sub:safe(b.d), body:`<div class="w-bd-big">${bdStamp({...b,v:Math.max(b.v,b.tiers[0])},i,true)}</div>`,
+    const stamp=b.plat?`<span class="w-bd-st on gr-p" style="--gc:#DCEFF3;--rot:-4deg">${I('medal',40)}<span class="w-bd-gr">Platinum</span></span>`:bdStamp({...b,v:Math.max(b.v,b.tiers[0])},i,true);
+    suSheet({ kicker:b.plat?'Platinum trophy earned':'Hidden trophy found', title:safe(b.name), sub:safe(b.d), body:`<div class="w-bd-big">${stamp}</div>`,
       actions:[{ label:'See your badges', primary:true, on:()=>{ setTimeout(()=>setTab('badges'),0); } }] });
     try{ confetti(document.body,'party'); }catch(e){}
   }
@@ -10800,13 +11035,15 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       if(panelInfo().lockDays>=28){ mo.early=mo.early||{}; if(!mo.early[currentYear]){ mo.early[currentYear]=today; dirty=true; } } } }catch(e){}
     try{ if(!mo.sweep){ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats());
       if(s.total && g.total && s.pct>=100 && g.pct>=100){ mo.sweep=today; dirty=true; } } }catch(e){}
-    const list=badgeList(), lv=Object.fromEntries(list.map(x=>[x.id,bdLvl(x)]));
+    const list=badgeList(), lv=Object.fromEntries(list.map(x=>[x.id,bdLvl(x)])), pl=bdPlat(list); lv.plat=pl.L;
     if(!b.seen){ b.seen=lv; saveState(); return; }   // first time: what's already earned is simply there in the cabinet
     list.forEach(x=>{ if(lv[x.id]<(b.seen[x.id]||0)){ b.seen[x.id]=lv[x.id]; dirty=true; } });
+    if(!pl.L && b.seen.plat){ b.seen.plat=0; dirty=true; }
+    if(pl.L && !b.seen.plat && !document.querySelector('.w-ask')){ b.seen.plat=1; dirty=true; setTimeout(()=>bdReveal({id:'plat',name:pl.name,d:pl.d,plat:true,tiers:[1],grades:['p'],v:1,icon:'medal',cat:'Hidden'}),400); }
     const fresh=list.filter(x=>lv[x.id]>(b.seen[x.id]||0)), vis=fresh.filter(x=>!x.hidden), hid=fresh.filter(x=>x.hidden);
     if(vis.length){
       vis.forEach(x=>{ b.seen[x.id]=lv[x.id]; }); dirty=true;
-      const x=vis[0]; bdToast(vis.length>1 ? `${vis.length} badges earned` : `Badge earned: ${x.name}${x.tiers.length>1?`, level ${lv[x.id]}`:''}`);
+      const x=vis[0]; bdToast(vis.length>1 ? `${vis.length} trophies earned` : `${GRADE[x.grades[lv[x.id]-1]]}: ${x.name}`);
     }
     // Hidden ones get their moment, but never over setup, another sheet or a celebration: they wait for a clear screen
     const setupBusy=state.setup && !state.setup.completedAt && !state.setup.dismissed;
@@ -10823,10 +11060,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   // The Clinic / Procedure / CPD buttons on the Renal and GIM screens open a page for that kind of entry
   // (totals, a breakdown by type, its badges and this year's entries) with Add at the top, instead of going
   // straight to the form. The Renal and GIM screens show their own badges where “Add evidence” was.
-  const BD_SEC={ spec:['house','biopsy','tline','dops','survey','exam'], gim:['take','ward','ext','dops','qip'],
-    'clinics.spec':['clinics','house'], 'clinics.gim':['clinics'],
-    'procedures.spec':['procs','dops','biopsy','tline'], 'procedures.gim':['procs','dops'],
-    'cpd.spec':['cpd','notes'], 'cpd.gim':['cpd','ext','notes'] };
+  const BD_SEC={ spec:['house','biopsy','tline','tunnel','pull','dops','survey','exam'], gim:['take','ward','ext','taps','shock','lp','nine','dops','qip'] };
   function bdFor(key){ const ids=BD_SEC[key]||[], list=badgeList(); return ids.map(id=>list.find(b=>b.id===id)).filter(Boolean); }
   function bdGrid(bs){ const all=badgeList(); return `<div class="w-bd-grid">${bs.map(b=>bdTile(b, all.findIndex(x=>x.id===b.id))).join('')}</div>`; }
   // the pocket tab on Renal / GIM: this section's badges, or Add evidence if badges are off
@@ -10860,20 +11094,18 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     else if(k==='clinics'){ const pts=yr.reduce((a,e)=>a+(parseInt(e.patients,10)||0),0); big=String(yr.length); sub=`${pts} patient${pts===1?'':'s'} · ${all.length} in all training`; }
     else { const d=yr.filter(e=>e.dops==='Yes').length; big=String(yr.length); sub=`${d} with DOPS signed · ${all.length} in all training`; }
     // by type: everything on the list, logged ones first
-    const names=[...new Set([...types, ...all.map(keyOf)])];
-    const rows=names.map(t=>{ const a=all.filter(e=>keyOf(e)===t), y=a.filter(inCurrentYear); return {t,a,y}; })
-      .sort((p,q)=>(q.a.length>0)-(p.a.length>0) || q.y.length-p.y.length || q.a.length-p.a.length);
+    const rows=[...new Set(yr.map(keyOf))].map(t=>({t, y:yr.filter(e=>keyOf(e)===t), a:all.filter(e=>keyOf(e)===t)}))
+      .sort((p,q)=>(k==='cpd'?hrs(q.y)-hrs(p.y):q.y.length-p.y.length) || p.t.localeCompare(q.t));
     const rowHTML=rows.map(({t,a,y})=>{
-      const s = k==='procedures' ? (a.length ? (procHasDops({type:t})?'DOPS on file':'No DOPS yet') : 'Not logged yet')
-              : k==='clinics' ? (a.length ? `${a.reduce((n,e)=>n+(parseInt(e.patients,10)||0),0)} patients in all` : 'Not logged yet')
-              : (a.length ? `${r1(hrs(a))}h in all` : 'Not logged yet');
+      const s = k==='procedures' ? (procHasDops({type:t})?'DOPS on file':'No DOPS yet')
+              : k==='clinics' ? (()=>{ const n=y.reduce((n,e)=>n+(parseInt(e.patients,10)||0),0); return n?`${n} patient${n===1?'':'s'}`:''; })()
+              : `${y.length} entr${y.length===1?'y':'ies'}`;
       const v = k==='cpd' ? `${r1(hrs(y))}h` : String(y.length);
-      return `<div class="w-row w-sec-row ${a.length?'':'none'}"><span class="w-row-m"><span class="w-row-t">${safe(t)}</span><span class="w-row-s">${safe(s)}</span></span><span class="w-row-r"><span class="w-row-v">${safe(v)}</span><span class="w-row-s">${a.length?`${k==='cpd'?r1(hrs(a))+'h':a.length} in all`:''}</span></span></div>`;
+      const more = k==='cpd' ? (hrs(a)>hrs(y)?`${r1(hrs(a))}h in all`:'') : (a.length>y.length?`${a.length} in all`:'');
+      return `<div class="w-row w-sec-row"><span class="w-row-m"><span class="w-row-t">${safe(t)}</span>${s?`<span class="w-row-s">${safe(s)}</span>`:''}</span><span class="w-row-r"><span class="w-row-v">${safe(v)}</span>${more?`<span class="w-row-s">${safe(more)}</span>`:''}</span></div>`;
     }).join('');
-    const bs=bdOn()?bdFor(`${k}.${sc}`):[];
     main().innerHTML='';
-    append((bs.length?`<section class="section w-bd-sec"><div class="sec-head"><span class="sec-title">Badges</span><span class="sec-note">${bs.filter(b=>bdLvl(b)>0).length} of ${bs.length}</span></div>${bdGrid(bs)}</section>`:'')
-      + `<section class="section"><div class="sec-head"><span class="sec-title">By type</span><span class="sec-note">${currentYear} · in all</span></div><div class="w-list">${rowHTML||'<div class="w-empty">Nothing logged yet.</div>'}</div></section>`
+    append(`<section class="section"><div class="sec-head"><span class="sec-title">By type</span><span class="sec-note">${currentYear}</span></div><div class="w-list">${rowHTML||'<div class="w-empty">Nothing logged yet this year.</div>'}</div></section>`
       + feedSection(`This year`, yr.map(e=>({...e,_kind:k})).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))), `${yr.length} in ${currentYear}`, 40));
     const word=SEC_WORD[k];
     prepend(head({ title:`${lab} ${word[1]}`, color:sc==='gim'?'var(--c-gim)':'var(--c-spec)', kicker:`${currentYear} · ${sc==='gim'?'General Internal Medicine':sp.label}`, big, unit, sub,
