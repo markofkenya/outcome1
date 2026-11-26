@@ -2117,6 +2117,19 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
 /* Setup: badges preview */
 .w-su-bd{display:flex;justify-content:center;gap:22px;padding:14px 0 18px}
 .w-su-bd .w-bd-st{width:72px;height:72px}
+
+/* Teaching: feedback status buttons and the prompt for older sessions */
+.w-fbu{align-items:center;flex-wrap:wrap;gap:8px}
+.w-fbu .w-seg{margin-left:auto}
+.w-seg{display:inline-flex;border:2px solid var(--line-strong);border-radius:99px;overflow:hidden;flex:none}
+.w-seg button{all:unset;cursor:pointer;font:700 14px var(--font);padding:7px 13px;color:var(--text);min-height:20px}
+.w-seg button+button{border-left:2px solid var(--line-strong)}
+.w-seg button.on{background:var(--text);color:var(--bg2)}
+.w-seg button:focus-visible{outline:3px solid var(--text);outline-offset:-3px}
+.w-fbnote{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:14px;width:100%;max-width:680px;margin:0 auto 22px;background:var(--bg2);border:2px solid var(--line-ink);border-radius:22px;padding:14px 16px;color:var(--text)}
+.w-fbnote .w-row-ic{flex:none;width:40px;height:40px;border-radius:12px;background:var(--c-quick);color:#1E1E1E;display:grid;place-items:center}
+.w-fbnote-m{flex:1;min-width:0;display:flex;flex-direction:column}.w-fbnote-m b{font:700 16px/1.25 var(--font)}.w-fbnote-m span{font:500 14px/1.3 var(--font);color:var(--dim);margin-top:2px}
+.w-fbnote:focus-visible{outline:3px solid var(--text);outline-offset:2px}
 </style>
 
 </head>
@@ -7042,7 +7055,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       sotTable(['Date','Course','Title / Session','Hospital / Venue','Hours','Year'], sim.map(e=>[sotDate(e.date), e.course||'', e.title||'', e.hospital||'', e.hours?sotNum(e.hours,1):'', e.year||'']), {num:[4], total:{labelCol:3, valueCol:4, value:simTotal.toFixed(1)}}),
       ['Note - 12 hours of simulation by CCT, at least 4 hours of which in ST7.']));
 
-    sotOpen('GIM — Summary of Training', 'gim', S.join(''), mode);
+    sotOpen('GIM · Summary of Training', 'gim', S.join(''), mode);
   };
 
   window.printSpecSummary = function(mode){
@@ -7067,7 +7080,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     S.push(sotSection('Teaching participation', `${E(yr)}: <strong>${tp.filter(isThisYear).length}</strong>${yrOnly?` session${tp.length===1?'':'s'}`:` · All years: <strong>${tp.length}</strong> session${tp.length===1?'':'s'}`} · Feedback uploaded: ${tpUp}${tpPend?` · Pending: ${tpPend}`:''}`,
       sotTable(['Date','Type','Topic','Audience','Feedback uploaded','Year'], tp.map(e=>[sotDate(e.date), e.type||'', e.topic||'', e.audience||'', e.feedbackUploaded||'', e.year||'']), {}), []));
 
-    sotOpen(`${sp.short} — Summary of Training`, 'spec', S.join(''), mode);
+    sotOpen(`${sp.short} · Summary of Training`, 'spec', S.join(''), mode);
   };
 
   // ── Combined Logbook Report (specialty + GIM, A4 portrait) ──
@@ -7372,7 +7385,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       x+=`<row r="${r}">${o.cols.map((c,i)=>{
         const rng=`${colL(i)}${first}:${colL(i)}${lastRow}`;
         if(i===0) return xlCell(r,i,'Total',tl);
-        if(c.total==='sum'){ const v=o.rows.reduce((a,row)=>a+(typeof row[i]==='number'?row[i]:0),0); return xlCell(r,i,{f:`SUBTOTAL(109,${rng})`,v:Math.round(v*10)/10},c.kind==='dec'?td:tn); }
+        if(c.total==='sum'){ const v=o.rows.reduce((a,row)=>a+(typeof row[i]==='number'?row[i]:(row[i]&&typeof row[i].v==='number'?row[i].v:0)),0); return xlCell(r,i,{f:`SUBTOTAL(109,${rng})`,v:Math.round(v*10)/10},c.kind==='dec'?td:tn); }
         if(c.total==='count'){ const v=o.rows.filter(row=>row[i]!=null&&row[i]!=='').length; return xlCell(r,i,{f:`SUBTOTAL(103,${rng})&IF(SUBTOTAL(103,${rng})=1," entry"," entries")`,v:`${v} entr${v===1?'y':'ies'}`},tl); }
         return xlCell(r,i,'',tl); }).join('')}</row>`;
     }
@@ -7395,22 +7408,31 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const byDate=k=>(a,b)=>String(a[k]||'').localeCompare(String(b[k]||''));
     const D=k=>entries(k).slice().sort(byDate(k==='acute'||k==='ward'?'start':'date'));
     const txt=v=>v==null?'':String(v);
+    const spec=e=>!isGim(e), gim=e=>isGim(e), any=()=>true;
+    const clinicCols=[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Clinic type',w:28,kind:'text',total:'count'},{h:'Hospital',w:28,kind:'text'},{h:'Supervisor',w:20,kind:'text'},{h:'Patients',w:10,kind:'num',total:'sum'},{h:'Notes',w:44,kind:'long'}];
+    const clinicRow=e=>[e.date,yrOf(e),txt(e.type),txt(e.hospital),txt(e.supervisor),xlNum(e.patients),txt(e.notes)];
+    const cpdCols=[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'CPD type',w:20,kind:'text',total:'count'},{h:'Internal or external',w:11,kind:'code'},{h:'Title',w:28,kind:'text'},{h:'Provider',w:14,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Key learning',w:38,kind:'long'},{h:'Reflection',w:38,kind:'long'},{h:'Notes',w:20,kind:'long'},{h:'Certificate',w:13,kind:'text'}];
+    const cpdRow=e=>[e.date,yrOf(e),txt(e.type),cpdIsExternal(e)?'External':'Internal',txt(e.title),txt(e.provider),xlNum(e.hours),txt(e.learning),txt(e.reflection),txt(e.notes),e.cert&&(e.cert.name||e.cert.url)?txt(e.cert.name||'Attached'):''];
     const SHEETS=[
-      ['Clinics','clinics',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'Clinic type',w:28,kind:'text',total:'count'},{h:'Hospital',w:28,kind:'text'},{h:'Supervisor',w:20,kind:'text'},{h:'Patients',w:10,kind:'num',total:'sum'},{h:'Notes',w:40,kind:'long'}],
-        e=>[e.date,yrOf(e),stream(e),txt(e.type),txt(e.hospital),txt(e.supervisor),xlNum(e.patients),txt(e.notes)]],
-      ['Procedures','procedures',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'Procedure',w:32,kind:'text',total:'count'},{h:'Hospital',w:28,kind:'text'},{h:'Supervisor',w:20,kind:'text'},{h:'DOPS signed',w:11,kind:'code'},{h:'Notes',w:40,kind:'long'}],
+      [`${sp.short} clinics`,'clinics',spec,clinicCols,clinicRow],
+      ['GIM clinics','clinics',gim,clinicCols,clinicRow],
+      ['Procedures','procedures',any,[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'Procedure',w:32,kind:'text',total:'count'},{h:'Hospital',w:28,kind:'text'},{h:'Supervisor',w:20,kind:'text'},{h:'DOPS signed',w:11,kind:'code'},{h:'Notes',w:40,kind:'long'}],
         e=>[e.date,yrOf(e),stream(e),txt(normProcName(e.type)||e.type),txt(e.hospital),txt(e.supervisor),e.dops==='Yes'?'Yes':e.dops?String(e.dops):'',txt(e.notes)]],
-      ['CPD','cpd',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'CPD type',w:20,kind:'text',total:'count'},{h:'Internal or external',w:11,kind:'code'},{h:'Title',w:26,kind:'text'},{h:'Provider',w:13,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Key learning',w:36,kind:'long'},{h:'Reflection',w:36,kind:'long'},{h:'Notes',w:20,kind:'long'},{h:'Certificate',w:13,kind:'text'}],
-        e=>[e.date,yrOf(e),stream(e),txt(e.type),cpdIsExternal(e)?'External':'Internal',txt(e.title),txt(e.provider),xlNum(e.hours),txt(e.learning),txt(e.reflection),txt(e.notes),e.cert&&(e.cert.name||e.cert.url)?txt(e.cert.name||'Attached'):'']],
-      ['Teaching','teaching',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Type',w:24,kind:'text',total:'count'},{h:'Topic',w:32,kind:'text'},{h:'Audience',w:20,kind:'text'},{h:'Feedback uploaded',w:12,kind:'code'},{h:'Feedback responses',w:12,kind:'num',total:'sum'},{h:'Notes',w:40,kind:'long'}],
+      [`${sp.short} CPD`,'cpd',spec,cpdCols,cpdRow],
+      ['GIM CPD','cpd',gim,cpdCols,cpdRow],
+      ['Teaching','teaching',any,[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Type',w:24,kind:'text',total:'count'},{h:'Topic',w:32,kind:'text'},{h:'Audience',w:20,kind:'text'},{h:'Feedback uploaded',w:12,kind:'code'},{h:'Feedback responses',w:12,kind:'num',total:'sum'},{h:'Notes',w:40,kind:'long'}],
         e=>[e.date,yrOf(e),txt(e.type),txt(e.topic),txt(e.audience),txt(e.feedbackUploaded),xlNum(e.feedbackCount),txt(e.notes)]],
-      ['Simulation','simulation',[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Course',w:28,kind:'text',total:'count'},{h:'Title',w:30,kind:'text'},{h:'Hospital',w:26,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Notes',w:40,kind:'long'}],
+      ['Simulation','simulation',any,[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Course',w:28,kind:'text',total:'count'},{h:'Title',w:30,kind:'text'},{h:'Hospital',w:26,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Notes',w:40,kind:'long'}],
         e=>[e.date,yrOf(e),txt(e.course),txt(e.title),txt(e.hospital),xlNum(e.hours),txt(e.notes)]],
-      ['Acute take','acute',[{h:'Start',w:12,kind:'date'},{h:'End',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Hospital',w:30,kind:'text',total:'count'},{h:'Months',w:9,kind:'dec',total:'sum'},{h:'Takes per month',w:11,kind:'num'},{h:'Patients per take',w:11,kind:'num'},{h:'Estimated patients',w:12,kind:'num',total:'sum'},{h:'Supervisor',w:22,kind:'text'}],
-        e=>[e.start,e.end,yrOf(e),txt(e.hospital),xlNum(e.months),xlNum(e.takes),xlNum(e.patients),xlNum(e.estimated),txt(e.supervisor)]],
-      ['Ward cover','ward',[{h:'Start',w:12,kind:'date'},{h:'End',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Hospital',w:30,kind:'text',total:'count'},{h:'Months',w:9,kind:'dec',total:'sum'},{h:'Supervisor',w:22,kind:'text'}],
+      // Estimated patients = months × takes per month × patients per take, as a live formula (as in the Firth calculator)
+      ['Acute take','acute',any,[{h:'Start',w:12,kind:'date'},{h:'End',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Hospital',w:30,kind:'text',total:'count'},{h:'Months',w:9,kind:'dec',total:'sum'},{h:'Takes per month',w:11,kind:'num'},{h:'Patients per take',w:11,kind:'num'},{h:'Estimated patients',w:12,kind:'num',total:'sum'},{h:'Supervisor',w:22,kind:'text'}],
+        (e,r)=>{ const m=xlNum(e.months), tk=xlNum(e.takes), pt=xlNum(e.patients);
+          const est = m!=null&&tk!=null&&pt!=null ? {f:`ROUND(E${r}*F${r}*G${r},0)`, v:Math.round(m*tk*pt)} : xlNum(e.estimated);
+          return [e.start,e.end,yrOf(e),txt(e.hospital),m,tk,pt,est,txt(e.supervisor)]; }],
+      ['Ward cover','ward',any,[{h:'Start',w:12,kind:'date'},{h:'End',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Hospital',w:30,kind:'text',total:'count'},{h:'Months',w:9,kind:'dec',total:'sum'},{h:'Supervisor',w:22,kind:'text'}],
         e=>[e.start,e.end,yrOf(e),txt(e.hospital),xlNum(e.months),txt(e.supervisor)]]
     ];
+    const E8=([,k,f])=>entries(k).filter(f);
     // Summary: entries by type (this year and all training), then by training year
     const cy=currentYear, inY=y=>e=>e.year===y;
     const M={ clinics:['Patients seen',a=>a.reduce((t,e)=>t+(xlNum(e.patients)||0),0)], procedures:['DOPS signed',a=>a.filter(e=>e.dops==='Yes').length],
@@ -7427,28 +7449,30 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     row([['Entries by type',sec]],20);
     row([['Type',hd],[`Entries ${cy}`,hdN],['Entries, all training',hdN],['Measure',hd],[cy,hdN],['All training',hdN]],34);
     const t0=r;
-    SHEETS.forEach(([name,k],i)=>{ const all=entries(k), y=all.filter(inY(cy)), z=i%2===1; row([[name,cellS(z)],[y.length,numS(z)],[all.length,numS(z)],[M[k][0],cellS(z)],[M[k][1](y),numS(z)],[M[k][1](all),numS(z)]]); });
-    row([['Total',totL],[{f:`SUM(B${t0}:B${r-1})`,v:SHEETS.reduce((a,[,k])=>a+entries(k).filter(inY(cy)).length,0)},totN],[{f:`SUM(C${t0}:C${r-1})`,v:SHEETS.reduce((a,[,k])=>a+entries(k).length,0)},totN],['',totL],['',totL],['',totL]]);
+    SHEETS.forEach((s,i)=>{ const [name,k]=s, all=E8(s), y=all.filter(inY(cy)), z=i%2===1; row([[name,cellS(z)],[y.length,numS(z)],[all.length,numS(z)],[M[k][0],cellS(z)],[M[k][1](y),numS(z)],[M[k][1](all),numS(z)]]); });
+    row([['Total',totL],[{f:`SUM(B${t0}:B${r-1})`,v:SHEETS.reduce((a,s)=>a+E8(s).filter(inY(cy)).length,0)},totN],[{f:`SUM(C${t0}:C${r-1})`,v:SHEETS.reduce((a,s)=>a+E8(s).length,0)},totN],['',totL],['',totL],['',totL]]);
     r++;
     const yrs=[...new Set([...YEARS, ...KINDS7.flatMap(k=>entries(k).map(yrOf))].filter(Boolean))].filter(y=>KINDS7.some(k=>entries(k).some(inY(y))));
     const yrsSorted=yrs.sort((a,b)=>String(a).localeCompare(String(b),'en',{numeric:true}));
     if(yrsSorted.length){
       row([['By training year',sec]],20);
-      const cols=[['Clinics','clinics',a=>a.length],['Procedures','procedures',a=>a.length],['CPD hours','cpd',a=>r1(H(a))],['Teaching','teaching',a=>a.length],['Simulation hours','simulation',a=>r1(H(a))],['Acute take patients','acute',M.acute[1]],['Ward cover months','ward',M.ward[1]]];
+      const cols=[[`${sp.short} clinics`,()=>entries('clinics').filter(spec),a=>a.length],['GIM clinics',()=>entries('clinics').filter(gim),a=>a.length],['Procedures',()=>entries('procedures'),a=>a.length],
+        [`${sp.short} CPD hours`,()=>entries('cpd').filter(spec),a=>r1(H(a))],['GIM CPD hours',()=>entries('cpd').filter(gim),a=>r1(H(a))],['Teaching',()=>entries('teaching'),a=>a.length],
+        ['Simulation hours',()=>entries('simulation'),a=>r1(H(a))],['Acute take patients',()=>entries('acute'),M.acute[1]],['Ward cover months',()=>entries('ward'),M.ward[1]]];
       row([['Year',hd],...cols.map(c=>[c[0],hdN])],34);
       const y0=r;
-      yrsSorted.forEach((y,i)=>{ const z=i%2===1; row([[y,cellS(z)],...cols.map(c=>[c[2](entries(c[1]).filter(inY(y))),numS(z)])]); });
-      row([['Total',totL],...cols.map((c,i)=>[{f:`SUM(${colL(i+1)}${y0}:${colL(i+1)}${r-1})`,v:r1(yrsSorted.reduce((a,y)=>a+c[2](entries(c[1]).filter(inY(y))),0))},totN])]);
+      yrsSorted.forEach((y,i)=>{ const z=i%2===1; row([[y,cellS(z)],...cols.map(c=>[c[2](c[1]().filter(inY(y))),numS(z)])]); });
+      row([['Total',totL],...cols.map((c,i)=>[{f:`SUM(${colL(i+1)}${y0}:${colL(i+1)}${r-1})`,v:r1(yrsSorted.reduce((a,y)=>a+c[2](c[1]().filter(inY(y))),0))},totN])]);
     }
     const sumXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" tabSelected="1" zoomScale="110" zoomScaleNormal="110"/></sheetViews><sheetFormatPr defaultRowHeight="15"/>
-<cols><col min="1" max="1" width="22" customWidth="1"/><col min="2" max="3" width="14" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="8" width="16" customWidth="1"/></cols>
+<cols><col min="1" max="1" width="22" customWidth="1"/><col min="2" max="3" width="14" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="10" width="15" customWidth="1"/></cols>
 <sheetData>${sx}</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
 <headerFooter><oddFooter>&amp;L${XE(String(me).replace(/&/g,'&&'))} · Logbook summary&amp;RPage &amp;P of &amp;N</oddFooter></headerFooter></worksheet>`;
-    const built=SHEETS.map(([name,k,cols,map])=>{ const a=D(k);
+    const built=SHEETS.map(([name,k,f,cols,map])=>{ const a=D(k).filter(f);
       const extra=M[k]?` · ${M[k][0]}: ${M[k][1](a)}`:'';
-      return [name, xlSheet(S,{ title:name, sub:`${me} · ${a.length} entr${a.length===1?'y':'ies'} across training${a.length?extra:''}`, cols, rows:a.map(map), footer:`${me} · ${name}` })]; });
+      return [name, xlSheet(S,{ title:name, sub:`${me} · ${a.length} entr${a.length===1?'y':'ies'} across training${a.length?extra:''}`, cols, rows:a.map((e,i)=>map(e,4+i)), footer:`${me} · ${name}` })]; });
     const names=['Summary',...built.map(b=>b[0])], q=n=>`'${n.replace(/'/g,"''")}'`;
     const defs=built.flatMap(([name,s],i)=>[s.filter?`<definedName name="_xlnm._FilterDatabase" localSheetId="${i+1}" hidden="1">${q(name)}!${s.filter}</definedName>`:'', `<definedName name="_xlnm.Print_Titles" localSheetId="${i+1}">${q(name)}!${s.titles}</definedName>`]).join('');
     const files={
@@ -8405,7 +8429,9 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       return;
     }
     let ins=''; try{ ins=insightsHTML(); }catch(e){ console.error('[Outcome1] Insights failed', e); ins='<p class="ix-cap">Insights couldn’t be shown just now.</p>'; }
-    main().innerHTML = hd + list + `<section id="w-insights" class="section" style="margin-top:56px"><div class="sec-head"><span class="sec-title">Insights</span></div>${ins}</section>`;
+    const un=fbUnset().length;
+    const fbNote=un?`<button type="button" class="w-fbnote" onclick="wFbBulk()"><span class="w-row-ic">${I('board',22)}</span><span class="w-fbnote-m"><b>${un} teaching session${un===1?'':'s'} without a feedback status</b><span>Tap to mark them uploaded</span></span>${I('chev',20)}</button>`:'';
+    main().innerHTML = hd + fbNote + list + `<section id="w-insights" class="section" style="margin-top:56px"><div class="sec-head"><span class="sec-title">Insights</span></div>${ins}</section>`;
     ixAfter();
     try{ fbRefreshCounts(); }catch(e){}
   }
@@ -8852,6 +8878,10 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const e=entries(k).find(x=>String(x.id)===String(id)); if(!e) return;
     const locked=yearLocked(e.year||currentYear), editable=!locked && canEditEntry(e);
     const rows=(ENTRY_FIELDS[k]||[]).map(f=>{
+      if(k==='teaching' && f==='feedbackUploaded' && !locked){
+        const cur=e.feedbackUploaded||'';
+        return `<div class="w-ent-r w-fbu"><span>${safe(fieldLabel(f,k))}</span><span class="w-seg" role="group" aria-label="Feedback uploaded?">${['Yes','No','Pending'].map(o=>`<button type="button" class="${o===cur?'on':''}" aria-pressed="${o===cur}" onclick="wFbUp('${safe(String(e.id))}','${o}')">${o}</button>`).join('')}</span></div>`;
+      }
       let v=e[f]; if(v===undefined||v===null||v==='') return '';
       if(f==='scope') v=v==='gim'?'GIM':specCfg().short; else if(['date','start','end'].includes(f)) v=suDate(v)||v;
       return `<div class="w-ent-r"><span>${safe(fieldLabel(f,k))}</span><b>${safe(v)}</b></div>`;
@@ -8863,6 +8893,21 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const note = locked ? `${safe(e.year||currentYear)} is signed off, so its entries are locked.`
       : !editable ? `Editing has closed for this entry. Entries can be changed for ${EDIT_DAYS} days after they’re added, then only deleted.` : '';
     suSheet({ title:safe(entryTitle(k,e)), sub:safe(entrySub(k,e)), body:`<div class="w-ent">${rows}</div>${note?`<div class="w-sus-note">${note}</div>`:''}`, actions:acts });
+  };
+  // Feedback status changes after the session (Pending → Yes), so it stays open after the 7-day edit window
+  window.wFbUp = function(id, v){
+    const arr=entries('teaching'), e=arr.find(x=>String(x.id)===String(id)); if(!e || yearLocked(e.year||currentYear)) return;
+    e.feedbackUploaded=v; e.updatedAt=Date.now(); saveEntries('teaching', arr);
+    render(); wEntry('teaching', id); wToast(`Feedback uploaded: ${v}`);
+  };
+  const fbUnset=()=>entries('teaching').filter(e=>!e.feedbackUploaded && !yearLocked(e.year||currentYear));
+  window.wFbBulk = function(){
+    const list=fbUnset().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))); if(!list.length) return;
+    suSheet({ title:'Feedback uploaded?', sub:`${list.length} teaching session${list.length===1?' was':'s were'} logged before this was asked.`,
+      body:`<div class="w-ent">${list.slice(0,8).map(e=>`<div class="w-ent-r"><span>${safe(suDate(e.date)||e.date||'')}</span><b>${safe(e.topic||e.type||'Teaching')}</b></div>`).join('')}${list.length>8?`<div class="w-ent-r"><span>and ${list.length-8} more</span><b></b></div>`:''}</div>`,
+      actions:[ { label:'All uploaded', primary:true, on:()=>{ const ids=new Set(list.map(e=>String(e.id))), arr=entries('teaching'), now=Date.now();
+          arr.forEach(e=>{ if(ids.has(String(e.id))){ e.feedbackUploaded='Yes'; e.updatedAt=now; } }); saveEntries('teaching', arr); render(); wToast(`${ids.size} marked as uploaded`); } },
+        { label:'One at a time', on:()=>{ setTimeout(()=>wGoLog('teaching'),0); } } ]});
   };
   // CPD has its own editor: the same 7-day rule applies
   const __editCpd=window.editCpdEntry;
@@ -9099,7 +9144,12 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     return sh.data.filter(d=>{ const v=String(d.cells[j]||'').trim().toLowerCase(); return v && (opts.includes(v) || opts.includes(normProcName(v).toLowerCase())); }).length;
   }
   function impGuessScope(sh){
-    if(!['clinics','procedures'].includes(sh.kind) || sh.map.includes('scope')) return sh.scope||'spec';
+    if(sh.map.includes('scope')) return sh.scope||'spec';
+    // a tab called "GIM CPD" or "Renal clinics" says which it is
+    const n=String(sh.name||'').toLowerCase(), sp=specCfg(), esc=s=>String(s||'').toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    if(/\bgim\b|general\s*internal/.test(n)) return 'gim';
+    if([sp.short,sp.label].filter(Boolean).some(s=>new RegExp('\\b'+esc(s)+'\\b').test(n))) return 'spec';
+    if(!['clinics','procedures'].includes(sh.kind)) return sh.scope||'spec';
     return impTypeHits(sh,'gim')>impTypeHits(sh,'spec') ? 'gim' : 'spec';
   }
   let IMP=null;
