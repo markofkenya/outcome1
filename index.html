@@ -829,7 +829,7 @@ body.focus .form-collapse[open] .form-plus::before,body.focus .form-collapse[ope
   --z-serif:'Hanken Grotesk',-apple-system,sans-serif;--z-script:'Hanken Grotesk',-apple-system,sans-serif;
   --radius:24px;--radius-sm:14px;--radius-lg:32px;
   --ink:#1E1E1E;--ink-fg:#F4F3EE;--line-ink:#1E1E1E;--on-c:#1E1E1E;--mat:#1E1E1E;--card-line:transparent;
-  --c-arcp:#1E1E1E;--c-spec:#C8BFF1;--c-gim:#F4B683;--c-cpd:#A3EEF2;--c-log:#EE9F98;--c-quick:#D3F69C;--c-admin:#E2DED2;
+  --c-arcp:#1E1E1E;--c-alarm:#F5C451;--c-alarm-hi:#EF5A4C;--c-spec:#C8BFF1;--c-gim:#F4B683;--c-cpd:#A3EEF2;--c-log:#EE9F98;--c-quick:#D3F69C;--c-admin:#E2DED2;
 }
 body.focus{
   --bg:#121212;--bg2:#1C1C1B;--bg3:#232321;--bg4:#2C2C2A;--line:#2F2F2C;--line-strong:#46453F;
@@ -2130,6 +2130,19 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
 .w-fbnote .w-row-ic{flex:none;width:40px;height:40px;border-radius:12px;background:var(--c-quick);color:#1E1E1E;display:grid;place-items:center}
 .w-fbnote-m{flex:1;min-width:0;display:flex;flex-direction:column}.w-fbnote-m b{font:700 16px/1.25 var(--font)}.w-fbnote-m span{font:500 14px/1.3 var(--font);color:var(--dim);margin-top:2px}
 .w-fbnote:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+/* Profile photo */
+.w-avatar.ph{overflow:hidden;padding:0}
+.w-avatar img,.w-pf-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.w-pf-ph{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.w-pf-av{width:64px;height:64px;border-radius:50%;background:var(--ink);color:var(--ink-fg);display:grid;place-items:center;font:800 22px var(--font);letter-spacing:-.03em;flex:none;overflow:hidden}
+.w-pf-pb{display:flex;gap:8px;flex-wrap:wrap}
+.w-pf-pb label.btn{cursor:pointer}
+.w-pf-file{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+.w-pf-file:focus-visible+.w-pf-ph label.btn{outline:3px solid var(--text);outline-offset:2px}
+/* Portfolio lock: the ARCP card's lock line, and the heads-up kicker */
+.w-card .l small .w-i{display:inline-block;vertical-align:-2px;margin-right:4px}
+.w-lk .w-sus-k{color:var(--red);display:flex;align-items:center;gap:5px}
+.w-lk .w-ent-r{gap:12px}.w-lk .w-ent-r span{flex:1 1 auto;min-width:0}.w-lk .w-ent-r b{white-space:nowrap;flex:none}
 </style>
 
 </head>
@@ -7320,7 +7333,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     <div class="hd"><h1>CPD diary · ${E(currentYear)}</h1><p>${E(who())} · ${E(sp.label)} and GIM${deanery?' · '+E(deanery):''}</p></div>
     <div class="sum"><div><b>${total} h</b><span>Total CPD</span></div><div><b>${ext} h</b><span>External</span></div><div><b>${intl} h</b><span>Internal</span></div><div><b>${all.length}</b><span>Entr${all.length===1?'y':'ies'}</span></div></div>
     <div class="pbw">GIM external CPD: <b>${r1(gimAll)} h</b> of 100 h needed by CCT<div class="pb"><i style="width:${pct}%"></i></div></div>
-    ${all.length&&style==='c'?`<div class="jw">${all.map(jrow).join('')}</div>`:all.length?`<table><thead><tr><th>Date</th><th>Activity</th><th>Stream</th><th class="ty">Type</th><th class="n">Hours</th></tr></thead>
+    ${all.length&&style==='c'?`<div class="jw">${all.map(jrow).join('')}</div>`:all.length?`<table><thead><tr><th>Date</th><th>Activity</th><th>Specialty</th><th class="ty">Type</th><th class="n">Hours</th></tr></thead>
       ${all.map(row).join('')}
       <tfoot><tr><td></td><td>Total</td><td></td><td class="ty"></td><td class="n">${total}</td></tr></tfoot></table>`
       :`<p class="empty">No CPD logged in ${E(currentYear)} yet.</p>`}
@@ -7561,6 +7574,24 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     if(!n.length) return 'O1';
     return ((n[0][0]||'')+(n.length>1?n[n.length-1][0]:'')).toUpperCase();
   }
+  // Profile photo: a small square JPEG kept in the profile, so it syncs with everything else. Initials otherwise.
+  const PF_PHOTO_RE=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+  function pfPhoto(p){ p=p===undefined?state.profile?.photo:p; return typeof p==='string' && p.length<300000 && PF_PHOTO_RE.test(p) ? p : ''; }
+  function avatarInner(p){ const ph=pfPhoto(p); return ph?`<img src="${ph}" alt="">`:safe(initials()); }
+  function pfResize(file){
+    return new Promise((res,rej)=>{
+      if(!file || (file.type && !/^image\//.test(file.type))) return rej(new Error('not an image'));
+      const url=URL.createObjectURL(file), img=new Image(), done=()=>URL.revokeObjectURL(url);
+      img.onload=()=>{ try{
+          const S=160, w=img.naturalWidth, h=img.naturalHeight; if(!w||!h) throw new Error('empty');
+          const m=Math.min(w,h), c=document.createElement('canvas'); c.width=c.height=S;
+          const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,S,S); x.imageSmoothingQuality='high';
+          x.drawImage(img,(w-m)/2,(h-m)/2,m,m,0,0,S,S); done(); res(c.toDataURL('image/jpeg',0.82));
+        }catch(e){ done(); rej(e); } };
+      img.onerror=()=>{ done(); rej(new Error('unreadable')); };
+      img.src=url;
+    });
+  }
   function yearPct(){
     const arcp=new Date(state.arcpDates?.[currentYear]||ARCP_DEFAULTS[currentYear]);
     const i=YEARS.indexOf(currentYear), prev=i>0?YEARS[i-1]:null;
@@ -7765,6 +7796,31 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const when=!d?'' : diff===0 ? 'today' : diff===1 ? 'yesterday' : d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
     return { k, id:e.id, txt:`Last: ${what}${when?' · '+when:''}` };
   }
+  // Still to close: this year's open requirements plus unsigned DOPS (Home's list, the ARCP card and the lock heads-up)
+  function homeOpen(){
+    const sp=specCfg();
+    const thisYear=r=>r.deadline==='annual'||r.deadline===currentYear;
+    const open=[];
+    [[specReqs(),'specialty',sp.short],[visibleGimReqs(),'gim','GIM']].forEach(([reqs,tab,lab])=>Object.entries(reqs).forEach(([id,r])=>{
+      if(!thisYear(r)) return; const st=reqStatus(id,r); if(st!=='unmet'&&st!=='partial') return;
+      const v=getReqVal(id,r), num=r.type==='number', t=r.target||1;
+      open.push({tab,lab,label:r.label,pct:num?Math.min(100,Math.round(v/t*100)):0,val:num?`${v} / ${t}`:'To do',s2:num?`${r1(Math.max(0,t-v))} to go`:'',due:deadlineText(r)});
+    }));
+    [[specDopsStats(),'specialty',sp.short],[gimDopsStats(),'gim','GIM']].forEach(([s,tab,lab])=>{
+      if(s && s.total && s.met<s.total) open.push({tab,lab,label:s.label||'DOPS',pct:Math.round(s.met/s.total*100),val:`${s.met} / ${s.total}`,s2:'signed',due:'DOPS'});
+    });
+    open.sort((a,b)=>a.pct-b.pct);
+    if(yearLocked()) open.length=0;
+    needRows().reverse().forEach(n=>open.unshift({tab:'arcp',lab:n.label,label:n.n,pct:0,val:'To do',s2:'',due:'Development need',need:true}));
+    return open;
+  }
+  // From two weeks before the portfolio locks the ARCP card turns amber, then red for the last 3 days
+  function lockAlarm(p){
+    p=p||panelInfo();
+    if(yearLocked() || outcome() || p.days<0 || p.lockDays<0 || p.lockDays>14) return '';
+    try{ if(arcpReadyHome()) return ''; }catch(e){}
+    return p.lockDays<=3 ? 'red' : 'amber';
+  }
   function renderHome(){
     const sp=specCfg();
     const spec=calcReqsWithExtra(specReqs(),specDopsStats());
@@ -7784,8 +7840,11 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       </div>
       <button class="w-go" onclick="wQuickGo(this)">Log entry</button>
     </div>`;
+    const open=homeOpen(), alarm=lockAlarm(p);
+    const alarmCard=()=>card('arcp', alarm==='red'?'var(--c-alarm-hi)':'var(--c-alarm)', 'ARCP', `${I('lock',14)}${open.length?`${open.length} still open`:'Nothing left open'}`,
+      p.lockDays===0?'Today':`${p.lockDays} day${p.lockDays===1?'':'s'}`, p.lockDays===0?'Your portfolio locks today':'until your portfolio locks', false, alsPill());
     const stack=
-      (outcomeArcpCard(card)||card('arcp','var(--c-arcp)','ARCP',arcpReadyHome()?`<button class="w-cpill w-rdybadge" onclick="wArcpList()" title="Everything on your ARCP list is ticked. Open the list">${I('check',15)}ARCP ready</button>`:`${currentYear} · ${yearPct()}% through`, p.days>=0?`${p.days} day${p.days===1?'':'s'}`:'Done', p.lockTxt, true, alsPill()))+
+      (outcomeArcpCard(card)||(alarm&&alarmCard())||card('arcp','var(--c-arcp)','ARCP',arcpReadyHome()?`<button class="w-cpill w-rdybadge" onclick="wArcpList()" title="Everything on your ARCP list is ticked. Open the list">${I('check',15)}ARCP ready</button>`:`${currentYear} · ${yearPct()}% through`, p.days>=0?`${p.days} day${p.days===1?'':'s'}`:'Done', p.lockTxt, true, alsPill()))+
       card('specialty','var(--c-spec)',safe(sp.short),'',`${spec.pct}%`,`${spec.met} of ${spec.total} met`, false, scePill())+
       card('gim','var(--c-gim)','GIM','',`${gim.pct}%`,`${gim.met} of ${gim.total} met`)+
       card('cpd','var(--c-cpd)','CPD','',`${cpdH}h`,`GIM external ${gimExt} of 100h`)+
@@ -7793,20 +7852,6 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       (outcomeFrontCard()||front);
     window.__wStampNew=false;
 
-    // Still to close: this year's open requirements plus unsigned DOPS
-    const thisYear=r=>r.deadline==='annual'||r.deadline===currentYear;
-    const open=[];
-    [[specReqs(),'specialty',sp.short],[visibleGimReqs(),'gim','GIM']].forEach(([reqs,tab,lab])=>Object.entries(reqs).forEach(([id,r])=>{
-      if(!thisYear(r)) return; const st=reqStatus(id,r); if(st!=='unmet'&&st!=='partial') return;
-      const v=getReqVal(id,r), num=r.type==='number', t=r.target||1;
-      open.push({tab,lab,label:r.label,pct:num?Math.min(100,Math.round(v/t*100)):0,val:num?`${v} / ${t}`:'To do',s2:num?`${r1(Math.max(0,t-v))} to go`:'',due:deadlineText(r)});
-    }));
-    [[specDopsStats(),'specialty',sp.short],[gimDopsStats(),'gim','GIM']].forEach(([s,tab,lab])=>{
-      if(s && s.total && s.met<s.total) open.push({tab,lab,label:s.label||'DOPS',pct:Math.round(s.met/s.total*100),val:`${s.met} / ${s.total}`,s2:'signed',due:'DOPS'});
-    });
-    open.sort((a,b)=>a.pct-b.pct);
-    if(yearLocked()) open.length=0;
-    needRows().reverse().forEach(n=>open.unshift({tab:'arcp',lab:n.label,label:n.n,pct:0,val:'To do',s2:'',due:'Development need',need:true}));
     const showAll=!!window.__wAllOpen, shown=showAll?open:open.slice(0,6);
     const openRows=open.length
       ? shown.map(o=>`<button class="w-row" onclick="setTab('${o.tab}')">${o.need?`<span class="w-tile">${I('flag',22)}</span>`:ring(o.pct)}<span class="w-row-m"><span class="w-row-t">${safe(o.label)}</span><span class="w-row-s">${safe(o.lab)} · ${safe(o.due)}</span></span><span class="w-row-r"><span class="w-row-v">${safe(o.val)}</span><span class="w-row-s">${safe(o.s2)}</span></span></button>`).join('')+(open.length>6?`<button class="w-more" onclick="window.__wAllOpen=!window.__wAllOpen;render()">${showAll?'Show fewer':`Show all ${open.length}`}</button>`:'')
@@ -7819,7 +7864,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
 
     main().innerHTML=`<div class="w-home">
       <div class="w-hometop">
-        <button class="w-avatar" onclick="wOpenCard(this,'admin')" aria-label="Account and settings" title="Account and settings">${safe(initials())}</button>
+        <button class="w-avatar ${pfPhoto()?'ph':''}" onclick="wOpenCard(this,'admin')" aria-label="Account and settings" title="Account and settings">${avatarInner()}</button>
         <div class="w-topr">
           <select class="w-pill" aria-label="Training year" onchange="setYear(this.value)">${YEARS.map(y=>`<option value="${y}" ${y===currentYear?'selected':''}>${y}${yearLocked(y)?' ✓':''}</option>`).join('')}</select>
           <button class="w-circ" onclick="wWrapped()" aria-label="Last month’s Wrapped" title="Last month’s Wrapped">${I('spark',22)}</button>
@@ -8574,8 +8619,12 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const ys=pr.yearStart, started=ys?.year?`${PF_MONTHS[(Number(ys.month)||8)-1]} ${ys.year}`:'';
     const fixed=[['Specialty',`${specCfg().label} + GIM`],['Deanery',pr.deanery||'Not set'],['Training year',pr.trainingYear||currentYear], ...(started?[[`${pr.trainingYear||currentYear} started`,started]]:[])];
     const flash=i=>{ i.classList.remove('w-flash'); void i.offsetWidth; i.classList.add('w-flash'); try{ i.focus(); }catch(e){} return false; };
+    let ph;   // the photo being chosen: undefined = unchanged, '' = removed
+    const phNow=()=>ph===undefined?pfPhoto():ph;
+    const phHTML=()=>{ const v=phNow(); return `<span class="w-pf-av ${v?'ph':''}" aria-hidden="true">${avatarInner(v)}</span><span class="w-pf-pb"><label class="btn small" for="w-pf-file">${v?'Change photo':'Add photo'}</label>${v?'<button type="button" class="btn small" id="w-pf-rm">Remove</button>':''}</span>`; };
     suSheet({ title:'Your profile',
       body:`<div class="w-kd w-pf">
+        <div class="w-kd-f"><span class="w-sus-l">Photo</span><input type="file" id="w-pf-file" class="w-pf-file" accept="image/*" aria-label="Choose a profile photo"><div class="w-pf-ph" id="w-pf-ph">${phHTML()}</div></div>
         <div class="w-kd-f"><label class="w-sus-l" for="w-pf-name">Name</label><input class="input w-sus-in" id="w-pf-name" autocomplete="name" value="${safe(pr.name||'')}"></div>
         <div class="w-kd-f"><label class="w-sus-l" for="w-pf-tn">Training number (NTN / GMC)</label><input class="input w-sus-in" id="w-pf-tn" placeholder="NTN or GMC number" value="${safe(pr.trainingNumber||'')}"></div>
         <div class="w-kd-f"><label class="w-sus-l" for="w-pf-base">Base hospital</label><select class="input w-sus-in" id="w-pf-base">${list.map(h=>`<option ${h===pr.baseHospital?'selected':''}>${safe(h)}</option>`).join('')}<option>${OTHER}</option></select>
@@ -8585,12 +8634,17 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       closeLabel:'Cancel',
       onOpen:w=>{ const s=w.querySelector('#w-pf-base'), o=w.querySelector('#w-pf-other');
         if(!list.includes(pr.baseHospital) && pr.baseHospital){ s.value=OTHER; o.value=pr.baseHospital; }
-        const up=()=>{ o.style.display=s.value===OTHER?'block':'none'; }; s.addEventListener('change',()=>{ up(); if(s.value===OTHER) o.focus(); }); up(); },
+        const up=()=>{ o.style.display=s.value===OTHER?'block':'none'; }; s.addEventListener('change',()=>{ up(); if(s.value===OTHER) o.focus(); }); up();
+        const box=w.querySelector('#w-pf-ph'), f=w.querySelector('#w-pf-file'), redraw=()=>{ box.innerHTML=phHTML(); };
+        f.addEventListener('change',()=>{ const file=f.files&&f.files[0]; f.value=''; if(!file) return;
+          pfResize(file).then(u=>{ ph=u; redraw(); }).catch(()=>wToast('Couldn’t read that photo. Try a JPEG or PNG')); });
+        box.addEventListener('click',e=>{ if(e.target.closest('#w-pf-rm')){ ph=''; redraw(); } }); },
       actions:[ { label:'Save', primary:true, on:w=>{
           const nm=w.querySelector('#w-pf-name'), s=w.querySelector('#w-pf-base'), o=w.querySelector('#w-pf-other');
           if(!nm.value.trim()) return flash(nm);
           const base=s.value===OTHER ? o.value.trim() : s.value; if(!base) return flash(o);
           state.profile={...state.profile, name:nm.value.trim(), trainingNumber:w.querySelector('#w-pf-tn').value.trim(), baseHospital:base};
+          if(ph!==undefined){ if(ph) state.profile.photo=ph; else delete state.profile.photo; }
           if(!(DEANERIES[state.profile.deanery]||[]).includes(base)) state.hospitals=[...new Set([...(state.hospitals||[]),base])];
           state.deletedHospitals=(state.deletedHospitals||[]).filter(h=>h!==base); state.hiddenHospitals=(state.hiddenHospitals||[]).filter(h=>h!==base);
           saveState(); render(); wToast('Profile saved'); } } ]});
@@ -8938,9 +8992,14 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         { label:'Save changes', primary:true, on:w=>{
             const need=w.querySelector('[data-f="date"],[data-f="start"]');
             if(need && !need.value){ need.classList.remove('w-flash'); void need.offsetWidth; need.classList.add('w-flash'); need.focus(); return false; }
+            const was={...e}, same=f=>String(e[f]??'')===String(was[f]??'');
             w.querySelectorAll('[data-f]').forEach(el=>{ e[el.dataset.f]=String(el.value).trim(); });
             if(k==='cpd' && !e.category) delete e.category;
-            if(k==='acute'||k==='ward'){ e.months=e.months||monthsBetween(e.start,e.end); if(k==='acute' && !e.estimated) e.estimated=String(Math.round(Number(e.months||0)*Number(e.takes||0)*Number(e.patients||0))||''); }
+            // months and the patient estimate follow the dates, takes and patients, unless typed over in this edit
+            if(k==='acute'||k==='ward'){
+              if(!e.months || ((!same('start')||!same('end')) && same('months'))) e.months=String(monthsBetween(e.start,e.end)||'');
+              if(k==='acute' && (!e.estimated || ((!same('months')||!same('takes')||!same('patients')) && same('estimated')))) e.estimated=String(Math.round(Number(e.months||0)*Number(e.takes||0)*Number(e.patients||0))||'');
+            }
             e.updatedAt=Date.now(); saveEntries(k, arr); if(e.hospital) addHospitalIfNew(e.hospital);
             render(); wToast('Entry updated'); } },
         { label:'Cancel', on:()=>{ setTimeout(()=>wEntry(k,id),0); } } ]});
@@ -10137,7 +10196,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   }
   // Badges: on or off from the start. Three sample stamps show what they look like.
   function suBadges(){
-    const demo=[{icon:'proc',cat:'Clinical',tiers:[1],grades:['b'],v:1},{icon:'qr',cat:'Teaching',tiers:[1],grades:['s'],v:1},{icon:'bed',cat:'Learning',tiers:[1],grades:['g'],v:1}];
+    const demo=[{icon:'line',cat:'Clinical',tiers:[1],grades:['b'],v:1},{icon:'qr',cat:'Teaching',tiers:[1],grades:['s'],v:1},{icon:'bed',cat:'Learning',tiers:[1],grades:['g'],v:1}];
     const set=on=>{ state.badges=state.badges||{}; state.badges.off=!on; if(on) state.badges.seen=Object.fromEntries(badgeList().map(b=>[b.id,bdLvl(b)])); suMark('badges'); };
     suSheet({ title:'Badges', sub:'Earn Bronze, Silver and Gold trophies as your logbook grows.',
       body:`<div class="w-su-bd" aria-hidden="true">${demo.map((b,i)=>bdStamp(b,i)).join('')}</div>`,
@@ -10894,10 +10953,10 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   };
 
   // ═══ Badges ═══
-  // Worked out afresh from the logbook and the requirement ticks every time, so deleting entries takes a badge
-  // (or a level) back. Imported entries only ever count towards Archivist. Stored in state.badges: which levels
-  // have been announced (so each is celebrated once), three dated moments that can't be rebuilt later (ARCP ready,
-  // early and clean sweep), and the on/off switch. Nothing is split by training year: it all runs to CCT.
+  // Worked out afresh from the logbook and the requirement ticks every time, so deleting or editing entries takes
+  // a badge (or a level) back. Imported entries don't count. Stored in state.badges: which levels have been
+  // announced (so each is celebrated once), two dated moments (ARCP list ready, clean sweep) that are checked
+  // again while their year is still open, and the on/off switch. Nothing is split by training year: it all runs to CCT.
   Object.assign(IC, {
     medal:'<circle cx="12" cy="9" r="6"/><path d="M8.6 13.8L7 21l5-2.6 5 2.6-1.6-7.2"/>',
     bed:'<path d="M3 18V7M3 14h18v4M21 14v-2a3 3 0 00-3-3h-8v5"/><circle cx="6.5" cy="11" r="1.5"/>',
@@ -10925,13 +10984,9 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   const bdOn=()=>!!state.profile && !bdState().off;
   function badgeList(){
     const sp=specCfg(), reqs=specReqs(), mo=bdState().moments||{};
-    const types=(sp.logbook?.clinics||[]).filter(t=>t && t!=='Other');
     const cl=bdOwn('clinics'), pr=bdOwn('procedures'), cpd=bdOwn('cpd'), te=bdOwn('teaching'), sim=bdOwn('simulation');
     const placed=[...cl,...pr,...sim,...bdOwn('acute'),...bdOwn('ward')];
-    const gimTicks=Object.keys(state.req||{}).filter(k=>k.startsWith('dops.') && state.req[k]===true).length;
-    const dops=pr.filter(e=>e.scope!=='gim' && e.dops==='Yes').length + Math.max(gimTicks, pr.filter(e=>e.scope==='gim' && e.dops==='Yes').length);
     let ext=0; try{ ext=gimExternalCpdHours(e=>e.src!=='import'); }catch(e){}
-    let gd={met:0,total:0}; try{ gd=gimDopsStats(); }catch(e){}
     const months=new Set(); BD_KINDS.forEach(k=>bdOwn(k).forEach(e=>{ if(/^\d{4}-\d{2}/.test(String(e.date||''))) months.add(String(e.date).slice(0,7)); }));
     const sce=reqs.spec_sce, qips=Object.entries(reqs).filter(([id,r])=>/qip/i.test(id) && r.type==='checkbox');
     const tick=(id,r)=>{ try{ return !!getReqVal(id,r); }catch(e){ return false; } };
@@ -10939,58 +10994,43 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const n=x=>Object.keys(x||{}).length;
     const ptypes=sp.logbook?.procedures||[], pn=e=>String(normProcName(e.type)||e.type||'');
     const has=re=>ptypes.some(t=>re.test(t)), cnt=re=>pr.filter(e=>re.test(pn(e))).length;
-    const RE={bx:/kidney biopsy/i, temp:/^temp hd catheter/i, tunnel:/^tunnelled dialysis catheter/i, pull:/^tunnelled line removal/i, tap:/pleural|intercostal|chest drain|ascitic|paracentesis/i, dc:/cardioversion/i, lp:/lumbar puncture/i};
+    const RE={bx:/kidney biopsy/i, temp:/^temp hd catheter/i};
+    // clinic types: the ones on the list plus any typed under Other, each counted once
+    const ctypes=new Set(cl.filter(e=>e.scope!=='gim').map(e=>String(e.type||'').trim().toLowerCase()).filter(t=>t && t!=='other')).size;
     const surveys=Object.entries(reqs).filter(([id,r])=>/survey/i.test(id) && r.type==='checkbox');
+    const svMax=surveys.length || (GIM_REQS.gim_survey?1:0);
     const svDone=surveys.length ? surveys.filter(([id,r])=>tick(id,r)).length : (GIM_REQS.gim_survey && tick('gim_survey',GIM_REQS.gim_survey) ? 1 : 0);
     const outs=Object.values(state.years||{}).map(y=>y&&y.outcome).filter(Boolean);
-    const als=state.als?new Date(state.als):null;
-    const cs=state.cct?.start, ce=state.profile?.cctDate; let half=0;
-    if(state.cct?.done && /^\d{4}-\d{2}-\d{2}/.test(cs||'') && /^\d{4}-\d{2}-\d{2}/.test(ce||'')){ const a=new Date(cs+'T00:00:00'), z=new Date(String(ce).slice(0,10)+'T00:00:00'); if(Date.now()>=a.getTime()+(z-a)/2) half=1; }
     const B='b', S='s', G='g';
     return [
       {id:'clinics',cat:'Clinical',icon:'clinic',name:'The Doctor Will See You Now',tiers:[20,50,100],grades:[B,S,G],unit:'clinics',d:'Clinics logged',v:cl.length},
-      {id:'patients',cat:'Clinical',icon:'user',name:'Next Patient, Please',tiers:[100,500,1000],grades:[B,S,G],unit:'clinic patients',d:'Patients seen in the clinics you’ve logged',v:cl.reduce((a,e)=>a+(parseInt(e.patients,10)||0),0)},
-      {id:'house',cat:'Clinical',icon:'list',name:'Full House',tiers:[types.length],grades:[S],unit:`${sp.short} clinic types`,d:`Every clinic type on your ${sp.short} list, at least once`,v:new Set(cl.filter(e=>e.scope!=='gim' && types.includes(e.type)).map(e=>e.type)).size,show:types.length>1},
-      {id:'procs',cat:'Clinical',icon:'proc',name:'Safe Pair of Hands',tiers:[10,25,50],grades:[B,S,G],unit:'procedures',d:'Procedures logged',v:pr.length},
-      {id:'dops',cat:'Clinical',icon:'check',name:'Signed, Sealed, Delivered',tiers:[5,10,15],grades:[B,S,G],unit:'DOPS signed',d:'Signed DOPS only',v:dops,verified:true},
-      {id:'nine',cat:'Clinical',icon:'check',name:'The Whole Nine Yards',tiers:[1],grades:[G],unit:'every GIM DOPS signed',d:`All ${gd.total} GIM DOPS signed`,v:gd.total&&gd.met>=gd.total?1:0,show:gd.total>0,verified:true},
-      {id:'biopsy',cat:'Clinical',icon:'kidney',name:'Nephron Ninja',tiers:[5,10,25],grades:[B,S,G],unit:'kidney biopsies',d:'Native and transplant kidney biopsies logged',v:cnt(RE.bx),show:has(RE.bx)},
-      {id:'tline',cat:'Clinical',icon:'line',name:'Line Slinger',tiers:[5,10,25],grades:[B,S,G],unit:'temporary HD lines',d:'Temporary dialysis catheters logged, femoral or jugular',v:cnt(RE.temp),show:has(RE.temp)},
-      {id:'tunnel',cat:'Clinical',icon:'tunnel',name:'Tunnel Vision',tiers:[5,10],grades:[B,S],unit:'tunnelled catheters',d:'Tunnelled dialysis catheters inserted',v:cnt(RE.tunnel),show:has(RE.tunnel)},
-      {id:'pull',cat:'Clinical',icon:'ul',name:'Pulling Power',tiers:[5,10,25],grades:[B,S,G],unit:'tunnelled line removals',d:'Tunnelled lines removed',v:cnt(RE.pull),show:has(RE.pull)},
-      {id:'taps',cat:'Clinical',icon:'drop',name:'Tap Dancer',tiers:[5,10,20],grades:[B,S,G],unit:'taps and drains',d:'Pleural taps, ascitic taps, paracentesis and chest drains',v:cnt(RE.tap)},
-      {id:'shock',cat:'Clinical',icon:'bolt',name:'Shock to the System',tiers:[1],grades:[B],unit:'DC cardioversion',d:'Your first DC cardioversion',v:cnt(RE.dc)},
-      {id:'lp',cat:'Clinical',icon:'spine',name:'Spinal Tap',tiers:[3,5],grades:[B,S],unit:'lumbar punctures',d:'Lumbar punctures logged',v:cnt(RE.lp)},
+      {id:'house',cat:'Clinical',icon:'list',name:'Full House',tiers:[5],grades:[S],unit:`${sp.short} clinic types`,d:`5 different ${sp.short} clinic types`,v:ctypes},
+      {id:'tline',cat:'Clinical',icon:'line',name:'Safe Pair of Hands',tiers:[10,25,50],grades:[B,S,G],unit:'temporary HD lines',d:'Temporary dialysis lines logged, femoral or jugular',v:cnt(RE.temp),show:has(RE.temp)},
+      {id:'biopsy',cat:'Clinical',icon:'kidney',name:'Nephron Ninja',tiers:[5,15,30],grades:[B,S,G],unit:'kidney biopsies',d:'Native and transplant kidney biopsies logged',v:cnt(RE.bx),show:has(RE.bx)},
       {id:'take',cat:'Clinical',icon:'pulse',name:'Take That',tiers:[500,750],grades:[S,G],unit:'acute patients',d:'Acute GIM patients, from your take log. 750 is the GIM target',v:bdSum(bdOwn('acute'),'estimated')},
       {id:'ward',cat:'Clinical',icon:'bed',name:'Holding the Fort',tiers:[6,12],grades:[S,G],unit:'months of ward cover',d:'Months of IM ward cover. 12 is the GIM target',v:bdSum(bdOwn('ward'),'months')},
       {id:'teach',cat:'Teaching',icon:'board',name:'See One, Do One, Teach One',tiers:[1,10,25],grades:[B,S,G],unit:'sessions taught',d:'Teaching sessions you gave',v:te.length},
-      {id:'heard',cat:'Teaching',icon:'qr',name:'The Verdict Is In',tiers:[1,5,10],grades:[B,S,G],unit:'sessions with feedback',d:'Sessions with feedback collected through Outcome1',v:te.filter(e=>Number(e.feedbackCount)>0).length,verified:true},
-      {id:'loop',cat:'Teaching',icon:'reset',name:'Full Circle',tiers:[3,10],grades:[B,S],unit:'feedback uploaded',d:'Sessions marked “Feedback uploaded: Yes”',v:te.filter(e=>e.feedbackUploaded==='Yes').length},
+      {id:'heard',cat:'Teaching',icon:'qr',name:'Heard Back',tiers:[1,5,10],grades:[B,S,G],unit:'sessions with feedback',d:'Sessions with feedback collected in Outcome1 or marked as uploaded',v:te.filter(e=>Number(e.feedbackCount)>0 || e.feedbackUploaded==='Yes').length},
       {id:'cpd',cat:'Learning',icon:'book',name:'Hitting the Books',tiers:[50,100,250],grades:[B,S,G],unit:'CPD hours',d:'All CPD hours',v:bdSum(cpd,'hours')},
       {id:'ext',cat:'Learning',icon:'flag',name:'Away Days',tiers:[50,100],grades:[S,G],unit:'GIM external hours',d:'External GIM CPD hours. 100 is the GIM target',v:ext},
-      {id:'conf',cat:'Learning',icon:'mic',name:'On the Circuit',tiers:[3],grades:[S],unit:'conferences',d:'Conferences logged as CPD',v:cpd.filter(e=>/conference|congress/i.test(`${e.type||''} ${e.title||''}`)).length},
       {id:'sim',cat:'Learning',icon:'pulse',name:'Dress Rehearsal',tiers:[4,12],grades:[B,S],unit:'simulation hours',d:'Simulation hours. 12 is the GIM target',v:bdSum(sim,'hours')},
-      {id:'notes',cat:'Learning',icon:'file',name:'Food for Thought',tiers:[5,15],grades:[B,S],unit:'CPD with learning points',d:'CPD entries with 20 or more words of key learning points',v:cpd.filter(e=>words(e.learning)>=20).length},
+      {id:'notes',cat:'Learning',icon:'file',name:'Food for Thought',tiers:[10,30,50],grades:[B,S,G],unit:'CPD with learning points',d:'CPD entries with 20 or more words of key learning points',v:cpd.filter(e=>words(e.learning)>=20).length},
       {id:'ready',cat:'Portfolio',icon:'flag',name:'Ducks in a Row',tiers:[1],grades:[S],unit:'ARCP list complete',d:'Every item on your ARCP list ticked before the panel',v:n(mo.ready)},
-      {id:'early',cat:'Portfolio',icon:'sun',name:'The Early Bird',tiers:[1],grades:[G],unit:'ready early',d:'ARCP list complete at least 4 weeks before your portfolio locks',v:n(mo.early)},
+      {id:'hat',cat:'Portfolio',icon:'star',name:'Hat-Trick',tiers:[3],grades:[G],unit:'Outcome 1s',d:'Outcome 1 at three ARCPs',v:outs.filter(o=>o==='1').length},
       {id:'exam',cat:'Portfolio',icon:'grad',name:'Flying Colours',tiers:[1],grades:[G],unit:`${examShort()} passed`,d:`${examShort()} ticked as passed`,v:sce&&tick('spec_sce',sce)?1:0,show:!!sce},
       {id:'qip',cat:'Portfolio',icon:'chart',name:'Quality Street',tiers:[1],grades:[S],unit:'QIP + QIPAT',d:'A QIP + QIPAT requirement ticked',v:(qips.some(([id,r])=>tick(id,r)) || (GIM_REQS.gim_qip && tick('gim_qip',GIM_REQS.gim_qip)))?1:0},
-      {id:'survey',cat:'Portfolio',icon:'chat',name:'Bedside Manner',tiers:surveys.length>1?[1,surveys.length]:[1],grades:surveys.length>1?[B,S]:[B],unit:'patient surveys',d:'Patient surveys ticked as done',v:svDone},
+      {id:'survey',cat:'Portfolio',icon:'chat',name:'Bedside Manner',tiers:svMax>1?[1,2]:[1],grades:svMax>1?[S,G]:[S],unit:'patient surveys',d:'Patient surveys ticked as done',v:svDone,show:svMax>0},
       {id:'steady',cat:'Portfolio',icon:'cal',name:'Slow and Steady',tiers:[6,12,24],grades:[B,S,G],unit:'active months',d:'Months with something logged. They don’t need to be in a row',v:months.size},
-      {id:'clean',cat:'Portfolio',icon:'star',name:'Clean Sheet',tiers:[1],grades:[G],unit:'Outcome 1 every time',d:'Outcome 1 at every ARCP so far, with at least two',v:outs.length>=2 && outs.every(o=>o==='1'||o==='6')?1:0},
-      {id:'half',cat:'Portfolio',icon:'road',name:'Halfway House',tiers:[1],grades:[S],unit:'halfway to CCT',d:'Halfway between your training start and CCT date, from the CCT calculator',v:half},
-      {id:'als',cat:'Portfolio',icon:'heart',name:'Staying Alive',tiers:[1],grades:[B],unit:'ALS in date',d:'Your ALS certificate is in date',v:als&&!isNaN(als)&&als>=today0()?1:0},
-      {id:'arch',cat:'Portfolio',icon:'ul',name:'Blast from the Past',tiers:[1],grades:[B],unit:'old logbook brought in',d:'An old logbook imported',v:[...BD_KINDS,'acute','ward'].some(k=>(state.logbook?.[k]||[]).some(e=>e&&e.src==='import'))?1:0,noPlat:true},
-      {id:'cct',cat:'Portfolio',icon:'grad',name:'Fully Fledged',tiers:[1],grades:[G],unit:'CCT',d:'Outcome 6: training complete',v:outs.includes('6')?1:0},
+      {id:'cct',cat:'Portfolio',icon:'road',name:'Finish Line',tiers:[1],grades:[G],unit:'CCT',d:'Outcome 6: recommended for CCT',v:outs.includes('6')?1:0},
       {id:'h_first',cat:'Hidden',hidden:true,icon:'spark',name:'Off the Mark',tiers:[1],grades:[B],unit:'first entry',d:'Your first logbook entry',v:BD_KINDS.some(k=>bdOwn(k).length)?1:0},
       {id:'h_same',cat:'Hidden',hidden:true,icon:'check',name:'No Time Like the Present',tiers:[10],grades:[B],unit:'logged on the day',d:'10 entries logged on the day they happened',v:BD_KINDS.reduce((a,k)=>a+bdOwn(k).filter(e=>e.date && e.createdAt && bdDay(e.createdAt)===String(e.date).slice(0,10)).length,0)},
-      {id:'h_tour',cat:'Hidden',hidden:true,icon:'road',name:'Have Stethoscope, Will Travel',tiers:[3],grades:[S],unit:'hospitals',d:'Entries at 3 different hospitals',v:new Set(placed.map(e=>String(e.hospital||'').trim()).filter(Boolean)).size},
+      {id:'h_tour',cat:'Hidden',hidden:true,icon:'compass',name:'Grand Tour',tiers:[3],grades:[S],unit:'hospitals',d:'Entries at 3 different hospitals',v:new Set(placed.map(e=>String(e.hospital||'').trim()).filter(Boolean)).size},
       {id:'h_set',cat:'Hidden',hidden:true,icon:'list',name:'Jack of All Trades',tiers:[5],grades:[B],unit:'kinds of entry',d:'A clinic, procedure, CPD, teaching session and simulation, all logged',v:BD_KINDS.filter(k=>bdOwn(k).length).length},
       {id:'h_sweep',cat:'Hidden',hidden:true,icon:'flag',name:'Clean Sweep',tiers:[1],grades:[G],unit:'all met',d:`Every ${sp.short} and GIM requirement met at the same time`,v:mo.sweep?1:0},
       {id:'h_room',cat:'Hidden',hidden:true,icon:'board',name:'Standing Room Only',tiers:[20],grades:[S],unit:'responses',d:'20 or more feedback responses on one teaching session',v:Math.max(0,...te.map(e=>Number(e.feedbackCount)||0))}
     ].filter(b=>b.show!==false);
   }
-  // Platinum: every other trophy at its top grade (hidden ones and an imported logbook aside)
+  // Platinum: every other trophy at its top grade (hidden ones aside)
   function bdPlat(list){
     const pool=(list||badgeList()).filter(b=>!b.hidden && !b.noPlat), done=pool.filter(b=>bdLvl(b)>=b.tiers.length).length;
     return {id:'plat', name:'Consultant Material', d:'Every other trophy, at its top grade', v:done, total:pool.length, L:pool.length&&done>=pool.length?1:0};
@@ -11047,7 +11087,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const b=list.find(x=>x.id===id); if(!b) return;
     const i=list.indexOf(b), L=bdLvl(b);
     if(b.hidden && !L){ suSheet({ title:'Hidden trophy', sub:'It shows itself when you earn it.', body:`<div class="w-bd-big">${bdStamp(b,i,true)}</div>`, actions:[] }); return; }
-    const mo=bdState().moments||{}, when={ready:mo.ready, early:mo.early}[b.id], sweep=b.id==='h_sweep'&&mo.sweep;
+    const mo=bdState().moments||{}, when=b.id==='ready'&&mo.ready, sweep=b.id==='h_sweep'&&mo.sweep;
     const dates=when?Object.values(when).sort():sweep?[mo.sweep]:[];
     const rows = b.tiers.length>1
       ? b.tiers.map((t,k)=>`<div class="w-ent-r"><span><i class="w-bd-dot gr-${b.grades[k]}"></i>${GRADE[b.grades[k]]} · ${t} ${safe(b.unit)}</span><b class="${b.v>=t?'ok':''}">${b.v>=t?'Earned':`${bdNum(t-b.v)} to go`}</b></div>`).join('')
@@ -11060,12 +11100,16 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     else state.badges.off=true;
     saveState(); render();
   };
-  function bdToast(msg){
-    if(document.querySelector('.w-toast,.w-ask')){ setTimeout(()=>bdToast(msg),1500); return; }   // never on top of another message or an open sheet
+  // still earned? (a held-back message is dropped if an edit or delete has taken the trophy back meanwhile)
+  const bdHas=(id,L)=>{ if(id==='plat') return !!bdPlat().L; const x=badgeList().find(y=>y.id===id); return !!x && bdLvl(x)>=(L||1); };
+  function bdToast(msg, still){
+    if(still && !still()) return;
+    if(document.querySelector('.w-toast,.w-ask')){ setTimeout(()=>bdToast(msg,still),1500); return; }   // never on top of another message or an open sheet
     const t=document.createElement('div'); t.className='w-toast w-bd-toast'; t.setAttribute('role','status'); t.innerHTML=`${I('medal',18)}<span>${safe(msg)}</span>`;
     document.body.appendChild(t); setTimeout(()=>t.classList.add('out'),2600); setTimeout(()=>t.remove(),3100);
   }
   function bdReveal(b){
+    if(!bdHas(b.id)) return;
     if(document.querySelector('.w-toast')){ setTimeout(()=>bdReveal(b),800); return; }   // let any message finish first
     const list=badgeList(), i=Math.max(0,list.findIndex(x=>x.id===b.id));
     const stamp=b.plat?`<span class="w-bd-st on gr-p" style="--gc:#DCEFF3;--rot:-4deg">${I('medal',40)}<span class="w-bd-gr">Platinum</span></span>`:bdStamp({...b,v:Math.max(b.v,b.tiers[0])},i,true);
@@ -11081,10 +11125,13 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     if(document.querySelector('#gate.show,#auth-gate.show,#beta-expired-lock.show')){ clearTimeout(bdT); bdT=setTimeout(bdCheck,2500); return; }   // try again once signed in
     const b=state.badges=state.badges||{}; let dirty=false;
     const mo=b.moments=b.moments||{}, today=bdDay(Date.now());
-    try{ if(arcpReadyHome()){ mo.ready=mo.ready||{}; if(!mo.ready[currentYear]){ mo.ready[currentYear]=today; dirty=true; }
-      if(panelInfo().lockDays>=28){ mo.early=mo.early||{}; if(!mo.early[currentYear]){ mo.early[currentYear]=today; dirty=true; } } } }catch(e){}
-    try{ if(!mo.sweep){ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats());
-      if(s.total && g.total && s.pct>=100 && g.pct>=100){ mo.sweep=today; dirty=true; } } }catch(e){}
+    // ARCP list ready: noted the day it's complete, and taken back if an edit undoes it before the panel
+    try{ if(arcpReadyHome()){ mo.ready=mo.ready||{}; if(!mo.ready[currentYear]){ mo.ready[currentYear]=today; dirty=true; } }
+      else if(mo.ready?.[currentYear] && !yearLocked() && panelInfo().days>=0){ delete mo.ready[currentYear]; dirty=true; } }catch(e){}
+    // Clean sweep: the same, while the year it was earned in is still open
+    try{ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats()), all=s.total && g.total && s.pct>=100 && g.pct>=100;
+      if(!mo.sweep && all){ mo.sweep=today; mo.sweepYr=currentYear; dirty=true; }
+      else if(mo.sweep && !all && mo.sweepYr===currentYear && !yearLocked()){ delete mo.sweep; delete mo.sweepYr; dirty=true; } }catch(e){}
     const list=badgeList(), lv=Object.fromEntries(list.map(x=>[x.id,bdLvl(x)])), pl=bdPlat(list); lv.plat=pl.L;
     if(!b.seen){ b.seen=lv; saveState(); return; }   // first time: what's already earned is simply there in the cabinet
     list.forEach(x=>{ if(lv[x.id]<(b.seen[x.id]||0)){ b.seen[x.id]=lv[x.id]; dirty=true; } });
@@ -11093,7 +11140,8 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const fresh=list.filter(x=>lv[x.id]>(b.seen[x.id]||0)), vis=fresh.filter(x=>!x.hidden), hid=fresh.filter(x=>x.hidden);
     if(vis.length){
       vis.forEach(x=>{ b.seen[x.id]=lv[x.id]; }); dirty=true;
-      const x=vis[0]; bdToast(vis.length>1 ? `${vis.length} trophies earned` : `${GRADE[x.grades[lv[x.id]-1]]}: ${x.name}`);
+      const x=vis[0], got=vis.map(v=>[v.id,lv[v.id]]);
+      bdToast(vis.length>1 ? `${vis.length} trophies earned` : `${GRADE[x.grades[lv[x.id]-1]]}: ${x.name}`, ()=>got.some(([id,L])=>bdHas(id,L)));
     }
     // Hidden ones get their moment, but never over setup, another sheet or a celebration: they wait for a clear screen
     const setupBusy=state.setup && !state.setup.completedAt && !state.setup.dismissed;
@@ -11106,11 +11154,57 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   const __renderBd=window.render;
   window.render=function(){ const r=__renderBd.apply(this,arguments); clearTimeout(bdT); bdT=setTimeout(()=>{ try{ bdCheck(); }catch(e){ console.warn('[Outcome1] badges', e); } },700); return r; };
 
+  // ═══ Portfolio lock heads-up ═══
+  // Once each at two weeks, one week and one day before the portfolio locks (whichever is reached first, if the app
+  // wasn't opened in between): what's still open, the ARCP list, and a calendar file so the phone reminds you too.
+  // Noted against the year and its lock date, so moving the panel date brings them back.
+  let lnT=null;
+  function lockNudge(){
+    if(!state.profile || currentTab!=='home') return;
+    if(document.querySelector('#gate.show,#auth-gate.show,#beta-expired-lock.show')){ clearTimeout(lnT); lnT=setTimeout(lockNudge,2500); return; }   // try again once signed in
+    const p=panelInfo(); if(!lockAlarm(p)) return;
+    const stage=p.lockDays<=1?1:p.lockDays<=7?7:14, key=`${currentYear}:${arcpIso(p.lock)}`;
+    const ln=state.lockNudge&&state.lockNudge.key===key?state.lockNudge:{key,done:[]};
+    if((ln.done||[]).includes(stage)) return;
+    if(state.setup && !state.setup.completedAt && !state.setup.dismissed) return;
+    if(document.querySelector('.w-ask,#w-cele,#w-welcome,#wrapped-overlay.show,#fb-modal,#print-style-modal,#cpd-edit-modal,.w-cont,.w-toast')){ clearTimeout(lnT); lnT=setTimeout(lockNudge,2500); return; }
+    state.lockNudge={key, done:[...new Set([...(ln.done||[]), ...[14,7,1].filter(x=>x>=stage)])]}; saveState();
+    wLockSheet();
+  }
+  window.wLockSheet=function(){
+    const p=panelInfo(), n=p.lockDays, open=homeOpen();
+    const title=n<=0?'Your portfolio locks today':n===1?'Your portfolio locks tomorrow':n===7?'One week until your portfolio locks':n===14?'Two weeks until your portfolio locks':`${n} days until your portfolio locks`;
+    const rows=open.slice(0,4).map(o=>`<div class="w-ent-r"><span>${safe(o.label)}</span><b>${safe(o.val)}</b></div>`).join('')+(open.length>4?`<div class="w-ent-r"><span>and ${open.length-4} more</span><b></b></div>`:'');
+    const w=suSheet({ kicker:`${I('lock',13)}Locks ${safe(p.lock.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}))}`, title,
+      sub:open.length?'':`Everything due in ${safe(currentYear)} is met.`, body:open.length?`<div class="w-ent">${rows}</div>`:'',
+      actions:[ { label:'Open ARCP list', primary:true, on:()=>{ setTimeout(()=>wArcpList(),0); } },
+                { label:'Add lock date to calendar', on:()=>{ wLockIcs(); return false; } } ]});
+    w.classList.add('w-lk');
+  };
+  // An all-day event on the lock date, with reminders at 9am a week before, the day before and on the day
+  window.wLockIcs=function(){
+    const p=panelInfo(), d=p.lock, nx=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+    const ymd=x=>`${x.getFullYear()}${String(x.getMonth()+1).padStart(2,'0')}${String(x.getDate()).padStart(2,'0')}`;
+    const al=(t,txt)=>['BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${txt}`,`TRIGGER:${t}`,'END:VALARM'];
+    const pd=p.panel.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Outcome1//Portfolio lock//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+      `UID:outcome1-lock-${currentYear}-${ymd(d)}@outcome1.uk`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}`,
+      `DTSTART;VALUE=DATE:${ymd(d)}`,`DTEND;VALUE=DATE:${ymd(nx)}`,`SUMMARY:Portfolio locks (${currentYear} ARCP)`,
+      `DESCRIPTION:Your ePortfolio locks for your ARCP panel on ${pd}.`,'URL:https://www.outcome1.uk','TRANSP:TRANSPARENT',
+      ...al('-P6DT15H','Portfolio locks in a week'), ...al('-PT15H','Portfolio locks tomorrow'), ...al('PT9H','Portfolio locks today'),
+      'END:VEVENT','END:VCALENDAR'].join('\r\n')+'\r\n';
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'})); a.download=`Portfolio lock ${currentYear}.ics`;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+    wToast('Open the file to add it to your calendar');
+  };
+  const __renderLn=window.render;
+  window.render=function(){ const r=__renderLn.apply(this,arguments); clearTimeout(lnT); lnT=setTimeout(()=>{ try{ lockNudge(); }catch(e){ console.warn('[Outcome1] lock heads-up', e); } },1200); return r; };
+
   // ═══ Section pages: Renal clinics, GIM procedures, Renal CPD … ═══
   // The Clinic / Procedure / CPD buttons on the Renal and GIM screens open a page for that kind of entry
   // (totals, a breakdown by type, its badges and this year's entries) with Add at the top, instead of going
   // straight to the form. The Renal and GIM screens show their own badges where “Add evidence” was.
-  const BD_SEC={ spec:['house','biopsy','tline','tunnel','pull','dops','survey','exam'], gim:['take','ward','ext','taps','shock','lp','nine','dops','qip'] };
+  const BD_SEC={ spec:['house','tline','biopsy','survey','exam'], gim:['take','ward','ext','sim','qip'] };
   function bdFor(key){ const ids=BD_SEC[key]||[], list=badgeList(); return ids.map(id=>list.find(b=>b.id===id)).filter(Boolean); }
   function bdGrid(bs){ const all=badgeList(); return `<div class="w-bd-grid">${bs.map(b=>bdTile(b, all.findIndex(x=>x.id===b.id))).join('')}</div>`; }
   // the pocket tab on Renal / GIM: this section's badges, or Add evidence if badges are off
