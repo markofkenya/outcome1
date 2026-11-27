@@ -11153,18 +11153,29 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   // After each render: note any dated moments, then announce new levels. Badges lost by deleting entries
   // are noted quietly, so earning them again is celebrated again.
   let bdT=null;
+  // The two dated moments, brought up to date just before every render, so the cabinet never shows one that an
+  // edit or an unticked requirement has since undone.
+  //  · ARCP list ready: noted the day it's complete; taken back if it stops being complete before the panel.
+  //  · Clean sweep: noted the day every requirement is met; taken back if that stops being true while the year
+  //    it was earned in is still open (checked against that year, whichever year is on screen).
+  function bdMoments(){
+    if(!state.profile || !bdOn()) return;
+    const b=state.badges=state.badges||{}, mo=b.moments=b.moments||{}, today=bdDay(Date.now()); let dirty=false;
+    try{ if(arcpReadyHome()){ mo.ready=mo.ready||{}; if(!mo.ready[currentYear]){ mo.ready[currentYear]=today; dirty=true; } }
+      else if(mo.ready?.[currentYear] && !yearLocked() && panelInfo().days>=0){ delete mo.ready[currentYear]; dirty=true; } }catch(e){}
+    try{
+      const allMet=()=>{ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats()); return !!(s.total && g.total && s.pct>=100 && g.pct>=100); };
+      if(mo.sweep && !mo.sweepYr){ mo.sweepYr=impYearFor(String(mo.sweep).slice(0,10)); dirty=true; }   // earned before the year was noted
+      if(mo.sweep){ const y=mo.sweepYr; if(!yearLocked(y) && !withYear(y,allMet)){ delete mo.sweep; delete mo.sweepYr; dirty=true; } }
+      else if(allMet()){ mo.sweep=today; mo.sweepYr=currentYear; dirty=true; }
+    }catch(e){ console.warn('[Outcome1] clean sweep', e); }
+    if(dirty) saveState();
+  }
   function bdCheck(){
     if(!bdOn()) return;
     if(document.querySelector('#gate.show,#auth-gate.show,#beta-expired-lock.show')){ clearTimeout(bdT); bdT=setTimeout(bdCheck,2500); return; }   // try again once signed in
+    bdMoments();
     const b=state.badges=state.badges||{}; let dirty=false;
-    const mo=b.moments=b.moments||{}, today=bdDay(Date.now());
-    // ARCP list ready: noted the day it's complete, and taken back if an edit undoes it before the panel
-    try{ if(arcpReadyHome()){ mo.ready=mo.ready||{}; if(!mo.ready[currentYear]){ mo.ready[currentYear]=today; dirty=true; } }
-      else if(mo.ready?.[currentYear] && !yearLocked() && panelInfo().days>=0){ delete mo.ready[currentYear]; dirty=true; } }catch(e){}
-    // Clean sweep: the same, while the year it was earned in is still open
-    try{ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats()), all=s.total && g.total && s.pct>=100 && g.pct>=100;
-      if(!mo.sweep && all){ mo.sweep=today; mo.sweepYr=currentYear; dirty=true; }
-      else if(mo.sweep && !all && mo.sweepYr===currentYear && !yearLocked()){ delete mo.sweep; delete mo.sweepYr; dirty=true; } }catch(e){}
     const list=badgeList(), lv=Object.fromEntries(list.map(x=>[x.id,bdLvl(x)])), pl=bdPlat(list); lv.plat=pl.L;
     if(!b.seen){ b.seen=lv; saveState(); return; }   // first time: what's already earned is simply there in the cabinet
     list.forEach(x=>{ if(lv[x.id]<(b.seen[x.id]||0)){ b.seen[x.id]=lv[x.id]; dirty=true; } });
@@ -11185,7 +11196,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   }
   window.wBadgeCheck=bdCheck;
   const __renderBd=window.render;
-  window.render=function(){ const r=__renderBd.apply(this,arguments); clearTimeout(bdT); bdT=setTimeout(()=>{ try{ bdCheck(); }catch(e){ console.warn('[Outcome1] badges', e); } },700); return r; };
+  window.render=function(){ try{ bdMoments(); }catch(e){} const r=__renderBd.apply(this,arguments); clearTimeout(bdT); bdT=setTimeout(()=>{ try{ bdCheck(); }catch(e){ console.warn('[Outcome1] badges', e); } },700); return r; };
 
   // ═══ Portfolio lock heads-up ═══
   // Once each at two weeks, one week and one day before the portfolio locks (whichever is reached first, if the app
