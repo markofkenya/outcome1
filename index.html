@@ -3627,6 +3627,36 @@ function firthUnzipStored(bytes){
   }
   return out;
 }
+// Second sheet: GIM ward cover, in the template's own styles. WTE comes from the acute take placement it overlaps
+// (as set in the Firth calculator), otherwise 1; it can be changed in Excel and the WTE months follow.
+function firthAddWardSheet(files, acuteRows, { cs, cn, dmy, xe }){
+  const ward=entries('ward').slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  const wteFor=w=>{ const hit=acuteRows.find(r=>(!w.end||!r.start||r.start<=w.end) && (!r.end||!w.start||r.end>=w.start)); return hit?hit.wte:1; };
+  const n=Math.max(10, ward.length), last=2+n, tot=last+1;
+  const hd=(ref,t,st)=>`<c r="${ref}" s="${st||12}" t="inlineStr"><is><t>${xe(t)}</t></is></c>`;
+  const note=(r,t)=>`<row r="${r}" ht="15" customHeight="1" s="14"><c r="A${r}" s="9" t="inlineStr"><is><t xml:space="preserve">${xe(t)}</t></is></c></row>`;
+  let rowsXml='';
+  for(let i=0;i<n;i++){
+    const r=i+3, w=ward[i];
+    const months=w?(w.months!=null&&w.months!==''?Number(w.months):monthsBetween(w.start,w.end)):'';
+    rowsXml+=`<row r="${r}" ht="15" customHeight="1" s="14">${cs('A'+r,w?w.hospital||'':'')}${cs('B'+r,w?dmy(w.start):'')}${cs('C'+r,w?dmy(w.end):'')}${cn('D'+r,months)}${cn('E'+r,w?wteFor(w):'')}<c r="F${r}" s="16"><f>IF(AND(ISNUMBER(D${r}),ISNUMBER(E${r})),ROUND(D${r}*E${r},1),"")</f></c>${cs('G'+r,w?w.supervisor||'':'')}</row>`;
+  }
+  const xml=`<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr filterMode="0"><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:G${tot+3}"/><sheetViews><sheetView workbookViewId="0"><selection pane="topLeft" activeCell="A1" sqref="A1"/></sheetView></sheetViews><sheetFormatPr baseColWidth="8" defaultColWidth="8.96484375" defaultRowHeight="15"/>`
+    +`<cols><col width="29.71" customWidth="1" style="9" min="1" max="1"/><col width="12.42" customWidth="1" style="9" min="2" max="3"/><col width="11.28" customWidth="1" style="9" min="4" max="4"/><col width="11.85" customWidth="1" style="9" min="5" max="5"/><col width="19.7" customWidth="1" style="9" min="6" max="6"/><col width="23.56" customWidth="1" style="9" min="7" max="7"/></cols><sheetData>`
+    +`<row r="1" ht="15" customFormat="1" customHeight="1" s="10"><c r="A1" s="10" t="inlineStr"><is><t>Summary of GIM ward cover (continuing ward care of acute medical patients)</t></is></c></row>`
+    +`<row r="2" ht="60" customFormat="1" customHeight="1" s="10">${hd('A2','Hospital name')}${hd('B2','Start Date (DD/MM/YY)')}${hd('C2','End Date (DD/MM/YY)')}${hd('D2','Months in post')}${hd('E2','WTE (1)')}${hd('F2','WTE months of ward cover',13)}${hd('G2','Name of educational supervisor who can verify')}</row>`
+    +rowsXml
+    +`<row r="${tot}" ht="15" customHeight="1" s="14"><c r="C${tot}" s="11" t="inlineStr"><is><t>Total</t></is></c><c r="D${tot}" s="16"><f>SUM(D3:D${last})</f></c><c r="E${tot}" s="15"/><c r="F${tot}" s="16"><f>SUM(F3:F${last})</f></c></row>`
+    +note(tot+1,'Note - 12 months of GIM ward cover required by CCT.')
+    +note(tot+2,'Note - (1) Whole time equivalent: 1 if full time, 0.8 if working 80% LTFT. WTE months = months in post × WTE.')
+    +`</sheetData><printOptions gridLines="0"/><pageMargins left="0.708333333333333" right="0.708333333333333" top="0.747916666666667" bottom="0.747916666666667" header="0.511811023622047" footer="0.511811023622047"/><pageSetup orientation="landscape" paperSize="9" fitToHeight="1" fitToWidth="1"/></worksheet>`;
+  files['xl/worksheets/sheet2.xml']=xml;
+  files['xl/workbook.xml']=files['xl/workbook.xml']
+    .replace('</sheets>','<sheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" name="Ward cover" sheetId="2" state="visible" r:id="rId4"/></sheets>')
+    .replace('</definedNames>',`<definedName name="_xlnm.Print_Area" localSheetId="1">'Ward cover'!$A$1:$G$${tot+2}</definedName></definedNames>`);
+  files['xl/_rels/workbook.xml.rels']=files['xl/_rels/workbook.xml.rels'].replace('</Relationships>','<Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="/xl/worksheets/sheet2.xml" Id="rId4"/></Relationships>');
+  files['[Content_Types].xml']=files['[Content_Types].xml'].replace('</Types>','<Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
+}
 function downloadFirthXlsx(){
   try{
     const bin=atob(FIRTH_TEMPLATE_B64), bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
@@ -3646,6 +3676,7 @@ function downloadFirthXlsx(){
       if(rowXml) sheet=sheet.replace(new RegExp('<row r="'+r+'"[^>]*>[\\s\\S]*?</row>'), rowXml);
     }
     files['xl/worksheets/sheet1.xml']=sheet;
+    firthAddWardSheet(files, rows, { cs, cn, dmy, xe });
     const zip=makeZip(files);
     const blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Firth Calculator.xlsx'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
@@ -11025,7 +11056,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       {id:'steady',cat:'Portfolio',icon:'cal',name:'Slow and Steady',tiers:[6,12,24],grades:[B,S,G],unit:'active months',d:'Months with something logged. They don’t need to be in a row',v:months.size},
       {id:'cct',cat:'Portfolio',icon:'road',name:'Finish Line',tiers:[1],grades:[G],unit:'CCT',d:'Outcome 6: recommended for CCT',v:outs.includes('6')?1:0},
       {id:'h_first',cat:'Hidden',hidden:true,icon:'spark',name:'Off the Mark',tiers:[1],grades:[B],unit:'first entry',d:'Your first logbook entry',v:BD_KINDS.some(k=>bdOwn(k).length)?1:0},
-      {id:'h_same',cat:'Hidden',hidden:true,icon:'check',name:'No Time Like the Present',tiers:[10],grades:[B],unit:'logged on the day',d:'10 entries logged on the day they happened',v:BD_KINDS.reduce((a,k)=>a+bdOwn(k).filter(e=>e.date && e.createdAt && bdDay(e.createdAt)===String(e.date).slice(0,10)).length,0)},
+      {id:'h_same',cat:'Hidden',hidden:true,icon:'check',name:'No Time Like the Present',tiers:[50],grades:[B],unit:'logged on the day',d:'50 entries logged on the day they happened',v:BD_KINDS.reduce((a,k)=>a+bdOwn(k).filter(e=>e.date && e.createdAt && bdDay(e.createdAt)===String(e.date).slice(0,10)).length,0)},
       {id:'h_tour',cat:'Hidden',hidden:true,icon:'compass',name:'Grand Tour',tiers:[3],grades:[S],unit:'hospitals',d:'Entries at 3 different hospitals',v:new Set(placed.map(e=>String(e.hospital||'').trim()).filter(Boolean)).size},
       {id:'h_set',cat:'Hidden',hidden:true,icon:'list',name:'Jack of All Trades',tiers:[5],grades:[B],unit:'kinds of entry',d:'A clinic, procedure, CPD, teaching session and simulation, all logged',v:BD_KINDS.filter(k=>bdOwn(k).length).length},
       {id:'h_sweep',cat:'Hidden',hidden:true,icon:'flag',name:'Clean Sweep',tiers:[1],grades:[G],unit:'all met',d:`Every ${sp.short} and GIM requirement met at the same time`,v:mo.sweep?1:0},
