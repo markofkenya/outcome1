@@ -7426,13 +7426,15 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const clinicRow=e=>[e.date,yrOf(e),txt(e.type),txt(e.hospital),txt(e.supervisor),xlNum(e.patients),txt(e.notes)];
     const cpdCols=[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'CPD type',w:20,kind:'text',total:'count'},{h:'Internal or external',w:11,kind:'code'},{h:'Title',w:28,kind:'text'},{h:'Provider',w:14,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Key learning',w:38,kind:'long'},{h:'Reflection',w:38,kind:'long'},{h:'Notes',w:20,kind:'long'},{h:'Certificate',w:13,kind:'text'}];
     const cpdRow=e=>[e.date,yrOf(e),txt(e.type),cpdIsExternal(e)?'External':'Internal',txt(e.title),txt(e.provider),xlNum(e.hours),txt(e.learning),txt(e.reflection),txt(e.notes),e.cert&&(e.cert.name||e.cert.url)?txt(e.cert.name||'Attached'):''];
+    // GIM CPD is measured the way the curriculum counts it: external hours, with online counting up to 15 (as in the GIM summary)
+    const gimExtM=['External hours (of 100)', a=>{ const on=H(a.filter(isOnline)); return r1(H(a.filter(e=>cpdIsExternal(e)&&!isOnline(e)))+Math.min(on,15)); }];
     const SHEETS=[
       [`${sp.short} clinics`,'clinics',spec,clinicCols,clinicRow],
       ['GIM clinics','clinics',gim,clinicCols,clinicRow],
       ['Procedures','procedures',any,[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Stream',w:9,kind:'code'},{h:'Procedure',w:32,kind:'text',total:'count'},{h:'Hospital',w:28,kind:'text'},{h:'Supervisor',w:20,kind:'text'},{h:'DOPS signed',w:11,kind:'code'},{h:'Notes',w:40,kind:'long'}],
         e=>[e.date,yrOf(e),stream(e),txt(normProcName(e.type)||e.type),txt(e.hospital),txt(e.supervisor),e.dops==='Yes'?'Yes':e.dops?String(e.dops):'',txt(e.notes)]],
       [`${sp.short} CPD`,'cpd',spec,cpdCols,cpdRow],
-      ['GIM CPD','cpd',gim,cpdCols,cpdRow],
+      ['GIM CPD','cpd',gim,cpdCols,cpdRow,gimExtM],
       ['Teaching','teaching',any,[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Type',w:24,kind:'text',total:'count'},{h:'Topic',w:32,kind:'text'},{h:'Audience',w:20,kind:'text'},{h:'Feedback uploaded',w:12,kind:'code'},{h:'Feedback responses',w:12,kind:'num',total:'sum'},{h:'Notes',w:40,kind:'long'}],
         e=>[e.date,yrOf(e),txt(e.type),txt(e.topic),txt(e.audience),txt(e.feedbackUploaded),xlNum(e.feedbackCount),txt(e.notes)]],
       ['Simulation','simulation',any,[{h:'Date',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Course',w:28,kind:'text',total:'count'},{h:'Title',w:30,kind:'text'},{h:'Hospital',w:26,kind:'text'},{h:'Hours',w:8,kind:'dec',total:'sum'},{h:'Notes',w:40,kind:'long'}],
@@ -7462,7 +7464,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     row([['Entries by type',sec]],20);
     row([['Type',hd],[`Entries ${cy}`,hdN],['Entries, all training',hdN],['Measure',hd],[cy,hdN],['All training',hdN]],34);
     const t0=r;
-    SHEETS.forEach((s,i)=>{ const [name,k]=s, all=E8(s), y=all.filter(inY(cy)), z=i%2===1; row([[name,cellS(z)],[y.length,numS(z)],[all.length,numS(z)],[M[k][0],cellS(z)],[M[k][1](y),numS(z)],[M[k][1](all),numS(z)]]); });
+    SHEETS.forEach((s,i)=>{ const [name,k]=s, m=s[5]||M[k], all=E8(s), y=all.filter(inY(cy)), z=i%2===1; row([[name,cellS(z)],[y.length,numS(z)],[all.length,numS(z)],[m[0],cellS(z)],[m[1](y),numS(z)],[m[1](all),numS(z)]]); });
     row([['Total',totL],[{f:`SUM(B${t0}:B${r-1})`,v:SHEETS.reduce((a,s)=>a+E8(s).filter(inY(cy)).length,0)},totN],[{f:`SUM(C${t0}:C${r-1})`,v:SHEETS.reduce((a,s)=>a+E8(s).length,0)},totN],['',totL],['',totL],['',totL]]);
     r++;
     const yrs=[...new Set([...YEARS, ...KINDS7.flatMap(k=>entries(k).map(yrOf))].filter(Boolean))].filter(y=>KINDS7.some(k=>entries(k).some(inY(y))));
@@ -7480,11 +7482,11 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const sumXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" tabSelected="1" zoomScale="110" zoomScaleNormal="110"/></sheetViews><sheetFormatPr defaultRowHeight="15"/>
-<cols><col min="1" max="1" width="22" customWidth="1"/><col min="2" max="3" width="14" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="10" width="15" customWidth="1"/></cols>
+<cols><col min="1" max="1" width="22" customWidth="1"/><col min="2" max="3" width="14" customWidth="1"/><col min="4" max="4" width="23" customWidth="1"/><col min="5" max="10" width="15" customWidth="1"/></cols>
 <sheetData>${sx}</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
 <headerFooter><oddFooter>&amp;L${XE(String(me).replace(/&/g,'&&'))} · Logbook summary&amp;RPage &amp;P of &amp;N</oddFooter></headerFooter></worksheet>`;
-    const built=SHEETS.map(([name,k,f,cols,map])=>{ const a=D(k).filter(f);
-      const extra=M[k]?` · ${M[k][0]}: ${M[k][1](a)}`:'';
+    const built=SHEETS.map(([name,k,f,cols,map,mm])=>{ const a=D(k).filter(f), m=mm||M[k];
+      const extra=m?` · ${m[0]}: ${m[1](a)}`:'';
       return [name, xlSheet(S,{ title:name, sub:`${me} · ${a.length} entr${a.length===1?'y':'ies'} across training${a.length?extra:''}`, cols, rows:a.map((e,i)=>map(e,4+i)), footer:`${me} · ${name}` })]; });
     const names=['Summary',...built.map(b=>b[0])], q=n=>`'${n.replace(/'/g,"''")}'`;
     const defs=built.flatMap(([name,s],i)=>[s.filter?`<definedName name="_xlnm._FilterDatabase" localSheetId="${i+1}" hidden="1">${q(name)}!${s.filter}</definedName>`:'', `<definedName name="_xlnm.Print_Titles" localSheetId="${i+1}">${q(name)}!${s.titles}</definedName>`]).join('');
