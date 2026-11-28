@@ -3,7 +3,7 @@
   "short_name": "Outcome1",
   "description": "ARCP portfolio tracker for physician trainees",
   "id": "./",
-  "start_url": "./",
+  "start_url": "app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F4F3EE",
