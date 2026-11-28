@@ -2221,7 +2221,8 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
       <div class="field"><label>Name</label><input id="on-name" class="input" placeholder="Dr John Smith"></div>
       <div class="field"><label>Training number (NTN / GMC)</label><input id="on-trainingNumber" class="input" placeholder="e.g. NTN GIM/1234 or GMC 7654321"></div>
       <div class="field"><label>Email</label><input id="on-email" class="input" type="email" placeholder="j.smith@nhs.net"></div>
-      <div class="field"><label>Specialty</label><select id="on-specialty" class="input"></select></div>
+      <div class="field"><label for="on-stage">Training</label><select id="on-stage" class="input"><option value="hst">Specialty training</option><option value="imt">Internal Medicine Training (IMT)</option></select></div>
+      <div class="field" id="on-specialty-wrap"><label>Specialty</label><select id="on-specialty" class="input"></select></div>
       <div class="field"><label>Training year started</label><div class="row" style="gap:8px"><select id="on-year-start-month" class="input" style="flex:1"><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="2">February</option><option value="4">April</option><option value="6">June</option></select><select id="on-year-start-year" class="input" style="flex:1"></select></div></div>
       <div class="field"><label>Training year</label><select id="on-year" class="input"><option>ST4</option><option>ST5</option><option>ST6</option><option>ST7</option></select></div>
       <div class="field"><label>Deanery / region</label><select id="on-deanery" class="input"></select></div>
@@ -2294,9 +2295,17 @@ const YEARS = [...YEARS_BASE];
 let __yearsKey = null;
 function specYears(key){ const c=SPECIALTIES[key]; return (c && c.years) || YEARS_BASE; }
 function finalYear(){ return YEARS[YEARS.length-1]; }
+// IMT has one IM stream: GIM's requirements and DOPS list are put aside while an IMT account is open
+const __gimParked={}; let __gimDopsParked=null;
+function isIMT(key){ return !!SPECIALTIES[key || state?.profile?.specialty]?.imt; }
+function syncStreams(imt){
+  if(imt){ Object.keys(GIM_REQS).forEach(k=>{ __gimParked[k]=GIM_REQS[k]; delete GIM_REQS[k]; }); if(GIM_DOPS_PROCEDURES.length) __gimDopsParked=GIM_DOPS_PROCEDURES.splice(0); }
+  else { Object.keys(__gimParked).forEach(k=>{ GIM_REQS[k]=__gimParked[k]; delete __gimParked[k]; }); if(__gimDopsParked){ GIM_DOPS_PROCEDURES.push(...__gimDopsParked); __gimDopsParked=null; } }
+}
 function syncYears(key){
   key = key || state?.profile?.specialty || 'renal';
   if(key===__yearsKey) return; __yearsKey=key;
+  syncStreams(isIMT(key));
   const want=specYears(key);
   if(!(want.length===YEARS.length && want.every((y,i)=>YEARS[i]===y))) YEARS.splice(0, YEARS.length, ...want);
   const fy=finalYear();
@@ -2347,7 +2356,7 @@ const SPECIALTIES = {
     years:["ST4","ST5","ST6","ST7","ST8"],
     dopsBy:{"Lumbar puncture":"ST4"},
     reqs:{
-      spec_mcrs:{label:"Neurology MCRs",type:"number",target:4,unit:"MCRs",deadline:"annual",note:"From consultants who supervised your clinical work. Your ES doesn't complete one"},
+      spec_mcrs:{label:"MCRs",type:"number",target:4,unit:"MCRs",deadline:"annual",note:"From consultants who supervised your clinical work. Your ES doesn't complete one"},
       spec_msf:{label:"MSF raters",type:"number",target:12,unit:"raters",deadline:"annual",note:"One MSF a year: at least 12 raters, including 3 consultants. It can cover IM and Stroke too"},
       spec_cex:{label:"Mini-CEX",type:"number",target:4,unit:"mini-CEX",deadline:"annual",note:"By consultants, broadening curriculum coverage each year"},
       spec_cbd:{label:"CbD",type:"number",target:4,unit:"CbDs",deadline:"annual",note:"By consultants, broadening curriculum coverage each year"},
@@ -2379,6 +2388,48 @@ const SPECIALTIES = {
       clinics:["General neurology clinic","Rapid access / hot clinic","First fit / seizure clinic","TIA / neurovascular clinic","Epilepsy clinic","Movement disorders clinic","MS / neuroinflammatory clinic","Headache / facial pain clinic","Neuromuscular / MND clinic","Cognitive / memory clinic","Other"],
       procedures:["Lumbar puncture","Botulinum toxin injection","Greater occipital nerve injection","Other"],
       cpd:["Neurology regional training day","ABN annual meeting","Neurology study day / course","Stroke study day / course","Grand round","M&M / mortality meeting","Departmental teaching / journal club","Other"]
+    }
+  },
+  // Internal Medicine Training stage 1 (2019 curriculum, JRCPTB IMT ARCP decision aid, April 2025): three years, one IM
+  // stream (no specialty + GIM split). Counts from the logbook tick themselves; the rest are ticked by hand.
+  imt:{ label:"Internal Medicine Training", short:"IM", color:"#a78bfa", color2:"#7c5fd4", icon:"◈", imt:true,
+    years:["IMY1","IMY2","IMY3"],
+    dopsBy:{"Ascitic tap":"IMY2","Lumbar puncture":"IMY2","Nasogastric (NG) tube":"IMY2","Pleural aspiration":"IMY2","DC cardioversion":"IMY2"},
+    reqs:{
+      spec_mcrs:{label:"MCRs",type:"number",target:4,unit:"MCRs",deadline:"annual",note:"From consultants who supervised you, not your ES. In IMY2 and IMY3, at least 3 from the acute take"},
+      spec_msf:{label:"MSF raters",type:"number",target:12,unit:"raters",deadline:"annual",note:"One MSF a year: at least 12 raters, including 3 consultants"},
+      spec_acats:{label:"ACATs",type:"number",target:4,unit:"ACATs",deadline:"annual",note:"By consultants, each covering at least 5 cases"},
+      spec_sles:{label:"Mini-CEX or CbD",type:"number",target:2,unit:"SLEs",deadline:"annual",note:"By consultants, through the year"},
+      spec_opcats:{label:"OPCATs",type:"number",target:2,unit:"OPCATs",deadline:"annual",note:"Outpatient care assessment tool"},
+      spec_es:{label:"Educational Supervisor Report",type:"checkbox",deadline:"annual",note:"One per year"},
+      spec_sim:{label:"Simulation training",type:"checkbox",deadline:"annual",note:"IMY1: procedural skills. IMY2 and IMY3: human factors and scenarios"},
+      imt_teach:{label:"Teaching attendance",type:"number",target:50,unit:"hours",deadline:"annual",note:"From your CPD diary this year"},
+      imt_teach_im:{label:"IM teaching",type:"number",target:20,unit:"hours",deadline:"annual",note:"Part of the 50 hours: CPD entries marked External, such as deanery teaching or CPD-accredited courses"},
+      imt_clinics_yr:{label:"Clinics this year",type:"number",target:20,unit:"clinics",deadline:"annual",note:"At least 20 a year, and 80 across IMT"},
+      imt_acute_yr:{label:"Acute take patients this year",type:"number",target:100,unit:"patients",deadline:"annual",note:"At least 100 a year, and 500 across IMT"},
+      spec_mrcp1:{label:"MRCP(UK) Part 1",type:"checkbox",deadline:"IMY1",note:"Passed by the end of IMY1"},
+      spec_sce:{label:"Full MRCP(UK)",type:"checkbox",deadline:"IMY2",note:"Part 1, Part 2 written and PACES, by the end of IMY2"},
+      spec_qip:{label:"QIP + QIPAT",type:"checkbox",deadline:"IMY2",note:"Or an active role in research. In IMY3 if not done by then"},
+      imt_clinics:{label:"Outpatient clinics",type:"number",target:80,unit:"clinics",deadline:"IMY3",cumulative:true,note:"Across IMY1 to IMY3"},
+      imt_acute:{label:"Acute take patients",type:"number",target:500,unit:"patients",deadline:"IMY3",cumulative:true,note:"Across IMY1 to IMY3"},
+      imt_ward:{label:"Ward care",type:"number",target:24,unit:"months",deadline:"IMY3",cumulative:true,note:"Continuing ward care of acutely unwell medical inpatients"},
+      imt_icu:{label:"Critical care block",type:"checkbox",deadline:"IMY3",note:"12 weeks in one block, ICU or HDU, is recommended, with an MCR from that supervisor"},
+      imt_geri:{label:"Geriatric medicine",type:"checkbox",deadline:"IMY3",note:"4 months in a team led by a consultant geriatrician, with an MCR from a geriatrician"}
+    },
+    cips:[
+      {g:"Clinical", n:"Managing an acute unselected take", lv:{IMY1:2,IMY2:3,IMY3:3}},
+      {g:"Clinical", n:"Managing an acute specialty-related take", lv:{IMY1:"2*",IMY2:"2*",IMY3:"2*"}},
+      {g:"Clinical", n:"Providing continuity of care to medical in-patients", lv:{IMY1:2,IMY2:3,IMY3:3}},
+      {g:"Clinical", n:"Managing outpatients with long term conditions", lv:{IMY1:2,IMY2:2,IMY3:3}},
+      {g:"Clinical", n:"Managing medical problems in patients in other specialties and special cases", lv:{IMY1:2,IMY2:2,IMY3:3}},
+      {g:"Clinical", n:"Managing an MDT including discharge planning", lv:{IMY1:2,IMY2:2,IMY3:3}},
+      {g:"Clinical", n:"Delivering effective resuscitation and managing the deteriorating patient", lv:{IMY1:2,IMY2:3,IMY3:4}},
+      {g:"Clinical", n:"Managing end of life and applying palliative care skills", lv:{IMY1:2,IMY2:2,IMY3:3}}
+    ],
+    logbook:{
+      clinics:["General medicine clinic","Acute / SDEC clinic","Cardiology clinic","Respiratory clinic","Gastroenterology clinic","Diabetes / endocrine clinic","Geriatrics clinic","Renal clinic","Neurology clinic","Rheumatology clinic","Haematology / oncology clinic","Other"],
+      procedures:["Advanced CPR","Temporary cardiac pacing (external)","Ascitic tap","Lumbar puncture","Nasogastric (NG) tube","Pleural aspiration","Femoral / intraosseous access","Central venous cannulation","Intercostal drain","DC cardioversion","Abdominal paracentesis","Other"],
+      cpd:["IMT regional teaching","Deanery teaching day","Grand round","Departmental teaching","Simulation course","Course / workshop","Conference","E-learning","Other"]
     }
   },
   respiratory:{ label:"Respiratory Medicine", short:"Resp", color:"#34d399", color2:"#059669", icon:"◉",
@@ -2605,6 +2656,7 @@ function specCfg(){ const key=getSpecKey(); const t=SPECIALTY_THEMES[key] || {};
 function specReqs(){
   const reqs = Object.assign({}, specCfg().reqs || DEFAULT_SPEC_REQS);
   // Auto-merge the GIM-shared Teaching Observation only if the specialty hasn't already defined one
+  if(isIMT()) return reqs;
   const hasTeachingObs = Object.entries(reqs).some(([k,r])=>/teaching[_-]?obs/i.test(k) || /teaching observation/i.test(r.label||''));
   if(!hasTeachingObs){
     reqs.spec_teaching_obs = {label:"Teaching observation",type:"checkbox",deadline:finalYear(),note:"Shared with GIM — ticking either one ticks both"};
@@ -2668,12 +2720,16 @@ function initOnboarding(){
   const dSel=document.getElementById('on-deanery');
   const ySel=document.getElementById('on-year');
   if(!spSel || !dSel || !ySel) return;
-  spSel.innerHTML=Object.entries(SPECIALTY_OPTIONS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  spSel.innerHTML=Object.entries(SPECIALTY_OPTIONS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')+'<option value="imt" hidden>Internal Medicine Training</option>';
+  const stSel=document.getElementById('on-stage'), spWrap=document.getElementById('on-specialty-wrap');
+  let lastSpec='renal';
+  const showStage=()=>{ const imt=stSel && stSel.value==='imt'; if(spWrap) spWrap.style.display=imt?'none':''; };
   dSel.innerHTML=Object.keys(DEANERIES).map(d=>`<option>${d}</option>`).join('');
   dSel.onchange=()=>{ const w=document.getElementById('on-deanery-other-wrap'); if(w) w.style.display=dSel.value==='Other'?'flex':'none'; populateOnHospitals(); };
   const fillYears=()=>{ syncYears(spSel.value); const keep=ySel.value; ySel.innerHTML=YEARS.map(y=>`<option>${y}</option>`).join(''); if(YEARS.includes(keep)) ySel.value=keep; };
   ySel.onchange=renderBackfill;
-  spSel.onchange=()=>{ fillYears(); renderBackfill(); try{ ySel.dispatchEvent(new Event('change')); }catch(e){} }; const _origSpOnchange=()=>{ const cfg=SPECIALTIES[spSel.value] || SPECIALTY_THEMES[spSel.value]; if(false) document.documentElement.style.setProperty('--primary', cfg?.color||'#a78bfa'); if(false) document.documentElement.style.setProperty('--primary2', cfg?.color2||'#7c5fd4'); const th=document.getElementById('on-theme'); if(th) th.value=''; };
+  spSel.onchange=()=>{ if(spSel.value!=='imt') lastSpec=spSel.value; if(stSel) stSel.value=spSel.value==='imt'?'imt':'hst'; showStage(); fillYears(); renderBackfill(); try{ ySel.dispatchEvent(new Event('change')); }catch(e){} };
+  if(stSel) stSel.onchange=()=>{ spSel.value=stSel.value==='imt'?'imt':(lastSpec||'renal'); spSel.onchange(); }; const _origSpOnchange=()=>{ const cfg=SPECIALTIES[spSel.value] || SPECIALTY_THEMES[spSel.value]; if(false) document.documentElement.style.setProperty('--primary', cfg?.color||'#a78bfa'); if(false) document.documentElement.style.setProperty('--primary2', cfg?.color2||'#7c5fd4'); const th=document.getElementById('on-theme'); if(th) th.value=''; };
   const themeSel=null;
   if(false) {}
   /* populate year-start year dropdown */
@@ -2685,7 +2741,7 @@ function initOnboarding(){
     document.getElementById('on-name').value=p.name||'';
     const tnEl=document.getElementById('on-trainingNumber'); if(tnEl) tnEl.value=p.trainingNumber||'';
     document.getElementById('on-email').value=p.email||'';
-    spSel.value=p.specialty||'renal'; fillYears();
+    spSel.value=p.specialty||'renal'; if(stSel) stSel.value=spSel.value==='imt'?'imt':'hst'; showStage(); fillYears();
     ySel.value=p.trainingYear||'ST4';
     if(DEANERIES[p.deanery]) dSel.value=p.deanery; else { dSel.value='Other'; const od=document.getElementById('on-deanery-other'); const ow=document.getElementById('on-deanery-other-wrap'); if(od) od.value=p.deanery||''; if(ow) ow.style.display='flex'; }
     if(themeSel) themeSel.value=p.theme?.value||'';
@@ -4159,7 +4215,7 @@ function openReportDoc(html){
   return f;
 }
 window.openReportDoc=openReportDoc;
-function render(){ if(!state.profile){ initOnboarding(); return; } syncYears(); syncLogbookTargets(); setTheme(); document.getElementById('app').classList.add('ready'); document.getElementById('gate').classList.remove('show'); renderHeader(); renderTabs(); const trialExpired = renderBetaTrial(); if(trialExpired){ updateReadiness(); return; } if(currentTab==='today') renderToday(); if(currentTab==='roadmap') renderRoadmap(); if(currentTab==='specialty') renderSpecialty(); if(currentTab==='gim') renderGIM(); if(currentTab==='logbook'){ renderLogbookV2(); try{ fbRefreshCounts(); }catch(e){} } if(currentTab==='logbook-form') renderLogbookFormWrap(); if(currentTab==='admin') renderAdmin(); if(currentTab==='overview') renderOverview(); if(currentTab==='arcp') renderArcp(); updateReadiness(); forceLiveStatus(); maybeAutoRevealWrapped(); }
+function render(){ if(!state.profile){ initOnboarding(); return; } syncYears(); if(currentTab==='gim' && isIMT()) currentTab='home'; syncLogbookTargets(); setTheme(); document.getElementById('app').classList.add('ready'); document.getElementById('gate').classList.remove('show'); renderHeader(); renderTabs(); const trialExpired = renderBetaTrial(); if(trialExpired){ updateReadiness(); return; } if(currentTab==='today') renderToday(); if(currentTab==='roadmap') renderRoadmap(); if(currentTab==='specialty') renderSpecialty(); if(currentTab==='gim') renderGIM(); if(currentTab==='logbook'){ renderLogbookV2(); try{ fbRefreshCounts(); }catch(e){} } if(currentTab==='logbook-form') renderLogbookFormWrap(); if(currentTab==='admin') renderAdmin(); if(currentTab==='overview') renderOverview(); if(currentTab==='arcp') renderArcp(); updateReadiness(); forceLiveStatus(); maybeAutoRevealWrapped(); }
 
 function betaTrialInfo(){
   // Owner exemption: the developer account is never gated by the trial.
@@ -4361,8 +4417,8 @@ function renderLogClinics(){
     logSummaryCards([{value:specEntries.length,label:`${sp.short} clinics · log only`,cls:'primary'},{value:specPatients,label:`${sp.short} clinic patients`,cls:'primary'},{value:gimEntries.length,label:`GIM clinics · cumulative (target 20)`,cls:'blue'},{value:sdecCount,label:`Medical SDEC · max ${SDEC_CAP} count`,cls:sdecCls}])+
     formPanel(`Add ${sp.short} clinic`,specForm,"saveClinic('spec')")+
     section(`${sp.short} clinics`,`${specEntries.length} entries`, [`<div class="card" style="grid-column:1/-1">${tableFiltered('clinics',e=>e.scope!=='gim',['Date','Clinic type','Hospital','Supervisor','Patients','Year','Notes'], e=>[fmtDate(e.date),e.type,e.hospital,e.supervisor,e.patients,e.year,e.notes])}</div>`])+
-    formPanel('Add GIM clinic',gimForm,"saveClinic('gim')")+
-    section('GIM clinics',`${gimEntries.length} entries · adds to cumulative target`, [`<div class="card" style="grid-column:1/-1">${tableFiltered('clinics',e=>e.scope==='gim',['Date','Clinic type','Hospital','Supervisor','Patients','Year','Notes'], e=>[fmtDate(e.date),e.type,e.hospital,e.supervisor,e.patients,e.year,e.notes])}</div>`]);
+    (isIMT()?'':formPanel('Add GIM clinic',gimForm,"saveClinic('gim')"))+
+    (isIMT()?'':section('GIM clinics',`${gimEntries.length} entries · adds to cumulative target`, [`<div class="card" style="grid-column:1/-1">${tableFiltered('clinics',e=>e.scope==='gim',['Date','Clinic type','Hospital','Supervisor','Patients','Year','Notes'], e=>[fmtDate(e.date),e.type,e.hospital,e.supervisor,e.patients,e.year,e.notes])}</div>`]));
 }
 function saveClinic(scope='spec'){ const prefix=`clinic-${scope}`; addEntry('clinics',{scope,type:clinicTypeValue(`${prefix}-type`),hospital:val(`${prefix}-hospital`),date:val(`${prefix}-date`),supervisor:val(`${prefix}-supervisor`),patients:val(`${prefix}-patients`),year:val(`${prefix}-year`),notes:val(`${prefix}-notes`)}); addHospitalIfNew(val(`${prefix}-hospital`)); }
 function renderLogProcedures(){
@@ -4375,8 +4431,8 @@ function renderLogProcedures(){
     logSummaryCards([{value:specEntries.length,label:`${sp.short} procedures logged`,cls:'primary'},{value:gimEntries.length,label:`GIM procedures logged`,cls:'blue'}])+
     formPanel(`Add ${sp.short} procedure`,specForm,"saveProc('spec')")+
     section(`${sp.short} procedures`,`${specEntries.length} entries`, [`<div class="card" style="grid-column:1/-1">${tableFiltered('procedures',e=>e.scope!=='gim',['Date','Procedure','Hospital','Supervisor','DOPS','Year','Notes'], e=>[fmtDate(e.date),e.type,e.hospital,e.supervisor,e.dops,e.year,e.notes])}</div>`])+
-    formPanel('Add GIM procedure',gimForm,"saveProc('gim')")+
-    section('GIM procedures',`${gimEntries.length} entries`, [`<div class="card" style="grid-column:1/-1">${tableFiltered('procedures',e=>e.scope==='gim',['Date','Procedure','Hospital','Supervisor','DOPS','Year','Notes'], e=>[fmtDate(e.date),e.type,e.hospital,e.supervisor,e.dops,e.year,e.notes])}</div>`]);
+    (isIMT()?'':formPanel('Add GIM procedure',gimForm,"saveProc('gim')"))+
+    (isIMT()?'':section('GIM procedures',`${gimEntries.length} entries`, [`<div class="card" style="grid-column:1/-1">${tableFiltered('procedures',e=>e.scope==='gim',['Date','Procedure','Hospital','Supervisor','DOPS','Year','Notes'], e=>[fmtDate(e.date),e.type,e.hospital,e.supervisor,e.dops,e.year,e.notes])}</div>`]));
 }
 function saveProc(scope='spec'){ const prefix=`proc-${scope}`; let type=val(`${prefix}-type`);
   if(type==='Other'){   // "Other" needs a name: it's saved under that name and kept for next time
@@ -4433,14 +4489,14 @@ function renderLogCPD(){
     logSummaryCards([
       {value:totalHours,label:'CPD hours · this year',cls:'primary'},
       {value:externalHrs,label:'External CPD hours',cls:'blue'},{value:internalHrs,label:'Internal CPD hours',cls:'blue'},
-      {value:gimHours,label:'GIM external CPD · cumulative target',cls:'green'}
+      isIMT()?{value:`${totalHours} / 50`,label:'Teaching attendance · this year',cls:'green'}:{value:gimHours,label:'GIM external CPD · cumulative target',cls:'green'}
     ])+
     `<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><button class="btn small primary" onclick="exportCpdDiary()">⎙ CPD Diary report</button><button class="btn small" onclick="exportCpdData()">⬇ Export data (JSON)</button><button class="btn small" onclick="importCpdDiary()">⬆ Import CPD (JSON)</button></div>`+
     `<div class="o1-note">Your CPD diary: courses, conferences, e-learning, MDT, M&amp;M and more. Add a reflection to make entries appraisal-ready.</div>`+
     formPanel(`Add ${sp.short} CPD entry`,diaryForm('spec'),"saveCPD('spec')")+
     section(`${sp.short} CPD diary`,`${specEntries.length} entries · ${specHours}h`, [listFor(e=>e.scope!=='gim')])+
-    formPanel('Add GIM CPD entry',diaryForm('gim'),"saveCPD('gim')")+
-    section('GIM CPD diary',`${gimEntries.length} entries · feeds cumulative target`, [listFor(e=>e.scope==='gim')]);
+    (isIMT()?'':formPanel('Add GIM CPD entry',diaryForm('gim'),"saveCPD('gim')")+
+    section('GIM CPD diary',`${gimEntries.length} entries · feeds cumulative target`, [listFor(e=>e.scope==='gim')]));
 }
 function cpdUploadCert(scope){
   const fileInput = document.getElementById('cpd-'+scope+'-file');
@@ -4735,7 +4791,7 @@ function saveSimple(k,fieldStr){ const data={}; fieldStr.split('|').forEach(f=>{
 function renderAcute(targetId){ const total=entries('acute').reduce((a,e)=>a+Number(e.estimated||0),0); const html=`${hospitalField('acute-hospital')}<div class="field"><label>Start</label><input class="input" id="acute-start" type="date" onchange="calcAcute()"></div><div class="field"><label>End</label><input class="input" id="acute-end" type="date" onchange="calcAcute()"></div><div class="field"><label>Takes / month</label><input class="input" id="acute-takes" type="number" oninput="calcAcute()"></div><div class="field"><label>Patients / take</label><input class="input" id="acute-patients" type="number" oninput="calcAcute()"></div><div class="field"><label>Estimated patients</label><input class="input" id="acute-estimated" readonly></div><div class="field"><label>Supervisor</label><input class="input" id="acute-supervisor"></div>`; const target=document.getElementById(targetId||'log-content'); if(!target) return; target.innerHTML=`<div class="summary-grid"><div class="summary"><div class="big blue">${Math.round(total)}</div><div class="hint">/ 750 estimated patients</div></div></div>`+formPanel('Add acute take placement',html,'saveAcute()')+section('Acute take log','Firth-style estimate', [`<div class="card" style="grid-column:1/-1">${table('acute',['Hospital','Start','End','Months','Takes/mo','Pts/take','Estimated','Year','Supervisor'], e=>[e.hospital,fmtDate(e.start),fmtDate(e.end),e.months,e.takes,e.patients,e.estimated,e.year,e.supervisor])}</div>`]); }
 function calcAcute(){ const s=val('acute-start'), e=val('acute-end'); const months=monthsBetween(s,e); const est=Math.round(months*Number(val('acute-takes')||0)*Number(val('acute-patients')||0)); document.getElementById('acute-estimated').value=est||''; }
 function saveAcute(){ const s=val('acute-start'), e=val('acute-end'); addEntry('acute',{hospital:val('acute-hospital'),start:s,end:e,months:monthsBetween(s,e),takes:val('acute-takes'),patients:val('acute-patients'),estimated:val('acute-estimated'),supervisor:val('acute-supervisor')}); addHospitalIfNew(val('acute-hospital')); }
-function renderWard(targetId){ const total=entries('ward').reduce((a,e)=>a+Number(e.months||0),0); const html=`${hospitalField('ward-hospital')}<div class="field"><label>Start</label><input class="input" id="ward-start" type="date" onchange="calcWard()"></div><div class="field"><label>End</label><input class="input" id="ward-end" type="date" onchange="calcWard()"></div><div class="field"><label>Months</label><input class="input" id="ward-months" readonly></div><div class="field"><label>Supervisor</label><input class="input" id="ward-supervisor"></div>`; const target=document.getElementById(targetId||'log-content'); if(!target) return; target.innerHTML=`<div class="summary-grid"><div class="summary"><div class="big blue">${Math.round(total*10)/10}</div><div class="hint">/ 12 months ward cover</div></div></div>`+formPanel('Add GIM ward cover placement',html,'saveWard()')+section('GIM ward cover log','', [`<div class="card" style="grid-column:1/-1">${table('ward',['Hospital','Start','End','Months','Year','Supervisor'], e=>[e.hospital,fmtDate(e.start),fmtDate(e.end),e.months,e.year,e.supervisor])}</div>`]); }
+function renderWard(targetId){ const total=entries('ward').reduce((a,e)=>a+Number(e.months||0),0); const html=`${hospitalField('ward-hospital')}<div class="field"><label>Start</label><input class="input" id="ward-start" type="date" onchange="calcWard()"></div><div class="field"><label>End</label><input class="input" id="ward-end" type="date" onchange="calcWard()"></div><div class="field"><label>Months</label><input class="input" id="ward-months" readonly></div><div class="field"><label>Supervisor</label><input class="input" id="ward-supervisor"></div>`; const target=document.getElementById(targetId||'log-content'); if(!target) return; target.innerHTML=`<div class="summary-grid"><div class="summary"><div class="big blue">${Math.round(total*10)/10}</div><div class="hint">/ ${isIMT()?'24 months ward care':'12 months ward cover'}</div></div></div>`+formPanel(isIMT()?'Add ward care placement':'Add GIM ward cover placement',html,'saveWard()')+section(isIMT()?'Ward care log':'GIM ward cover log','', [`<div class="card" style="grid-column:1/-1">${table('ward',['Hospital','Start','End','Months','Year','Supervisor'], e=>[e.hospital,fmtDate(e.start),fmtDate(e.end),e.months,e.year,e.supervisor])}</div>`]); }
 function calcWard(){ document.getElementById('ward-months').value=monthsBetween(val('ward-start'),val('ward-end'))||''; }
 function saveWard(){ addEntry('ward',{hospital:val('ward-hospital'),start:val('ward-start'),end:val('ward-end'),months:val('ward-months'),supervisor:val('ward-supervisor')}); addHospitalIfNew(val('ward-hospital')); }
 function monthsBetween(s,e){ if(!s||!e)return 0; const ms=new Date(e)-new Date(s); return Math.max(0,Math.round(ms/(86400000*30.44)*10)/10); }
@@ -4758,7 +4814,21 @@ function cpdIsExternal(e){
   return cpdCategoryFor(e.type) === 'External';              // new diary types
 }
 
-function syncLogbookTargets(){ const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=gimExternalCpdHours(); state.req['cum.gim_cpd_st7']=gimExternalCpdHours(e=>e.year===finalYear()); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year===finalYear()).reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year===finalYear()).reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
+function syncImtTargets(){
+  if(!isIMT()) return;
+  const H=a=>Math.round(a.reduce((t,e)=>t+(Number(e.hours)||0),0)*10)/10, inY=y=>e=>(e.year||currentYear)===y;
+  const cpd=entries('cpd'), cl=entries('clinics'), ac=entries('acute'), wd=entries('ward');
+  YEARS.forEach(y=>{
+    state.req[`${y}.imt_teach`]=H(cpd.filter(inY(y)));
+    state.req[`${y}.imt_teach_im`]=H(cpd.filter(inY(y)).filter(cpdIsExternal));
+    state.req[`${y}.imt_clinics_yr`]=cl.filter(inY(y)).length;
+    state.req[`${y}.imt_acute_yr`]=Math.round(ac.filter(inY(y)).reduce((t,e)=>t+Number(e.estimated||0),0));
+  });
+  state.req['cum.imt_clinics']=cl.length;
+  state.req['cum.imt_acute']=Math.round(ac.reduce((t,e)=>t+Number(e.estimated||0),0));
+  state.req['cum.imt_ward']=Math.round(wd.reduce((t,e)=>t+Number(e.months||0),0)*10)/10;
+}
+function syncLogbookTargets(){ syncImtTargets(); const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=gimExternalCpdHours(); state.req['cum.gim_cpd_st7']=gimExternalCpdHours(e=>e.year===finalYear()); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year===finalYear()).reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year===finalYear()).reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
 function renderAdmin(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const hosp=hospitalOptions(); document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${jsq(h)}')">Delete from list</button></div>`).join('')}</div></section>`; }
 function addAdminHospital(){ const h=val('new-hospital'); if(!h)return; addHospitalIfNew(h); renderAdmin(); }
 function removeHospital(h){ state.hospitals=(state.hospitals||[]).filter(x=>x!==h); saveState(); renderAdmin(); }
@@ -5955,6 +6025,7 @@ function specialtyDisplayName(){
 }
 function personalisedReq(req){
   const out=Object.assign({}, req);
+  if(isIMT()) return out;   // one stream: no need to say which
   const name=specialtyDisplayName();
   out.label=(out.label||'')
     .replace(/Specialty MCRs/gi, name+' MCRs')
@@ -6165,7 +6236,7 @@ function renderAdmin(){
   const hosp=hospitalOptions();
   const userEmail = window.ARCP_FB?.user?.email || '\u2014';
   const accountBlock = `<section class="section"><div class="sec-head"><span class="sec-title">Account</span><span class="sec-rule"></span><span class="sec-note">Signed in across devices</span></div><div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap"><div><div style="font-size:11px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-mono);margin-bottom:6px">Signed in as</div><div style="font-size:15px;color:var(--text);font-weight:500;word-break:break-all">${safe(userEmail)}</div></div><button class="btn small danger" onclick="signOutUser()">Sign out</button></div></div></section>`;
-  document.getElementById('main').innerHTML=accountBlock+`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field"><label>Expected CCT date</label><div class="row" style="gap:10px;align-items:center;flex-wrap:nowrap"><span class="input" style="flex:1;display:flex;align-items:center;min-height:44px;box-sizing:border-box">${state.profile?.cctDate?new Date(state.profile.cctDate+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Not worked out yet'}</span><button class="btn" onclick="wCct()">CCT calculator</button></div></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${jsq(h)}')">Delete from list</button></div>`).join('')}</div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM acute take</span><span class="sec-rule"></span><span class="sec-note">Firth-style placement records</span></div><div id="acute-admin-content"></div></section><section class="section"><div class="sec-head"><span class="sec-title">GIM ward cover</span><span class="sec-rule"></span><span class="sec-note">Months of dedicated GIM ward cover</span></div><div id="ward-admin-content"></div></section>`+
+  document.getElementById('main').innerHTML=accountBlock+`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field"><label>Expected CCT date</label><div class="row" style="gap:10px;align-items:center;flex-wrap:nowrap"><span class="input" style="flex:1;display:flex;align-items:center;min-height:44px;box-sizing:border-box">${state.profile?.cctDate?new Date(state.profile.cctDate+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'Not worked out yet'}</span><button class="btn" onclick="wCct()">CCT calculator</button></div></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${jsq(h)}')">Delete from list</button></div>`).join('')}</div></section><section class="section"><div class="sec-head"><span class="sec-title">${isIMT()?'Acute take':'GIM acute take'}</span><span class="sec-rule"></span><span class="sec-note">Firth-style placement records</span></div><div id="acute-admin-content"></div></section><section class="section"><div class="sec-head"><span class="sec-title">${isIMT()?'Ward care':'GIM ward cover'}</span><span class="sec-rule"></span><span class="sec-note">${isIMT()?'Months of continuing ward care of acute medical inpatients':'Months of dedicated GIM ward cover'}</span></div><div id="ward-admin-content"></div></section>`+
     `<section class="section"><div class="sec-head" style="cursor:pointer" onclick="toggleBridgeSection()"><span class="sec-title">Advanced <span id="bridge-caret" style="color:var(--dim)">\u25B8</span></span><span class="sec-rule"></span><span class="sec-note">Data bridge</span></div><div id="bridge-body" style="display:none"><div class="panel"><div style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:12px">Move your whole logbook between this app and your personal ARCP app. Export writes a bridge file; import merges it in without duplicates (matches by entry, newest wins).</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" onclick="bridgeExport()">\u21E9 Export logbook (bridge)</button><button class="btn small" onclick="bridgeImport()">\u21E7 Import logbook (bridge)</button></div></div></div></section>`;
   renderAcute('acute-admin-content');
   renderWard('ward-admin-content');
@@ -7458,9 +7529,10 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   </style></head><body>
   <div class="page">
     <div class="toolbar"><button onclick="window.print()">Print / Save as PDF</button></div>
-    <div class="hd"><h1>CPD diary · ${E(currentYear)}</h1><p>${E(who())} · ${E(sp.label)} and GIM${deanery?' · '+E(deanery):''}</p></div>
+    <div class="hd"><h1>CPD diary · ${E(currentYear)}</h1><p>${E(who())} · ${E(sp.label)}${isIMT()?'':' and GIM'}${deanery?' · '+E(deanery):''}</p></div>
     <div class="sum"><div><b>${total} h</b><span>Total CPD</span></div><div><b>${ext} h</b><span>External</span></div><div><b>${intl} h</b><span>Internal</span></div><div><b>${all.length}</b><span>Entr${all.length===1?'y':'ies'}</span></div></div>
-    <div class="pbw">GIM external CPD: <b>${r1(gimAll)} h</b> of 100 h needed by CCT<div class="pb"><i style="width:${pct}%"></i></div></div>
+    ${isIMT()?`<div class="pbw">Teaching attendance: <b>${total} h</b> of 50 h this year · IM teaching <b>${ext} h</b> of 20 h<div class="pb"><i style="width:${Math.min(100,Math.round(total/50*100))}%"></i></div></div>`
+      :`<div class="pbw">GIM external CPD: <b>${r1(gimAll)} h</b> of 100 h needed by CCT<div class="pb"><i style="width:${pct}%"></i></div></div>`}
     ${all.length&&style==='c'?`<div class="jw">${all.map(jrow).join('')}</div>`:all.length?`<table><thead><tr><th>Date</th><th>Activity</th><th>Specialty</th><th class="ty">Type</th><th class="n">Hours</th></tr></thead>
       ${all.map(row).join('')}
       <tfoot><tr><td></td><td>Total</td><td></td><td class="ty"></td><td class="n">${total}</td></tr></tfoot></table>`
@@ -7575,6 +7647,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       ['Ward cover','ward',any,[{h:'Start',w:12,kind:'date'},{h:'End',w:12,kind:'date'},{h:'Year',w:7,kind:'code'},{h:'Hospital',w:30,kind:'text',total:'count'},{h:'Months',w:9,kind:'dec',total:'sum'},{h:'Supervisor',w:22,kind:'text'}],
         e=>[e.start,e.end,yrOf(e),txt(e.hospital),xlNum(e.months),txt(e.supervisor)]]
     ];
+    if(isIMT()) for(let i=SHEETS.length-1;i>=0;i--) if(/^GIM /.test(SHEETS[i][0])) SHEETS.splice(i,1);   // IMT: one IM stream
     const E8=([,k,f])=>entries(k).filter(f);
     // Summary: entries by type (this year and all training), then by training year
     const cy=currentYear, inY=y=>e=>e.year===y;
@@ -7587,7 +7660,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     let sx='', r=1;
     const row=(cells,ht)=>{ sx+=`<row r="${r}"${ht?` ht="${ht}" customHeight="1"`:''}>${cells.map(([v,s],i)=>xlCell(r,i,v,s)).join('')}</row>`; r++; };
     row([[`${me} · Logbook`,S.st({b:1,sz:16,v:'center'})]],26);
-    row([[[`${sp.label} and GIM`, p.deanery, p.trainingNumber?`Training number ${p.trainingNumber}`:'', `Current year ${cy}`].filter(Boolean).join(' · '),S.st({c:'595959',sz:10})]]);
+    row([[[isIMT()?sp.label:`${sp.label} and GIM`, p.deanery, p.trainingNumber?`Training number ${p.trainingNumber}`:'', `Current year ${cy}`].filter(Boolean).join(' · '),S.st({c:'595959',sz:10})]]);
     r++;
     row([['Entries by type',sec]],20);
     row([['Type',hd],[`Entries ${cy}`,hdN],['Entries, all training',hdN],['Measure',hd],[cy,hdN],['All training',hdN]],34);
@@ -7602,6 +7675,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
       const cols=[[`${sp.short} clinics`,()=>entries('clinics').filter(spec),a=>a.length],['GIM clinics',()=>entries('clinics').filter(gim),a=>a.length],['Procedures',()=>entries('procedures'),a=>a.length],
         [`${sp.short} CPD hours`,()=>entries('cpd').filter(spec),a=>r1(H(a))],['GIM CPD hours',()=>entries('cpd').filter(gim),a=>r1(H(a))],['Teaching',()=>entries('teaching'),a=>a.length],
         ['Simulation hours',()=>entries('simulation'),a=>r1(H(a))],['Acute take patients',()=>entries('acute'),M.acute[1]],['Ward cover months',()=>entries('ward'),M.ward[1]]];
+      if(isIMT()) for(let i=cols.length-1;i>=0;i--) if(/^GIM /.test(cols[i][0])) cols.splice(i,1);
       row([['Year',hd],...cols.map(c=>[c[0],hdN])],34);
       const y0=r;
       yrsSorted.forEach((y,i)=>{ const z=i%2===1; row([[y,cellS(z)],...cols.map(c=>[c[2](c[1]().filter(inY(y))),numS(z)])]); });
@@ -7689,6 +7763,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   // ── helpers ──
   const today0 = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
   const r1 = n => Math.round((Number(n)||0)*10)/10;
+  const andGim = () => isIMT() ? '' : ' and GIM';   // IMT is one IM stream
   const hrs = arr => r1(arr.reduce((a,e)=>a+(Number(e.hours)||0),0));
   const yearEntries = k => entries(k).filter(inCurrentYear);
   function wDate(d){
@@ -7793,7 +7868,10 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   const AUTO_REQ = {
     gim_clinics:['Log clinic',"wQuick('clinics','gim')"], gim_cpd:['Log CPD',"wQuick('cpd','gim')"], gim_cpd_st7:['Log CPD',"wQuick('cpd','gim')"],
     gim_sim:['Log simulation',"wQuick('simulation','gim')"], gim_sim_st7:['Log simulation',"wQuick('simulation','gim')"],
-    gim_acute:['Acute take',"wAdminTo('acute-admin-content')"], gim_acute_st7:['Acute take',"wAdminTo('acute-admin-content')"], gim_ward:['Ward cover',"wAdminTo('ward-admin-content')"]
+    gim_acute:['Acute take',"wAdminTo('acute-admin-content')"], gim_acute_st7:['Acute take',"wAdminTo('acute-admin-content')"], gim_ward:['Ward cover',"wAdminTo('ward-admin-content')"],
+    imt_teach:['Log CPD',"wQuick('cpd','spec')"], imt_teach_im:['Log CPD',"wQuick('cpd','spec')"],
+    imt_clinics_yr:['Log clinic',"wQuick('clinics','spec')"], imt_clinics:['Log clinic',"wQuick('clinics','spec')"],
+    imt_acute_yr:['Acute take',"wAdminTo('acute-admin-content')"], imt_acute:['Acute take',"wAdminTo('acute-admin-content')"], imt_ward:['Ward care',"wAdminTo('ward-admin-content')"]
   };
   window.makeReqCard = function(id, req){
     __wReq[id]=req;
@@ -7903,7 +7981,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     return `<button class="w-cpill ${days<=90?'warn':''}" onclick="wGoAls()" title="ALS valid to ${long} · open ALS date">ALS ${d.getFullYear()}</button>`;
   }
   // Renal sits the European exam (ESENeph); every other specialty sits its SCE
-  function examShort(){ return /eseneph/i.test(specReqs().spec_sce?.label||'') ? 'ESENeph' : 'SCE'; }
+  function examShort(){ const l=specReqs().spec_sce?.label||''; return /eseneph/i.test(l) ? 'ESENeph' : /mrcp/i.test(l) ? 'MRCP' : 'SCE'; }
   window.wExamShort=examShort;
   function scePill(){
     const req=specReqs().spec_sce; if(!req) return '';
@@ -7966,7 +8044,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       <div class="w-qhead"><span class="w-qt">Quick log</span>${last?`<button class="w-lock w-qlast" onclick="wEntry('${last.k}','${last.id}')" aria-label="Last entry: ${safe(last.txt.replace(/^Last: /,''))}. Open it" title="Your last entry">${I('reset',15)}<span>${safe(last.txt.replace(/^Last: /,''))}</span></button>`:`<span class="w-lock w-qlast none"><span>Nothing logged yet</span></span>`}</div>
       <div class="w-qgrid">
         <div class="w-qcol"><label class="w-qlabel" for="w-qtype">I did a</label><select id="w-qtype" class="w-sel" onchange="wQSync()">${tOpts}</select></div>
-        <div class="w-qcol" id="w-qscope-wrap"><label class="w-qlabel" for="w-qscope">For</label><select id="w-qscope" class="w-sel" onchange="wQSync()"><option value="spec" ${qs==='spec'?'selected':''}>${safe(sp.short)}</option><option value="gim" ${qs==='gim'?'selected':''}>GIM</option></select></div>
+        <div class="w-qcol" id="w-qscope-wrap" ${isIMT()?'hidden':''}><label class="w-qlabel" for="w-qscope">For</label><select id="w-qscope" class="w-sel" onchange="wQSync()"><option value="spec" ${qs==='spec'?'selected':''}>${safe(sp.short)}</option><option value="gim" ${qs==='gim'?'selected':''}>GIM</option></select></div>
       </div>
       <button class="w-go" onclick="wQuickGo(this)">Log entry</button>
     </div>`;
@@ -7976,8 +8054,9 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const stack=
       (outcomeArcpCard(card)||(alarm&&alarmCard())||card('arcp','var(--c-arcp)','ARCP',arcpReadyHome()?`<button class="w-cpill w-rdybadge" onclick="wArcpList()" title="Everything on your ARCP list is ticked. Open the list">${I('check',15)}ARCP ready</button>`:`${currentYear} · ${yearPct()}% through`, p.days>=0?`${p.days} day${p.days===1?'':'s'}`:'Done', p.lockTxt, true, alsPill()))+
       card('specialty','var(--c-spec)',safe(sp.short),'',`${spec.pct}%`,`${spec.met} of ${spec.total} met`, false, scePill())+
-      card('gim','var(--c-gim)','GIM','',`${gim.pct}%`,`${gim.met} of ${gim.total} met`)+
-      card('cpd','var(--c-cpd)','CPD','',`${cpdH}h`,`GIM external ${gimExt} of 100h`)+
+      (isIMT()?'':card('gim','var(--c-gim)','GIM','',`${gim.pct}%`,`${gim.met} of ${gim.total} met`))+
+      (isIMT()?card('cpd','var(--c-cpd)','Teaching','',`${cpdH}h`,`of 50h · ${r1(Number(state.req?.[`${currentYear}.imt_teach_im`])||0)} of 20h IM`)
+              :card('cpd','var(--c-cpd)','CPD','',`${cpdH}h`,`GIM external ${gimExt} of 100h`))+
       card('logbook','var(--c-log)','Logbook','',`${logN}`,`entries in ${currentYear}`)+
       (outcomeFrontCard()||front);
     window.__wStampNew=false;
@@ -8003,7 +8082,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         </div>
       </div>
       <div class="w-homegrid">
-        <div>${setupCardHTML()}${readyCardHTML()}<div class="w-stack">${stack}</div><div class="w-foot"><b>● ${safe(sync)}</b> · ${safe(sp.label)} + GIM · ${safe(state.profile?.deanery||'')}</div></div>
+        <div>${setupCardHTML()}${readyCardHTML()}<div class="w-stack">${stack}</div><div class="w-foot"><b>● ${safe(sync)}</b> · ${safe(sp.label)}${isIMT()?'':' + GIM'} · ${safe(state.profile?.deanery||'')}</div></div>
         <aside class="w-side">
           <div class="w-h2">Still to close <small>${yearLocked()?(outcome()?`${currentYear} · Outcome ${outcome()}`:`${currentYear} locked`):`${open.length} open in ${currentYear}`}</small></div>
           <div class="w-list">${openRows}</div>
@@ -8096,7 +8175,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const run=m=>gim?window.printGimSummary(m):window.printSpecSummary(m);
     wAsk({ title:`${safe(name)} summary`, sub:'Which entries should it cover?', options:[
       {label:`This year · ${safe(currentYear)}`, sub:`Only what you logged in ${safe(currentYear)}`, on:()=>run('year')},
-      {label:'All years', sub:`Everything since ${safe(YEARS[0])}, with totals towards CCT`, on:()=>run('all')} ]});
+      {label:'All years', sub:`Everything since ${safe(YEARS[0])}, with totals towards ${isIMT()?'the end of IMT':'CCT'}`, on:()=>run('all')} ]});
   };
   // Every finished month that has logbook entries has a Wrapped. The list is worked out from the
   // logbook itself, so it can't be lost or overwritten by another device's copy of the profile.
@@ -8580,9 +8659,9 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   function renderCpdScreen(){
     const list=yearEntries('cpd'), h=hrs(list), n=splitNum(h), ext=gimExternalCpdHours(), sp=specCfg();
     main().innerHTML = head({ title:'CPD', color:'var(--c-cpd)', kicker:`${currentYear} · CPD diary`, big:n.big, unit:n.frac+'h',
-      sub:`${list.length} entr${list.length===1?'y':'ies'} this year · GIM external ${ext} of 100h`,
+      sub:`${list.length} entr${list.length===1?'y':'ies'} this year · `+(isIMT()?`${r1(Number(state.req?.[`${currentYear}.imt_teach_im`])||0)} of 20h IM teaching`:`GIM external ${ext} of 100h`),
       tab:{label:'Add CPD entry', right:sp.short, on:"wQuick('cpd','spec')"},
-      acts:[['plus','Add GIM',"wQuick('cpd','gim')"],['print','Diary PDF','exportCpdDiary()'],['ul','Import','importCpdDiary()'],['dl','Export','exportCpdData()']] })
+      acts:[...(isIMT()?[]:[['plus','Add GIM',"wQuick('cpd','gim')"]]),['print','Diary PDF','exportCpdDiary()'],['ul','Import','importCpdDiary()'],['dl','Export','exportCpdData()']] })
       + (yearLocked() ? renderLockedBlock() : '<div id="log-content"></div>');
     if(yearLocked()) return;
     renderLogCPD();
@@ -8634,12 +8713,12 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         big:rd?String(Math.max(0,dd)):`Outcome ${oc}`, unit:rd?(dd===1?' day':' days'):'', bigText:!rd,
         sub:`Outcome ${oc} · ${safe(ocShort(oc))}`,
         tab:{icon:'flag', label:rd?'Edit your plan':'Add your review date and plan', right:'', on:`wCelebrate('${y}','${oc}',true)`},
-        acts:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['calc','CCT calc','wCct()'],['flag','Plan',`wCelebrate('${y}','${oc}',true)`]] }));
+        acts:isIMT()?[['dl','Logbook',"arcpGenerate('logbook')"],['flag','Plan',`wCelebrate('${y}','${oc}',true)`]]:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['calc','CCT calc','wCct()'],['flag','Plan',`wCelebrate('${y}','${oc}',true)`]] }));
     } else {
     prepend(head({ title:'ARCP', color:'var(--c-arcp)', dark:true, kicker:`Panel · ${panelLong}`, big:String(Math.max(0,p.days)), unit:p.days===1?' day':' days',
       sub:`${p.lockTxt} · ${yearPct()}% of ${currentYear} gone`,
       tab:{icon:'flag', label:`Next: ${nx.title}`, right:arcpFmt(nx.date), on:"wScroll('w-countdown')"},
-      acts:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['calc','CCT calc','wCct()'],['road','Road to CCT','wRoad()']] }));
+      acts:isIMT()?[['dl','Logbook',"arcpGenerate('logbook')"],['list','ARCP list','wArcpList()']]:[['table','Firth',"arcpGenerate('firth')"],['dl','Logbook',"arcpGenerate('logbook')"],['calc','CCT calc','wCct()'],['road','Road to CCT','wRoad()']] }));
     }
     const ns=needsSection(); if(ns) main().querySelector('.w-head')?.insertAdjacentHTML('afterend', ns);
     arcpRoadTl=tl;
@@ -8747,7 +8826,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const pr=state.profile; if(!pr) return;
     const OTHER='Other / not listed', list=hospitalOptions().filter(h=>h!==OTHER);
     const ys=pr.yearStart, started=ys?.year?`${PF_MONTHS[(Number(ys.month)||8)-1]} ${ys.year}`:'';
-    const fixed=[['Specialty',`${specCfg().label} + GIM`],['Deanery',pr.deanery||'Not set'],['Training year',pr.trainingYear||currentYear], ...(started?[[`${pr.trainingYear||currentYear} started`,started]]:[])];
+    const fixed=[isIMT()?['Training',specCfg().label]:['Specialty',`${specCfg().label} + GIM`],['Deanery',pr.deanery||'Not set'],['Training year',pr.trainingYear||currentYear], ...(started?[[`${pr.trainingYear||currentYear} started`,started]]:[])];
     const flash=i=>{ i.classList.remove('w-flash'); void i.offsetWidth; i.classList.add('w-flash'); try{ i.focus(); }catch(e){} return false; };
     let ph;   // the photo being chosen: undefined = unchanged, '' = removed
     const phNow=()=>ph===undefined?pfPhoto():ph;
@@ -8783,7 +8862,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const pr=state.profile||{}, sp=specCfg(), dark=document.body.classList.contains('focus');
     O.admin();
     prepend(head({ title:'Account', color:'var(--c-admin)', dark, kicker:window.ARCP_FB?.user?.email||pr.email||'Profile', big:pr.name||'Your profile', bigText:true,
-      sub:`${safe(sp.label)} + GIM · ${safe(pr.deanery||'')}${pr.baseHospital?' · '+safe(pr.baseHospital):''}`,
+      sub:`${safe(sp.label)}${isIMT()?'':' + GIM'} · ${safe(pr.deanery||'')}${pr.baseHospital?' · '+safe(pr.baseHospital):''}`,
       acts:[['sliders','Profile','openSettings()'], bdOn()?['medal','Badges',"setTab('badges')"]:['moon',dark?'Light':'Dark','toggleFocus();render()'],['dl','Excel','exportLogbook()'],['print','Report','showPrintStylePicker()']] }));
     const row=(ic,t,s,on,btn,danger)=>`<div class="w-row"><span class="w-tile">${I(ic,22)}</span><span class="w-row-m"><span class="w-row-t">${t}</span><span class="w-row-s">${s}</span></span><span class="w-row-r"><button class="btn small ${danger?'danger':''}" onclick="${on}">${btn}</button></span></div>`;
     const signEmail=window.ARCP_FB?.user?.email||'';
@@ -8843,7 +8922,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     prepend(head({ title:'Quick log', color:'var(--c-quick)', compact:true, back, backLabel:'Close', right:{icon:'list',label:'Open logbook',on:"setTab('logbook')"} }));
     main().querySelector('.w-head .w-head-in').insertAdjacentHTML('beforeend', `<div class="w-qpick">
         <div class="w-qf"><label class="w-qlabel" for="w-qtype">I did a</label><select id="w-qtype" class="w-sel" onchange="wQPick()">${tOpts}</select></div>
-        ${type==='simulation'||type==='teaching'?'':`<div class="w-qf"><label class="w-qlabel" for="w-qscope">For</label><select id="w-qscope" class="w-sel" onchange="wQPick()"><option value="spec" ${scope==='spec'?'selected':''}>${safe(sp)}</option><option value="gim" ${scope==='gim'?'selected':''}>GIM</option></select></div>`}
+        ${type==='simulation'||type==='teaching'||isIMT()?'':`<div class="w-qf"><label class="w-qlabel" for="w-qscope">For</label><select id="w-qscope" class="w-sel" onchange="wQPick()"><option value="spec" ${scope==='spec'?'selected':''}>${safe(sp)}</option><option value="gim" ${scope==='gim'?'selected':''}>GIM</option></select></div>`}
       </div>`);
     // only the chosen form, open, straight under the header; the rest of the logbook page is kept but hidden
     const d=document.getElementById(id), lc=document.getElementById('log-content');
@@ -8874,6 +8953,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   };
   window.setTab = function(t){
     t=normTab(t);
+    if(t==='gim' && isIMT()) t='home';   // IMT has no GIM screen
     if(t==='logbook-form' && currentTab!=='logbook-form') window.__wPrev=currentTab;
     const changed=t!==currentTab;
     currentTab=t; try{ localStorage.setItem('arcp_v2_tab',t); }catch(e){}
@@ -9074,7 +9154,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   window.wEntry = function(k,id){
     const e=entries(k).find(x=>String(x.id)===String(id)); if(!e) return;
     const locked=yearLocked(e.year||currentYear), editable=!locked && canEditEntry(e);
-    const rows=(ENTRY_FIELDS[k]||[]).map(f=>{
+    const rows=(ENTRY_FIELDS[k]||[]).filter(f=>!(f==='scope' && isIMT())).map(f=>{
       if(k==='teaching' && f==='feedbackUploaded' && !locked){
         const cur=e.feedbackUploaded||'';
         return `<div class="w-ent-r w-fbu"><span>${safe(fieldLabel(f,k))}</span><span class="w-seg" role="group" aria-label="Feedback uploaded?">${['Yes','No','Pending'].map(o=>`<button type="button" class="${o===cur?'on':''}" aria-pressed="${o===cur}" onclick="wFbUp('${safe(String(e.id))}','${o}')">${o}</button>`).join('')}</span></div>`;
@@ -9130,7 +9210,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       if(f==='hospital') return lab+`<input ${at} list="w-ee-hosp" value="${safe(v)}">`+dl('w-ee-hosp', hospitalOptions());
       return lab+`<input ${at} value="${safe(v)}">`;
     };
-    suSheet({ title:`Edit ${KIND_NAME[k]||'entry'}`, body:`<div class="w-ee">${(ENTRY_FIELDS[k]||[]).map(f=>`<div class="w-ee-f">${inp(f)}</div>`).join('')}</div>`,
+    suSheet({ title:`Edit ${KIND_NAME[k]||'entry'}`, body:`<div class="w-ee">${(ENTRY_FIELDS[k]||[]).filter(f=>!(f==='scope' && isIMT())).map(f=>`<div class="w-ee-f">${inp(f)}</div>`).join('')}</div>`,
       actions:[
         { label:'Save changes', primary:true, on:w=>{
             const need=w.querySelector('[data-f="date"],[data-f="start"]');
@@ -9287,7 +9367,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const ys=state.profile?.yearStart, ty=state.profile?.trainingYear, n0=parseInt(String(ty||'').replace(/\D/g,''),10);
     const d=new Date(iso+'T00:00:00'); if(!ys?.year || !n0 || isNaN(d)) return currentYear;
     const months=(d.getFullYear()-Number(ys.year))*12+(d.getMonth()-((Number(ys.month)||8)-1));
-    return 'ST'+Math.max(1, n0+Math.floor(months/12));
+    return String(ty).replace(/\d+$/,'')+Math.max(1, n0+Math.floor(months/12));   // ST4 → ST5, IMY1 → IMY2
   }
   function impKey(k,e){
     const L=v=>String(v||'').trim().toLowerCase();
@@ -9585,11 +9665,11 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const cct = state.profile?.cctDate ? new Date(state.profile.cctDate).toLocaleDateString('en-GB',{month:'short',year:'numeric'}) : '';
     const arcp = p.days>0 ? ['ARCP in', ixN(p.days,'day')] : p.days===0 ? ['ARCP','today'] : ['ARCP date','passed'];
     return `<div class="ix-card ix-pace ix-wide">
-      <div class="ix-k">${safe(currentYear)} progress · ${safe(sp.short)} and GIM</div>
+      <div class="ix-k">${safe(currentYear)} progress · ${safe(sp.short)}${andGim()}</div>
       <div class="ix-big"><b>${overall}</b><span>%</span>${verdict?`<em>${verdict}</em>`:''}</div>
       <div class="ix-track" role="img" aria-label="${overall}% of requirements met${exp===null?'':`. Expected by today: ${exp}%`}"><i style="width:${Math.max(overall?3:0,Math.min(100,overall))}%"></i>${exp===null?'':`<u style="left:${Math.min(99,exp)}%"></u>`}</div>
       <div class="ix-leg"><span>You: ${overall}%</span>${exp===null?'':`<span>Expected by today: ${exp}%</span>`}</div>
-      <div class="ix-split"><span>${safe(sp.short)}<b>${spec.pct}%</b></span><span>GIM<b>${gim.pct}%</b></span><span>${arcp[0]}<b>${arcp[1]}</b></span>${cct?`<span>CCT<b>${safe(cct)}</b></span>`:''}</div>
+      <div class="ix-split"><span>${safe(sp.short)}<b>${spec.pct}%</b></span>${isIMT()?'':`<span>GIM<b>${gim.pct}%</b></span>`}<span>${arcp[0]}<b>${arcp[1]}</b></span>${cct?`<span>CCT<b>${safe(cct)}</b></span>`:''}</div>
     </div>`;
   }
 
@@ -9642,7 +9722,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         ${tile('Entries', yr.length, `${recent(yr)} in the last 4 weeks`)}
         ${tile('Clinics', cnt('clinics'), `${recent(yr.filter(x=>x.kind==='clinics'))} in the last 4 weeks`)}
         ${tile('Procedures', cnt('procedures'), `${dops} DOPS-signed`)}
-        ${tile('CPD hours', cpdH, ext===null?ixN(cpd.length,'entry','entries'):`${r1(ext)}h GIM external`)}
+        ${tile('CPD hours', cpdH, isIMT()?`${r1(Number(state.req?.[`${currentYear}.imt_teach_im`])||0)}h IM teaching`:ext===null?ixN(cpd.length,'entry','entries'):`${r1(ext)}h GIM external`)}
       </div><div class="ix-also"><span>Teaching <b>${cnt('teaching')}</b></span><span>Simulation <b>${cnt('simulation')}</b></span><span>SLEs and ACATs <b>${wba}</b></span></div></div>`;
   }
 
@@ -9766,7 +9846,12 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   const cipGroups=()=>[...new Set((specCfg().cips||[]).map(c=>c.g))];
   const cipSub=y=>{ const c=specCfg().cips||[]; if(!c.length) return ''; const g={}; c.forEach(x=>{ g[x.g]=(g[x.g]||0)+1; });
     return Object.entries(g).map(([k,n])=>`${n} ${k}`).join(' + ')+' CiPs'; };
+  const IMT_SKIP=new Set(['es_gim','cip_gim','firth','cct']);
   function readyGroups(){
+    const g=readyGroupsAll();
+    return isIMT() ? g.map(x=>({...x, items:x.items.filter(it=>!IMT_SKIP.has(it.k))})).filter(x=>x.items.length) : g;
+  }
+  function readyGroupsAll(){
     const sp=specCfg().short, y=currentYear;
     const cip=what=>`Rate yourself against ${what} on your ePortfolio, then ask your educational supervisor to add their ratings.`;
     const at=id=>{ const s=ARCP_STEPS.find(x=>x.id===id); return s?arcpStepDate(s):null; };
@@ -9791,6 +9876,8 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         { k:'form_r', doc:'form_r', t:'Form R (Part B)', s:'In your ePortfolio library', d:'Complete this year’s Form R (Part B) and save a copy in your ePortfolio library.' },
         { k:'firth',  doc:'firth',  t:'Firth calculator', s:'Acute take numbers', tools:[['table','Firth calculator','firth']], d:'Bring the Firth calculator up to date with your acute take numbers and upload it to your ePortfolio library. Outcome1 can build it from your acute take placements.' },
         { k:'cct',    doc:'cct',    t:'CCT calculator', s:'If LTFT or time out', optional:true, tools:[['calc','CCT calculator','cct']], d:'If you’re less than full time or have had time out of training, work out your CCT date, download the completion date calculator and upload it to your ePortfolio library.' },
+        isIMT() ? { k:'logbook', docs:['logbook','sum_spec'], t:'Logbook and summary', s:'Spreadsheet and IM summary', tools:[['dl','Logbook spreadsheet','logbook'],['file','IM summary','sum_spec']],
+          d:'Add this year’s logbook spreadsheet and your IM summary of training to your ePortfolio library. Outcome1 makes both.' } :
         { k:'logbook', docs:['logbook','sum_spec','sum_gim'], t:'Logbook and summaries', s:`Spreadsheet, ${sp} and GIM summaries`, tools:[['dl','Logbook spreadsheet','logbook'],['file',`${sp} summary`,'sum_spec'],['file','GIM summary','sum_gim']],
           d:`Add this year’s logbook spreadsheet and your ${sp} and GIM summaries to your ePortfolio library. Outcome1 makes all three.` },
         { k:'cpd',    doc:'cpd',    t:'CPD diary', s:'With your reflections', tools:[['book','CPD diary','cpd']], d:'Add this year’s CPD diary, with your reflections, to your ePortfolio library. Outcome1 makes it, ready to save as a PDF.' },
@@ -9922,7 +10009,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       { vis:`<div class="w-rv-flow"><span class="w-rv-box" style="--c:var(--c-quick)"><b>Outcome1</b><small>Your tally and documents</small></span><span class="w-rv-arrow">${I('chev',26)}</span><span class="w-rv-box dk" style="--c:var(--c-arcp)"><b>ePortfolio</b><small>What the panel reads</small></span></div>`,
         t:'The panel reads your ePortfolio', p:'Outcome1 keeps count and makes your documents. The evidence itself has to be in your JRCPTB ePortfolio.' },
       { vis:`<div class="w-rv-card">${row(`ES report: ${sp}`,'var(--c-spec)')}${row('ES report: GIM','var(--c-gim)')}${row('CiPs rated by you both','var(--c-cpd)')}</div>`,
-        t:'Start with your supervisor', p:`Rate yourself on your CiPs first. Then meet your educational supervisor for their ratings and your ${sp} and GIM reports. Book the meeting early.` },
+        t:'Start with your supervisor', p:`Rate yourself on your CiPs first. Then meet your educational supervisor for their ratings and your ${sp}${andGim()} report${isIMT()?'':'s'}. Book the meeting early.` },
       { vis:`<div class="w-rv-card lib"><span class="w-rv-lk">ePortfolio library</span><span class="w-wv-docs"><i>${I('file',15)}Form R</i><i>${I('dl',15)}Logbook</i><i>${I('book',15)}CPD diary</i><i>${I('table',15)}Firth</i><i>${I('file',15)}Summaries</i></span></div>`,
         t:'Then fill your library', p:'Form R, your logbook and summaries, CPD diary and Firth calculator all go in your ePortfolio library. Outcome1 makes most of them for you.' }
     ];
@@ -10361,7 +10448,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   function suCompanion(){
     const sp=safe(specCfg().short);
     suSheet({ title:'Your ePortfolio companion',
-      sub:`Outcome1 works alongside your JRCPTB ePortfolio. It helps you keep track of the ${sp} and GIM requirements from the ARCP decision aid.`,
+      sub:`Outcome1 works alongside your JRCPTB ePortfolio. It helps you keep track of the ${sp}${andGim()} requirements from the ARCP decision aid.`,
       body:`<div class="w-cmp" aria-hidden="true">
         <div class="w-cmp-r"><span class="w-cmp-m"><b>${sp} MCRs</b></span><span class="w-cmp-step"><i>−</i><b data-n>2</b><i data-plus>+</i></span></div>
         <div class="w-cmp-r"><span class="w-cmp-m"><b>Educational Supervisor Report</b></span><span class="w-cmp-tog" data-tog>Mark done</span></div>
@@ -10462,14 +10549,14 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     document.getElementById('w-welcome')?.remove();
     const sp=specCfg().short, cy=currentYear;
     const slides=[
-      { vis:`<div class="w-wv-stack">${[['ARCP','var(--c-arcp)',1],[sp,'var(--c-spec)'],['GIM','var(--c-gim)'],['CPD','var(--c-cpd)'],['Logbook','var(--c-log)']].map(([l,c,dk])=>`<span class="w-wv-card${dk?' dk':''}" style="--c:${c}">${safe(l)}</span>`).join('')}</div>`,
+      { vis:`<div class="w-wv-stack">${[['ARCP','var(--c-arcp)',1],[sp,'var(--c-spec)'],...(isIMT()?[]:[['GIM','var(--c-gim)']]),[isIMT()?'Teaching':'CPD','var(--c-cpd)'],['Logbook','var(--c-log)']].map(([l,c,dk])=>`<span class="w-wv-card${dk?' dk':''}" style="--c:${c}">${safe(l)}</span>`).join('')}</div>`,
         t:'Your training in one stack', p:`Each colour card is one part of your portfolio. Tap a card to open it. The numbers show how close you are for ${safe(cy)}.` },
       { vis:`<div class="w-wv-quick"><span class="w-wv-qt">Quick log</span><span class="w-wv-qrow"><span class="w-wv-sel">Clinic</span><b>+1</b></span><span class="w-wv-btn">Log entry</span></div>`,
         t:'Log it in seconds', p:'Quick log sits at the bottom of Home. Every entry counts towards your targets and reports automatically.' },
-      { vis:`<div class="w-wv-papers"><span class="w-wv-k">Made for you</span>${[['dl','Logbook','Excel'],['file',`${sp} + GIM summaries`,'PDF'],['book','CPD diary','PDF'],['table','Firth calculator','Excel'],['calc','CCT calculator','Excel']].map(([ic,l,f])=>`<span class="w-wv-pp">${I(ic,17)}<span>${safe(l)}</span><em>${f}</em></span>`).join('')}</div>`,
-        t:'It does the paperwork', p:`Your logbook, ${safe(sp)} and GIM summaries, CPD diary and Firth calculator are made from what you log. The CCT calculator works out your date if you’re LTFT or take time out.` },
-      { vis:`<div class="w-wv-arcp"><span class="w-wv-k">ARCP</span><b>21 days</b><span class="w-wv-lock">${I('lock',15)}Portfolio locks in 7 days</span></div>`,
-        t:'Ready for the panel', p:'Outcome1 counts down to your ARCP and the portfolio lock, and warns you two weeks out with what’s still open.' }
+      { vis:`<div class="w-wv-papers"><span class="w-wv-k">Made for you</span>${(isIMT()?[['dl','Logbook','Excel'],['file','IM summary of training','PDF'],['book','CPD diary','PDF']]:[['dl','Logbook','Excel'],['file',`${sp} + GIM summaries`,'PDF'],['book','CPD diary','PDF'],['table','Firth calculator','Excel'],['calc','CCT calculator','Excel']]).map(([ic,l,f])=>`<span class="w-wv-pp">${I(ic,17)}<span>${safe(l)}</span><em>${f}</em></span>`).join('')}</div>`,
+        t:'It does the paperwork', p:isIMT()?'Your logbook, IM summary of training and CPD diary are made from what you log.':`Your logbook, ${safe(sp)} and GIM summaries, CPD diary and Firth calculator are made from what you log. The CCT calculator works out your date if you’re LTFT or take time out.` },
+      { vis:`<div class="w-wv-arcp"><span class="w-wv-k">ARCP</span><b>21 days</b><span class="w-wv-lock">${I('lock',15)}Portfolio locks in 7 days</span><span class="w-wv-docs"><i>${I('print',15)}Report</i><i>${I('book',15)}CPD diary</i><i>${I('spark',15)}Wrapped</i></span></div>`,
+        t:'Ready for the panel', p:'Outcome1 counts down to your ARCP and the portfolio lock two weeks before. When it comes round, your reports and CPD diary print in a tap.' }
     ];
     const el=document.createElement('div'); el.id='w-welcome'; el.className='w-wel'+(opts.instant?' now':'');
     el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Welcome to Outcome1');
@@ -10496,7 +10583,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       el.classList.add('hello');
       el.innerHTML=`<div class="w-wel-top"><span class="w-wel-brand">Outcome1</span></div>
         <div class="w-hello">
-          <div class="w-hello-card" style="--c:var(--c-spec)"><span class="w-hello-k">${safe(cy)} · ${safe(specCfg().label||sp)} and GIM</span><h2 id="w-hello-t">Welcome${nm?`, ${safe(nm)}`:''}</h2><p>Your portfolio is ready to use.</p></div>
+          <div class="w-hello-card" style="--c:var(--c-spec)"><span class="w-hello-k">${safe(cy)} · ${safe(specCfg().label||sp)}${andGim()}</span><h2 id="w-hello-t">Welcome${nm?`, ${safe(nm)}`:''}</h2><p>Your portfolio is ready to use.</p></div>
           <dl class="w-hello-facts">${facts.map(([k,v])=>`<div><dt>${safe(k)}</dt><dd>${safe(v)}</dd></div>`).join('')}</dl>
           <div class="w-hello-next"><b>Next, a quick setup</b><p>${n} short steps, about 3 minutes.</p></div>
         </div>
@@ -11165,7 +11252,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       {id:'teach',cat:'Teaching',icon:'board',name:'See One, Do One, Teach One',tiers:[1,10,25],grades:[B,S,G],unit:'sessions taught',d:'Teaching sessions you gave',v:te.length},
       {id:'heard',cat:'Teaching',icon:'qr',name:'Heard Back',tiers:[1,5,10],grades:[B,S,G],unit:'sessions with feedback',d:'Sessions with feedback collected in Outcome1 or marked as uploaded',v:te.filter(e=>Number(e.feedbackCount)>0 || e.feedbackUploaded==='Yes').length},
       {id:'cpd',cat:'Learning',icon:'book',name:'Hitting the Books',tiers:[50,100,250],grades:[B,S,G],unit:'CPD hours',d:'All CPD hours',v:bdSum(cpd,'hours')},
-      {id:'ext',cat:'Learning',icon:'flag',name:'Away Days',tiers:[50,100],grades:[S,G],unit:'GIM external hours',d:'External GIM CPD hours. 100 is the GIM target',v:ext},
+      {id:'ext',cat:'Learning',icon:'flag',name:'Away Days',tiers:[50,100],grades:[S,G],unit:'GIM external hours',d:'External GIM CPD hours. 100 is the GIM target',v:ext,show:!isIMT()},
       {id:'sim',cat:'Learning',icon:'pulse',name:'Dress Rehearsal',tiers:[4,12],grades:[B,S],unit:'simulation hours',d:'Simulation hours. 12 is the GIM target',v:bdSum(sim,'hours')},
       {id:'notes',cat:'Learning',icon:'file',name:'Food for Thought',tiers:[10,30,50],grades:[B,S,G],unit:'CPD with learning points',d:'CPD entries with 20 or more words of key learning points',v:cpd.filter(e=>words(e.learning)>=20).length},
       {id:'ready',cat:'Portfolio',icon:'flag',name:'Ducks in a Row',tiers:[1],grades:[S],unit:'ARCP list complete',d:'Every item on your ARCP list ticked before the panel',v:n(mo.ready)},
@@ -11179,7 +11266,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       {id:'h_same',cat:'Hidden',hidden:true,icon:'check',name:'No Time Like the Present',tiers:[50],grades:[B],unit:'logged on the day',d:'50 entries logged on the day they happened',v:BD_KINDS.reduce((a,k)=>a+bdOwn(k).filter(e=>e.date && e.createdAt && bdDay(e.createdAt)===String(e.date).slice(0,10)).length,0)},
       {id:'h_tour',cat:'Hidden',hidden:true,icon:'compass',name:'Grand Tour',tiers:[3],grades:[S],unit:'hospitals',d:'Entries at 3 different hospitals',v:new Set(placed.map(e=>String(e.hospital||'').trim()).filter(Boolean)).size},
       {id:'h_set',cat:'Hidden',hidden:true,icon:'list',name:'Jack of All Trades',tiers:[5],grades:[B],unit:'kinds of entry',d:'A clinic, procedure, CPD, teaching session and simulation, all logged',v:BD_KINDS.filter(k=>bdOwn(k).length).length},
-      {id:'h_sweep',cat:'Hidden',hidden:true,icon:'flag',name:'Clean Sweep',tiers:[1],grades:[G],unit:'all met',d:`Every ${sp.short} and GIM requirement met at the same time`,v:mo.sweep?1:0},
+      {id:'h_sweep',cat:'Hidden',hidden:true,icon:'flag',name:'Clean Sweep',tiers:[1],grades:[G],unit:'all met',d:`Every ${sp.short}${andGim()} requirement met at the same time`,v:mo.sweep?1:0},
       {id:'h_room',cat:'Hidden',hidden:true,icon:'board',name:'Standing Room Only',tiers:[20],grades:[S],unit:'responses',d:'20 or more feedback responses on one teaching session',v:Math.max(0,...te.map(e=>Number(e.feedbackCount)||0))}
     ].filter(b=>b.show!==false);
   }
@@ -11284,7 +11371,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     try{ if(arcpReadyHome()){ mo.ready=mo.ready||{}; if(!mo.ready[currentYear]){ mo.ready[currentYear]=today; dirty=true; } }
       else if(mo.ready?.[currentYear] && !yearLocked() && panelInfo().days>=0){ delete mo.ready[currentYear]; dirty=true; } }catch(e){}
     try{
-      const allMet=()=>{ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats()); return !!(s.total && g.total && s.pct>=100 && g.pct>=100); };
+      const allMet=()=>{ const s=calcReqsWithExtra(specReqs(),specDopsStats()), g=calcReqsWithExtra(visibleGimReqs(),gimDopsStats()); return !!(s.total && s.pct>=100 && (isIMT() || (g.total && g.pct>=100))); };
       if(mo.sweep && !mo.sweepYr){ mo.sweepYr=impYearFor(String(mo.sweep).slice(0,10)); dirty=true; }   // earned before the year was noted
       if(mo.sweep){ const y=mo.sweepYr; if(!yearLocked(y) && !withYear(y,allMet)){ delete mo.sweep; delete mo.sweepYr; dirty=true; } }
       else if(allMet()){ mo.sweep=today; mo.sweepYr=currentYear; dirty=true; }
