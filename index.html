@@ -2147,6 +2147,15 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
 .w-rdy-cips .w-ent-r{gap:12px;align-items:flex-start}.w-rdy-cips .w-ent-r span{flex:1 1 auto;min-width:0}.w-rdy-cips .w-ent-r b{white-space:nowrap;flex:none}
 .w-rdy-cg{font:800 11px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:10px 0 4px}
 .w-mp-r{align-items:center;gap:12px}.w-mp-r span{flex:1 1 auto;min-width:0}
+.w-wv-papers{width:min(300px,76vw);border:2px solid #1E1E1E;border-radius:28px;padding:20px 20px 14px;box-sizing:border-box;display:flex;flex-direction:column;background:var(--c-log);color:#1E1E1E}
+.w-wv-papers .w-wv-k{margin-bottom:10px}
+.w-wv-pp{display:flex;align-items:center;gap:9px;font:700 15px/1.2 var(--font);padding:7px 0;border-top:1.5px solid rgba(30,30,30,.18)}
+.w-wv-pp>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-wv-pp em{font:800 11px var(--font);font-style:normal;letter-spacing:.04em;background:#1E1E1E;color:#F4F3EE;border-radius:99px;padding:4px 8px}
+.w-wel-slide.on .w-wv-pp{animation:wvUp .45s cubic-bezier(.2,.8,.2,1) both}
+.w-wel-slide.on .w-wv-pp:nth-of-type(2){animation-delay:.06s}.w-wel-slide.on .w-wv-pp:nth-of-type(3){animation-delay:.12s}.w-wel-slide.on .w-wv-pp:nth-of-type(4){animation-delay:.18s}.w-wel-slide.on .w-wv-pp:nth-of-type(5){animation-delay:.24s}.w-wel-slide.on .w-wv-pp:nth-of-type(6){animation-delay:.3s}
+@media (max-height:640px){.w-wv-papers{padding:14px 16px 10px}.w-wv-pp{padding:4px 0;font-size:13px}.w-wv-papers .w-wv-k{font-size:22px;margin-bottom:6px}}
+@media (prefers-reduced-motion:reduce){.w-wel-slide.on .w-wv-pp{animation:none}}
 </style>
 
 </head>
@@ -10457,8 +10466,10 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         t:'Your training in one stack', p:`Each colour card is one part of your portfolio. Tap a card to open it. The numbers show how close you are for ${safe(cy)}.` },
       { vis:`<div class="w-wv-quick"><span class="w-wv-qt">Quick log</span><span class="w-wv-qrow"><span class="w-wv-sel">Clinic</span><b>+1</b></span><span class="w-wv-btn">Log entry</span></div>`,
         t:'Log it in seconds', p:'Quick log sits at the bottom of Home. Every entry counts towards your targets and reports automatically.' },
-      { vis:`<div class="w-wv-arcp"><span class="w-wv-k">ARCP</span><b>21 days</b><span class="w-wv-lock">${I('lock',15)}Portfolio locks in 7 days</span><span class="w-wv-docs"><i>${I('print',15)}Report</i><i>${I('book',15)}CPD diary</i><i>${I('spark',15)}Wrapped</i></span></div>`,
-        t:'Ready for the panel', p:'Outcome1 counts down to your ARCP and the portfolio lock two weeks before. When it comes round, your reports and CPD diary print in a tap.' }
+      { vis:`<div class="w-wv-papers"><span class="w-wv-k">Made for you</span>${[['dl','Logbook','Excel'],['file',`${sp} + GIM summaries`,'PDF'],['book','CPD diary','PDF'],['table','Firth calculator','Excel'],['calc','CCT calculator','Excel']].map(([ic,l,f])=>`<span class="w-wv-pp">${I(ic,17)}<span>${safe(l)}</span><em>${f}</em></span>`).join('')}</div>`,
+        t:'It does the paperwork', p:`Your logbook, ${safe(sp)} and GIM summaries, CPD diary and Firth calculator are made from what you log. The CCT calculator works out your date if you’re LTFT or take time out.` },
+      { vis:`<div class="w-wv-arcp"><span class="w-wv-k">ARCP</span><b>21 days</b><span class="w-wv-lock">${I('lock',15)}Portfolio locks in 7 days</span></div>`,
+        t:'Ready for the panel', p:'Outcome1 counts down to your ARCP and the portfolio lock, and warns you two weeks out with what’s still open.' }
     ];
     const el=document.createElement('div'); el.id='w-welcome'; el.className='w-wel'+(opts.instant?' now':'');
     el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Welcome to Outcome1');
@@ -11147,7 +11158,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       {id:'house',cat:'Clinical',icon:'list',name:'Full House',tiers:[5],grades:[S],unit:`${sp.short} clinic types`,d:`5 different ${sp.short} clinic types`,v:ctypes},
       {id:'tline',cat:'Clinical',icon:'line',name:'Safe Pair of Hands',tiers:[10,25,50],grades:[B,S,G],unit:'temporary HD lines',d:'Temporary dialysis lines logged, femoral or jugular',v:cnt(RE.temp),show:has(RE.temp)},
       {id:'biopsy',cat:'Clinical',icon:'kidney',name:'Nephron Ninja',tiers:[5,15,30],grades:[B,S,G],unit:'kidney biopsies',d:'Native and transplant kidney biopsies logged',v:cnt(RE.bx),show:has(RE.bx)},
-      {id:'lp',cat:'Clinical',icon:'spine',name:'Spinal Tap',tiers:[10,25,50],grades:[B,S,G],unit:'lumbar punctures',d:'Lumbar punctures logged, diagnostic or therapeutic',v:cnt(RE.lp),show:has(RE.lp)},
+      {id:'lp',cat:'Clinical',icon:'spine',name:'Mind the Gap',tiers:[10,25,50],grades:[B,S,G],unit:'lumbar punctures',d:'Lumbar punctures logged, diagnostic or therapeutic',v:cnt(RE.lp),show:has(RE.lp)},
       {id:'bont',cat:'Clinical',icon:'drop',name:'Smooth Operator',tiers:[5,15,30],grades:[B,S,G],unit:'botulinum toxin injections',d:'Botulinum toxin injections logged',v:cnt(RE.bont),show:has(RE.bont)},
       {id:'take',cat:'Clinical',icon:'pulse',name:'Take That',tiers:[500,750],grades:[S,G],unit:'acute patients',d:'Acute GIM patients, from your take log. 750 is the GIM target',v:bdSum(bdOwn('acute'),'estimated')},
       {id:'ward',cat:'Clinical',icon:'bed',name:'Holding the Fort',tiers:[6,12],grades:[S,G],unit:'months of ward cover',d:'Months of IM ward cover. 12 is the GIM target',v:bdSum(bdOwn('ward'),'months')},
