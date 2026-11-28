@@ -2143,6 +2143,10 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
 .w-card .l small .w-i{display:inline-block;vertical-align:-2px;margin-right:4px}
 .w-lk .w-sus-k{color:var(--red);display:flex;align-items:center;gap:5px}
 .w-lk .w-ent-r{gap:12px}.w-lk .w-ent-r span{flex:1 1 auto;min-width:0}.w-lk .w-ent-r b{white-space:nowrap;flex:none}
+.w-rdy-cips{margin-top:12px;max-height:46vh;overflow:auto}
+.w-rdy-cips .w-ent-r{gap:12px;align-items:flex-start}.w-rdy-cips .w-ent-r span{flex:1 1 auto;min-width:0}.w-rdy-cips .w-ent-r b{white-space:nowrap;flex:none}
+.w-rdy-cg{font:800 11px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:10px 0 4px}
+.w-mp-r{align-items:center;gap:12px}.w-mp-r span{flex:1 1 auto;min-width:0}
 </style>
 
 </head>
@@ -2274,8 +2278,24 @@ body.focus .w-bd-st.on.hid{border-color:#F4F3EE}
 </div>
 
 <script>
-const YEARS = ["ST4","ST5","ST6","ST7"];
-const ARCP_DEFAULTS = { ST4:"2026-12-01", ST5:"2027-12-01", ST6:"2028-12-01", ST7:"2029-12-01" };
+// Training years follow the specialty: ST4 to ST7 for most, ST4 to ST8 where the programme is five years (Neurology).
+// YEARS is one shared list changed in place, so everything that reads it follows. finalYear() is the CCT year.
+const YEARS_BASE = ["ST4","ST5","ST6","ST7"];
+const YEARS = [...YEARS_BASE];
+let __yearsKey = null;
+function specYears(key){ const c=SPECIALTIES[key]; return (c && c.years) || YEARS_BASE; }
+function finalYear(){ return YEARS[YEARS.length-1]; }
+function syncYears(key){
+  key = key || state?.profile?.specialty || 'renal';
+  if(key===__yearsKey) return; __yearsKey=key;
+  const want=specYears(key);
+  if(!(want.length===YEARS.length && want.every((y,i)=>YEARS[i]===y))) YEARS.splice(0, YEARS.length, ...want);
+  const fy=finalYear();
+  // GIM's end-of-training and final-year items fall in whichever year is the last
+  Object.values(GIM_REQS).forEach(r=>{ if(r._final){ r.deadline=fy; r.note=String(r._note||'').replace(/ST7/g, fy); } });
+  if(typeof currentYear!=='undefined' && !YEARS.includes(currentYear)){ const ty=state?.profile?.trainingYear; currentYear=YEARS.includes(ty)?ty:YEARS[YEARS.length-1]; }
+}
+const ARCP_DEFAULTS = { ST4:"2026-12-01", ST5:"2027-12-01", ST6:"2028-12-01", ST7:"2029-12-01", ST8:"2030-12-01" };
 const OUTCOMES = {"1":"Outcome 1 — Satisfactory progress","2":"Outcome 2 — Development needs identified","3":"Outcome 3 — Inadequate progress","4":"Outcome 4 — Released from programme","5":"Outcome 5 — Incomplete evidence","6":"Outcome 6 — Completion of training","8":"Outcome 8 — Out of programme"};
 const LOCKING_OUTCOMES = ["1","2","6","8"];
 const PROFILE_KEY = "arcp_v2_profile";
@@ -2311,6 +2331,46 @@ const SPECIALTIES = {
       spec_mgmt:{label:"Management / leadership evidence",type:"checkbox",deadline:"ST7",note:"Course or equivalent"}
     },
     logbook:{clinics:["General Nephrology clinic","HD clinic","Transplant clinic","HTN clinic","AKCC","Other"], procedures:["Temp HD catheter (femoral)","Temp HD catheter (jugular)","Tunnelled dialysis catheter","Tunnelled line removal","Native kidney biopsy","Transplant kidney biopsy","Other"], cpd:["Renal study day","Renal conference","Renal Training Day","Grand round","M&M / mortality meeting","Departmental teaching / journal club","Other"]}
+  },
+  // Neurology (2022 curriculum, from the JRCPTB Neurology ARCP decision aid): five years, ST4 to ST8, dual with
+  // Internal Medicine stage 2 and with Stroke Medicine built in, so the Stroke CiPs sit alongside the Neurology ones.
+  neurology:{ label:"Neurology", short:"Neuro", color:"#38bdf8", color2:"#0369a1", icon:"◇",
+    years:["ST4","ST5","ST6","ST7","ST8"],
+    dopsBy:{"Lumbar puncture":"ST4"},
+    reqs:{
+      spec_mcrs:{label:"Neurology MCRs",type:"number",target:4,unit:"MCRs",deadline:"annual",note:"From consultants who supervised your clinical work. Your ES doesn't complete one"},
+      spec_msf:{label:"MSF raters",type:"number",target:12,unit:"raters",deadline:"annual",note:"One MSF a year: at least 12 raters, including 3 consultants. It can cover IM and Stroke too"},
+      spec_cex:{label:"Mini-CEX",type:"number",target:4,unit:"mini-CEX",deadline:"annual",note:"By consultants, broadening curriculum coverage each year"},
+      spec_cbd:{label:"CbD",type:"number",target:4,unit:"CbDs",deadline:"annual",note:"By consultants, broadening curriculum coverage each year"},
+      spec_es:{label:"Educational Supervisor Report",type:"checkbox",deadline:"annual",note:"One per year"},
+      spec_lp:{label:"Lumbar puncture: competent unsupervised",type:"checkbox",deadline:"ST4",note:"Signed off by the end of ST4, then maintained"},
+      spec_bont:{label:"Botulinum toxin injection",type:"checkbox",deadline:"ST4",note:"Under direct supervision, then maintained"},
+      spec_gon:{label:"Greater occipital nerve injection",type:"checkbox",deadline:"ST4",note:"Under direct supervision, then maintained"},
+      spec_sce_att:{label:"SCE Neurology attempted",type:"checkbox",deadline:"ST6",note:"First attempt in ST6"},
+      spec_sce:{label:"SCE Neurology",type:"checkbox",deadline:"ST8",note:"Attempt in ST6; pass before CCT"},
+      spec_qip1:{label:"QIP / audit #1 + QIPAT",type:"checkbox",deadline:"ST6",note:"Completed by the end of ST6"},
+      spec_qip2:{label:"QIP / audit #2 + QIPAT",type:"checkbox",deadline:"ST8",note:"Completed before CCT"},
+      spec_survey:{label:"Patient Survey",type:"checkbox",deadline:"ST8",note:"Within 1 year of CCT"}
+    },
+    // Levels expected by the end of each year. Stroke reaches level 4 by the end of ST7 or ST8.
+    cips:[
+      {g:"Neurology", n:"Managing disorders of cognition and consciousness", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Neurology", n:"Managing headache and pain", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Neurology", n:"Managing seizures and epilepsy", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Neurology", n:"Managing inflammatory and infectious disorders", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Neurology", n:"Managing movement disorders", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Neurology", n:"Managing neuromuscular disorders", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Neurology", n:"Managing traumatic brain injury and patients requiring neurorehabilitation", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Neurology", n:"Managing neuropsychiatric disorders, including functional disorders", lv:{ST4:2,ST5:2,ST6:3,ST7:3,ST8:4}},
+      {g:"Stroke Medicine", n:"Managing the care of acute stroke patients, including hyperacute care and cerebral reperfusion strategies", lv:{ST4:2,ST5:2,ST6:3,ST7:"4 by ST7 or ST8",ST8:4}},
+      {g:"Stroke Medicine", n:"Managing the primary and secondary prevention of stroke and transient ischaemic attack", lv:{ST4:2,ST5:2,ST6:3,ST7:"4 by ST7 or ST8",ST8:4}},
+      {g:"Stroke Medicine", n:"Managing early and late stroke rehabilitation in hospital and community settings", lv:{ST4:2,ST5:2,ST6:3,ST7:"4 by ST7 or ST8",ST8:4}}
+    ],
+    logbook:{
+      clinics:["General neurology clinic","Rapid access / hot clinic","First fit / seizure clinic","TIA / neurovascular clinic","Epilepsy clinic","Movement disorders clinic","MS / neuroinflammatory clinic","Headache / facial pain clinic","Neuromuscular / MND clinic","Cognitive / memory clinic","Other"],
+      procedures:["Lumbar puncture","Botulinum toxin injection","Greater occipital nerve injection","Other"],
+      cpd:["Neurology regional training day","ABN annual meeting","Neurology study day / course","Stroke study day / course","Grand round","M&M / mortality meeting","Departmental teaching / journal club","Other"]
+    }
   },
   respiratory:{ label:"Respiratory Medicine", short:"Resp", color:"#34d399", color2:"#059669", icon:"◉",
     reqs:{
@@ -2385,6 +2445,7 @@ const GIM_REQS = {
   gim_survey:{label:"Patient Survey",type:"checkbox",deadline:"ST5",note:"Completed by the ST5 specialty patient survey — no separate GIM survey needed",linkedFrom:"spec_survey_st5"},
   gim_teaching:{label:"Teaching observation",type:"checkbox",deadline:"ST7",note:"Shared evidence accepted"}
 };
+Object.values(GIM_REQS).forEach(r=>{ if(r.deadline==="ST7"){ r._final=true; r._note=r.note; } });
 const GIM_LOGBOOK = { clinics:["Specialty clinic","Medical SDEC"], procedures:["Advanced CPR","DC cardioversion","Temporary cardiac pacing","Central venous cannulation","Femoral / IO access","Pleural aspiration","Intercostal drain","NG tube","Ascitic tap","Abdominal paracentesis","Lumbar puncture","Other"], cpd:["Regional GIM training day","RCP / RSM / BMA approved course","Online CPD","Grand round","Departmental teaching","Journal club","Other external CPD","Other"] };
 
 const CPD_DIARY_TYPES = [
@@ -2530,14 +2591,14 @@ function encodeReqKeys(reqObj){ if(!reqObj || typeof reqObj!=='object') return r
 function decodeReqKeys(reqObj){ if(!reqObj || typeof reqObj!=='object') return reqObj; const out={}; for(const k of Object.keys(reqObj)){ out[k.split(FB_KEY_DOT_TOKEN).join('.')] = reqObj[k]; } return out; }
 function encodeStateForFirebase(s){ if(!s) return s; return { ...s, req: encodeReqKeys(s.req||{}), reqTs: encodeReqKeys(s.reqTs||{}) }; }
 function decodeStateFromFirebase(s){ if(!s) return s; return { ...s, req: decodeReqKeys(s.req||{}), reqTs: decodeReqKeys(s.reqTs||{}) }; }
-function getSpecKey(){ return state.profile?.specialty || "renal"; }
+function getSpecKey(){ const k=state.profile?.specialty || "renal"; if(k!==__yearsKey) syncYears(k); return k; }
 function specCfg(){ const key=getSpecKey(); const t=SPECIALTY_THEMES[key] || {}; return SPECIALTIES[key] || { label:t.label || SPECIALTY_OPTIONS[key] || "Specialty", short:t.short || SPECIALTY_OPTIONS[key] || "Specialty", color:t.color || "#a78bfa", color2:t.color2 || "#7c5fd4", icon:t.icon || "◈", reqs:null, logbook:{clinics:["Specialty clinic","Other"], procedures:["Specialty procedure","Other"], cpd:["Specialty study day","Other"]} }; }
 function specReqs(){
   const reqs = Object.assign({}, specCfg().reqs || DEFAULT_SPEC_REQS);
   // Auto-merge the GIM-shared Teaching Observation only if the specialty hasn't already defined one
   const hasTeachingObs = Object.entries(reqs).some(([k,r])=>/teaching[_-]?obs/i.test(k) || /teaching observation/i.test(r.label||''));
   if(!hasTeachingObs){
-    reqs.spec_teaching_obs = {label:"Teaching observation",type:"checkbox",deadline:"ST7",note:"Shared with GIM — ticking either one ticks both"};
+    reqs.spec_teaching_obs = {label:"Teaching observation",type:"checkbox",deadline:finalYear(),note:"Shared with GIM — ticking either one ticks both"};
   }
   return reqs;
 }
@@ -2549,7 +2610,7 @@ function setReqVal(id, req, val){
   state.req[keyForReq(id,req)] = cleanVal;
   const lower=(req.label||'').toLowerCase();
   if(id==='gim_teaching' || id==='gim_teaching_obs' || id==='spec_teaching_obs' || (lower.includes('teaching observation'))){
-    const gimReq = GIM_REQS.gim_teaching || {label:'Teaching observation',type:'checkbox',deadline:'ST7',note:'Shared with specialty'};
+    const gimReq = GIM_REQS.gim_teaching || {label:'Teaching observation',type:'checkbox',deadline:finalYear(),note:'Shared with specialty'};
     state.req[keyForReq('gim_teaching', gimReq)] = cleanVal;
     state.req[keyForReq('gim_teaching_obs', gimReq)] = cleanVal;
     const specObs = {label:'Teaching Observation',type:'checkbox',deadline:'ST6',note:'Shared with GIM'};
@@ -2601,8 +2662,9 @@ function initOnboarding(){
   spSel.innerHTML=Object.entries(SPECIALTY_OPTIONS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
   dSel.innerHTML=Object.keys(DEANERIES).map(d=>`<option>${d}</option>`).join('');
   dSel.onchange=()=>{ const w=document.getElementById('on-deanery-other-wrap'); if(w) w.style.display=dSel.value==='Other'?'flex':'none'; populateOnHospitals(); };
+  const fillYears=()=>{ syncYears(spSel.value); const keep=ySel.value; ySel.innerHTML=YEARS.map(y=>`<option>${y}</option>`).join(''); if(YEARS.includes(keep)) ySel.value=keep; };
   ySel.onchange=renderBackfill;
-  spSel.onchange=()=>{ /* theme locked to Direction B Dark; no-op */ }; const _origSpOnchange=()=>{ const cfg=SPECIALTIES[spSel.value] || SPECIALTY_THEMES[spSel.value]; if(false) document.documentElement.style.setProperty('--primary', cfg?.color||'#a78bfa'); if(false) document.documentElement.style.setProperty('--primary2', cfg?.color2||'#7c5fd4'); const th=document.getElementById('on-theme'); if(th) th.value=''; };
+  spSel.onchange=()=>{ fillYears(); renderBackfill(); try{ ySel.dispatchEvent(new Event('change')); }catch(e){} }; const _origSpOnchange=()=>{ const cfg=SPECIALTIES[spSel.value] || SPECIALTY_THEMES[spSel.value]; if(false) document.documentElement.style.setProperty('--primary', cfg?.color||'#a78bfa'); if(false) document.documentElement.style.setProperty('--primary2', cfg?.color2||'#7c5fd4'); const th=document.getElementById('on-theme'); if(th) th.value=''; };
   const themeSel=null;
   if(false) {}
   /* populate year-start year dropdown */
@@ -2614,7 +2676,7 @@ function initOnboarding(){
     document.getElementById('on-name').value=p.name||'';
     const tnEl=document.getElementById('on-trainingNumber'); if(tnEl) tnEl.value=p.trainingNumber||'';
     document.getElementById('on-email').value=p.email||'';
-    spSel.value=p.specialty||'renal';
+    spSel.value=p.specialty||'renal'; fillYears();
     ySel.value=p.trainingYear||'ST4';
     if(DEANERIES[p.deanery]) dSel.value=p.deanery; else { dSel.value='Other'; const od=document.getElementById('on-deanery-other'); const ow=document.getElementById('on-deanery-other-wrap'); if(od) od.value=p.deanery||''; if(ow) ow.style.display='flex'; }
     if(themeSel) themeSel.value=p.theme?.value||'';
@@ -2625,11 +2687,11 @@ function initOnboarding(){
     if(p.baseHospital && hospSel && !Array.from(hospSel.options).some(o=>o.value===p.baseHospital)){ hospSel.value='Other / not listed'; if(hospWrap) hospWrap.style.display='flex'; if(hospOther) hospOther.value=p.baseHospital; }
     else if(hospSel){ hospSel.value=p.baseHospital||hospSel.value||''; }
   }
-  if(themeSel && themeSel.value) themeSel.onchange(); else spSel.onchange();
+  if(!p) fillYears();
   renderBackfill();
 }
 function populateOnHospitals(){ const d=document.getElementById('on-deanery').value; const h=document.getElementById('on-hospital'); const list=DEANERIES[d]||[]; h.innerHTML=[...list,"Other / not listed"].map(x=>`<option>${safe(x)}</option>`).join(''); h.onchange=()=>{ const wrap=document.getElementById('on-hospital-other-wrap'); if(wrap) wrap.style.display=h.value==='Other / not listed'?'flex':'none'; }; h.onchange(); }
-function renderBackfill(){ const y=document.getElementById('on-year').value; const wrap=document.getElementById('backfill-panel'); const box=document.getElementById('backfill-years'); if(yrIndex(y)<1){wrap.style.display='none';return;} wrap.style.display='block'; const prev=YEARS.slice(0,yrIndex(y)); box.innerHTML=prev.map(yr=>{ const allowed=Object.entries(OUTCOMES).filter(([k])=>k!=='6'||yr==='ST7'); return `<div class="card"><div class="card-title">${yr}</div><select class="input" id="bf-${yr}"><option value="">Do not lock yet</option>${allowed.map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><div class="deadline">Choose Outcome 1/2${yr==='ST7'?'/6':''}/8 to lock the completed year.</div></div>`; }).join(''); }
+function renderBackfill(){ const y=document.getElementById('on-year').value; const wrap=document.getElementById('backfill-panel'); const box=document.getElementById('backfill-years'); if(yrIndex(y)<1){wrap.style.display='none';return;} wrap.style.display='block'; const prev=YEARS.slice(0,yrIndex(y)); box.innerHTML=prev.map(yr=>{ const allowed=Object.entries(OUTCOMES).filter(([k])=>k!=='6'||yr===finalYear()); return `<div class="card"><div class="card-title">${yr}</div><select class="input" id="bf-${yr}"><option value="">Do not lock yet</option>${allowed.map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><div class="deadline">Choose Outcome 1/2${yr===finalYear()?'/6':''}/8 to lock the completed year.</div></div>`; }).join(''); }
 function saveOnboarding(){
   const name=document.getElementById('on-name').value.trim();
   const email=document.getElementById('on-email').value.trim();
@@ -4088,7 +4150,7 @@ function openReportDoc(html){
   return f;
 }
 window.openReportDoc=openReportDoc;
-function render(){ if(!state.profile){ initOnboarding(); return; } syncLogbookTargets(); setTheme(); document.getElementById('app').classList.add('ready'); document.getElementById('gate').classList.remove('show'); renderHeader(); renderTabs(); const trialExpired = renderBetaTrial(); if(trialExpired){ updateReadiness(); return; } if(currentTab==='today') renderToday(); if(currentTab==='roadmap') renderRoadmap(); if(currentTab==='specialty') renderSpecialty(); if(currentTab==='gim') renderGIM(); if(currentTab==='logbook'){ renderLogbookV2(); try{ fbRefreshCounts(); }catch(e){} } if(currentTab==='logbook-form') renderLogbookFormWrap(); if(currentTab==='admin') renderAdmin(); if(currentTab==='overview') renderOverview(); if(currentTab==='arcp') renderArcp(); updateReadiness(); forceLiveStatus(); maybeAutoRevealWrapped(); }
+function render(){ if(!state.profile){ initOnboarding(); return; } syncYears(); syncLogbookTargets(); setTheme(); document.getElementById('app').classList.add('ready'); document.getElementById('gate').classList.remove('show'); renderHeader(); renderTabs(); const trialExpired = renderBetaTrial(); if(trialExpired){ updateReadiness(); return; } if(currentTab==='today') renderToday(); if(currentTab==='roadmap') renderRoadmap(); if(currentTab==='specialty') renderSpecialty(); if(currentTab==='gim') renderGIM(); if(currentTab==='logbook'){ renderLogbookV2(); try{ fbRefreshCounts(); }catch(e){} } if(currentTab==='logbook-form') renderLogbookFormWrap(); if(currentTab==='admin') renderAdmin(); if(currentTab==='overview') renderOverview(); if(currentTab==='arcp') renderArcp(); updateReadiness(); forceLiveStatus(); maybeAutoRevealWrapped(); }
 
 function betaTrialInfo(){
   // Owner exemption: the developer account is never gated by the trial.
@@ -4136,7 +4198,7 @@ function updateCountdown(){ const d=new Date(state.arcpDates[currentYear]||ARCP_
 function updateALS(){ const val=state.als; const el=document.getElementById('als-val'); if(!val){el.textContent='NOT SET'; el.className='metric-val'; return;} const d=new Date(val); const days=Math.round((d-new Date())/86400000); el.textContent=days<0?`EXPIRED ${fmtDate(val)}`:`${fmtDate(val)} (${days}d)`; el.className='metric-val '+(days<0?'alert':days<183?'warn':''); }
 function renderLockedBlock(){ if(!yearLocked()) return ''; return `<div class="lock-banner"><div><div class="lock-title">✓ ${safe(OUTCOMES[outcome()]||'Year locked')}</div><div class="lock-note">${currentYear} is locked after ARCP outcome. Sections are collapsed to protect the record. Unlock only if you need to correct data.</div></div><div class="row"><button class="btn small primary" onclick="showPrintStylePicker()">Print report</button><button class="btn small" onclick="unlockYear()">Unlock</button></div></div>`; }
 function unlockYear(){ if(!o1Confirm('Unlock this year?', ()=>unlockYear(), {sub:'Only do this if the outcome was entered by mistake.', yes:'Unlock'})) return; state.years[currentYear]=state.years[currentYear]||{}; state.years[currentYear].locked=false; state.years[currentYear].outcome=''; delete state.years[currentYear].lockedAt; saveState(); render(); }
-function renderOutcomeSelector(){ const allowedOutcomes=Object.entries(OUTCOMES).filter(([k])=>k!=='6'||currentYear==='ST7'); return `<div class="panel"><div class="row"><strong style="font-size:11px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase">ARCP Outcome</strong><select class="input" style="max-width:360px" onchange="setOutcome('${currentYear}',this.value)"><option value="">-- not yet --</option>${allowedOutcomes.map(([k,v])=>`<option value="${k}" ${outcome()===k?'selected':''}>${v}</option>`).join('')}</select>${yearLocked()?'<span class="green" style="font-size:11px;font-weight:800">YEAR LOCKED</span>':''}</div></div>`; }
+function renderOutcomeSelector(){ const allowedOutcomes=Object.entries(OUTCOMES).filter(([k])=>k!=='6'||currentYear===finalYear()); return `<div class="panel"><div class="row"><strong style="font-size:11px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase">ARCP Outcome</strong><select class="input" style="max-width:360px" onchange="setOutcome('${currentYear}',this.value)"><option value="">-- not yet --</option>${allowedOutcomes.map(([k,v])=>`<option value="${k}" ${outcome()===k?'selected':''}>${v}</option>`).join('')}</select>${yearLocked()?'<span class="green" style="font-size:11px;font-weight:800">YEAR LOCKED</span>':''}</div></div>`; }
 function sceDateBlock(done){
   const d=state.sceDate||''; let note='';
   if(d && !done){
@@ -4148,13 +4210,13 @@ function sceDateBlock(done){
 function makeReqCard(id, req, stream){
   const v=getReqVal(id,req), baseStatus=reqStatus(id,req), locked=yearLocked();
   const isFinalYearOnly=['gim_cpd_st7','gim_sim_st7','gim_acute_st7'].includes(id);
-  const st7Inactive=isFinalYearOnly && currentYear!=='ST7';
+  const st7Inactive=isFinalYearOnly && currentYear!==finalYear();
   const disabled=(locked||st7Inactive)?'disabled':'';
   const status=st7Inactive?'na':baseStatus;
   const spShort=(specCfg().short||'SPEC').toUpperCase();
   const badge=stream==='gim'?'<span class="badge gim">GIM</span>':`<span class="badge spec">${safe(spShort)}</span>`;
   const dc=deadlinePast(req.deadline)?'past':req.deadline===currentYear?'soon':'';
-  const disabledNote=st7Inactive?'<div class="deadline">// Final-year ST7 requirement — will activate in ST7</div>':'';
+  const disabledNote=st7Inactive?`<div class="deadline">// Final-year ${finalYear()} requirement — will activate in ${finalYear()}</div>`:'';
   const cardClass=`card ${status} ${st7Inactive?'final-year-disabled':''}`;
   if(req.type==='checkbox'){
     return `<div class="${cardClass}"><div class="card-title">${safe(req.label)} ${badge}</div><div class="check-row"><button ${disabled} class="check ${v?'checked':''}" onclick="setReqVal('${id}', ${JSON.stringify(req).replace(/"/g,'&quot;')}, ${!v}); render();">${v?'✓':''}</button><span class="hint">${v?'Complete':'Not yet done'}</span></div>${id==='spec_sce'?sceDateBlock(v):''}<div class="deadline ${dc}">${deadlineText(req)} · ${safe(req.note||'')}</div>${disabledNote}</div>`;
@@ -4183,7 +4245,7 @@ function renderRespSummary(){
     <div class="panel">
       <div class="card-title" style="color:var(--primary)">Respiratory Medicine + Internal Medicine dual CCT</div>
       <ul class="resp-summary-list">
-        <li>ST4–ST7 training with Generic, Internal Medicine and Respiratory specialty CiPs.</li>
+        <li>${YEARS[0]}–${finalYear()} training with Generic, Internal Medicine and Respiratory specialty CiPs.</li>
         <li>All CiPs should progress to Level 4 independent practice by ST7.</li>
         <li>Annual evidence: ESR, 4–6 MCRs, MSF with ≥12 raters, 6 ACATs and 6 CbD/mini-CEX.</li>
         <li>Must pass Respiratory SCE before CCT and keep ALS valid.</li>
@@ -4220,7 +4282,7 @@ function renderGIM(){
     const done=!!state.req['dops.'+p];
     return `<div class="dops-row ${done?'done':''}"><button class="check ${done?'checked':''}" onclick="toggleGimDops('${jsq(p)}')">${done?'✓':''}</button><span class="dops-label">${safe(p)}</span><span class="dops-note">${done?'signed off':'not yet'}</span></div>`;
   });
-  document.getElementById('main').innerHTML=renderOutcomeSelector()+section('GIM annual requirements',`For ${currentYear}`,annual)+section('GIM cumulative targets','End-of-training totals; ST7 minimums grey out until final year',cumulative)+section('GIM DOPS procedures',`${doneCount} / ${GIM_DOPS_PROCEDURES.length} completed`,[`<div class="dops-list">${dopsRows.join('')}</div>`])+section('GIM milestones','One-off items',milestones);
+  document.getElementById('main').innerHTML=renderOutcomeSelector()+section('GIM annual requirements',`For ${currentYear}`,annual)+section('GIM cumulative targets',`End-of-training totals; ${finalYear()} minimums grey out until final year`,cumulative)+section('GIM DOPS procedures',`${doneCount} / ${GIM_DOPS_PROCEDURES.length} completed`,[`<div class="dops-list">${dopsRows.join('')}</div>`])+section('GIM milestones','One-off items',milestones);
 }
 function toggleGimDops(proc){ state.req['dops.'+proc]=!state.req['dops.'+proc]; saveState(); renderGIM(); }
 
@@ -4242,7 +4304,7 @@ function formToggled(d){ if(d.open){ __openForms.add(d.id); const h=d.querySelec
 window.formToggled=formToggled;
 function hospitalField(id='hospital'){ const list=hospitalOptions(); return `<div class="field"><label>Hospital</label><input class="input" id="${id}" list="${id}-list" placeholder="Start typing or add manually"><datalist id="${id}-list">${list.map(h=>`<option value="${safe(h)}">`).join('')}</datalist></div>`; }
 function table(k, cols, mapper){ const arr=entries(k).slice().sort((a,b)=>(b.date||b.start||'').localeCompare(a.date||a.start||'')); return tableFromArray(k, arr, cols, mapper); }
-const YEAR_TO_CAL = { ST4:2026, ST5:2027, ST6:2028, ST7:2029 };
+const YEAR_TO_CAL = { ST4:2026, ST5:2027, ST6:2028, ST7:2029, ST8:2030 };
 function inCurrentYear(e){
   // Show entry in the selected training year: explicit year field wins; else map its date.
   if(e && e.year) return e.year === currentYear;
@@ -4260,6 +4322,20 @@ function deleteEntry(k,id){ if(yearLocked()) return alert('This year is locked. 
 function editEntry(k,id){ if(yearLocked()) return alert('This year is locked. Unlock it before editing.'); const arr=entries(k); const idx=arr.findIndex(e=>e.id===id); if(idx<0) return; const e=arr[idx]; if(!canEditEntry(e)) return alert('Editing closes 7 days after an entry is added. You can still delete it.'); const editable=Object.keys(e).filter(x=>!['id','createdAt','updatedAt'].includes(x)); for(const field of editable){ const current=e[field]??''; const next=prompt(`Edit ${field}`, current); if(next===null) return; e[field]=next; } e.updatedAt=Date.now(); arr[idx]=e; saveEntries(k,arr); render(); }
 function logSummaryCards(items){ return `<div class="summary-grid" style="margin-bottom:16px;">${items.map(it=>`<div class="summary"><div class="big ${it.cls||'primary'}">${it.value}</div><div class="hint">${it.label}</div></div>`).join('')}</div>`; }
 function otherClinicControl(id, list){ const sc=list[0]==='Specialty clinic'; return `<select class="input" id="${id}" onchange="document.getElementById('${id}-other-wrap').style.display=(this.value==='Other'||this.value==='Specialty clinic')?'flex':'none'">${optionsHtml(list)}</select><div class="field" id="${id}-other-wrap" style="display:${sc?'flex':'none'};margin-top:6px"><label>${sc?'Clinic name':'Specify clinic type'}</label><input class="input" id="${id}-other" placeholder="Type clinic name"></div>`; }
+// Procedures the person names under "Other" are kept per stream (specialty or GIM) and offered next time, in any
+// specialty. Removing one from the list (Account → Your procedures) leaves entries already logged as they are.
+function procSame(a,b){ return String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase(); }
+function procBase(scope){ return ((scope==='gim'?GIM_LOGBOOK.procedures:specCfg().logbook?.procedures)||[]).filter(t=>t && t!=='Other'); }
+function myProcs(scope){ return (((state.customProcs||{})[scope==='gim'?'gim':'spec'])||[]).filter(Boolean); }
+function procTypes(scope){ const base=procBase(scope); return [...base, ...myProcs(scope).filter(m=>!base.some(b=>procSame(b,m))), 'Other']; }
+function rememberProc(scope, name){
+  name=String(name||'').trim(); const k=scope==='gim'?'gim':'spec';
+  if(!name || procSame(name,'Other') || procBase(k).some(b=>procSame(b,name)) || myProcs(k).some(m=>procSame(m,name))) return false;
+  state.customProcs={...(state.customProcs||{}), [k]:[...myProcs(k), name]}; return true;
+}
+function canonProc(scope, name){ name=String(name||'').trim(); return [...procBase(scope), ...myProcs(scope)].find(t=>procSame(t,name)) || name; }   // the list's spelling when it's one already there
+function forgetProc(scope, name){ const k=scope==='gim'?'gim':'spec'; state.customProcs={...(state.customProcs||{}), [k]:myProcs(k).filter(m=>!procSame(m,name))}; }
+function procOtherControl(id, scope){ return `<select class="input" id="${id}" onchange="const w=document.getElementById('${id}-other-wrap'); w.style.display=this.value==='Other'?'flex':'none'; if(this.value==='Other') document.getElementById('${id}-other').focus();">${optionsHtml(procTypes(scope))}</select><div class="field" id="${id}-other-wrap" style="display:none;margin-top:6px"><label for="${id}-other">Procedure name</label><input class="input" id="${id}-other" placeholder="Type the procedure" maxlength="80" autocomplete="off"></div>`; }
 function clinicTypeValue(id){ const v=val(id); if(v==='Specialty clinic'){ const n=String(val(id+'-other')||'').trim(); return n ? (/clinic/i.test(n)?n:n+' clinic') : v; } return v==='Other' ? val(id+'-other') : v; }
 function renderLogClinics(){
   const sp=specCfg();
@@ -4284,8 +4360,8 @@ function renderLogProcedures(){
   const sp=specCfg();
   const specEntries=entries('procedures').filter(e=>e.scope!=='gim').filter(inCurrentYear); // per training year
   const gimEntries=entries('procedures').filter(e=>e.scope==='gim').filter(inCurrentYear);   // per training year
-  const specForm=`<input type="hidden" id="proc-spec-scope" value="spec"><div class="field"><label>Procedure</label><select class="input" id="proc-spec-type">${optionsHtml(sp.logbook.procedures)}</select></div><div class="field"><label>Date</label><input class="input" id="proc-spec-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-spec-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-spec-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-spec-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-spec-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-spec-notes" placeholder="Optional"></div>`;
-  const gimForm=`<input type="hidden" id="proc-gim-scope" value="gim"><div class="field"><label>Procedure</label><select class="input" id="proc-gim-type">${optionsHtml(GIM_LOGBOOK.procedures)}</select></div><div class="field"><label>Date</label><input class="input" id="proc-gim-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-gim-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-gim-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-gim-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-gim-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-gim-notes" placeholder="Optional"></div>`;
+  const specForm=`<input type="hidden" id="proc-spec-scope" value="spec"><div class="field"><label>Procedure</label>${procOtherControl('proc-spec-type','spec')}</div><div class="field"><label>Date</label><input class="input" id="proc-spec-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-spec-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-spec-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-spec-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-spec-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-spec-notes" placeholder="Optional"></div>`;
+  const gimForm=`<input type="hidden" id="proc-gim-scope" value="gim"><div class="field"><label>Procedure</label>${procOtherControl('proc-gim-type','gim')}</div><div class="field"><label>Date</label><input class="input" id="proc-gim-date" type="date" value="${arcpIso(new Date())}"></div><div class="field"><label>Supervisor</label><input class="input" id="proc-gim-supervisor" placeholder="Supervising consultant"></div><div class="field"><label>DOPS signed?</label><select class="input" id="proc-gim-dops"><option>No</option><option>Yes</option></select></div>${hospitalField('proc-gim-hospital')}<div class="field"><label>Training year</label><select class="input" id="proc-gim-year">${YEARS.map(y=>`<option ${y===currentYear?'selected':''}>${y}</option>`).join('')}</select></div><div class="field full"><label>Notes</label><input class="input" id="proc-gim-notes" placeholder="Optional"></div>`;
   document.getElementById('log-content').innerHTML=
     logSummaryCards([{value:specEntries.length,label:`${sp.short} procedures logged`,cls:'primary'},{value:gimEntries.length,label:`GIM procedures logged`,cls:'blue'}])+
     formPanel(`Add ${sp.short} procedure`,specForm,"saveProc('spec')")+
@@ -4293,7 +4369,13 @@ function renderLogProcedures(){
     formPanel('Add GIM procedure',gimForm,"saveProc('gim')")+
     section('GIM procedures',`${gimEntries.length} entries`, [`<div class="card" style="grid-column:1/-1">${tableFiltered('procedures',e=>e.scope==='gim',['Date','Procedure','Hospital','Supervisor','DOPS','Year','Notes'], e=>[fmtDate(e.date),e.type,e.hospital,e.supervisor,e.dops,e.year,e.notes])}</div>`]);
 }
-function saveProc(scope='spec'){ const prefix=`proc-${scope}`; addEntry('procedures',{scope,type:val(`${prefix}-type`),date:val(`${prefix}-date`),supervisor:val(`${prefix}-supervisor`),dops:val(`${prefix}-dops`),hospital:val(`${prefix}-hospital`),year:val(`${prefix}-year`),notes:val(`${prefix}-notes`)}); addHospitalIfNew(val(`${prefix}-hospital`)); }
+function saveProc(scope='spec'){ const prefix=`proc-${scope}`; let type=val(`${prefix}-type`);
+  if(type==='Other'){   // "Other" needs a name: it's saved under that name and kept for next time
+    const el=document.getElementById(`${prefix}-type-other`), name=(el?.value||'').trim();
+    if(!name){ if(el){ el.classList.remove('w-flash'); void el.offsetWidth; el.classList.add('w-flash'); try{ el.focus(); }catch(e){} } return; }
+    type=canonProc(scope, name); rememberProc(scope, type);
+  }
+  addEntry('procedures',{scope,type,date:val(`${prefix}-date`),supervisor:val(`${prefix}-supervisor`),dops:val(`${prefix}-dops`),hospital:val(`${prefix}-hospital`),year:val(`${prefix}-year`),notes:val(`${prefix}-notes`)}); addHospitalIfNew(val(`${prefix}-hospital`)); }
 function renderLogCPD(){
   const sp=specCfg();
   const specEntries=entries('cpd').filter(e=>e.scope!=='gim');
@@ -4667,7 +4749,7 @@ function cpdIsExternal(e){
   return cpdCategoryFor(e.type) === 'External';              // new diary types
 }
 
-function syncLogbookTargets(){ const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=gimExternalCpdHours(); state.req['cum.gim_cpd_st7']=gimExternalCpdHours(e=>e.year==='ST7'); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year==='ST7').reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
+function syncLogbookTargets(){ const clinics=entries('clinics').filter(e=>e.scope==='gim').length; const gimCpdEntries=entries('cpd').filter(e=>e.scope==='gim'); const externalGimCpd=gimCpdEntries.filter(e=>EXTERNAL_GIM_CPD_TYPES.has(e.type)); const simEntries=entries('simulation'); const acuteEntries=entries('acute'); state.req['cum.gim_clinics']=clinics; state.req['cum.gim_cpd']=gimExternalCpdHours(); state.req['cum.gim_cpd_st7']=gimExternalCpdHours(e=>e.year===finalYear()); state.req['cum.gim_sim']=Math.round(simEntries.reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_sim_st7']=Math.round(simEntries.filter(e=>e.year===finalYear()).reduce((a,e)=>a+(Number(e.hours)||0),0)*10)/10; state.req['cum.gim_acute']=Math.round(acuteEntries.reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_acute_st7']=Math.round(acuteEntries.filter(e=>e.year===finalYear()).reduce((a,e)=>a+Number(e.estimated||0),0)); state.req['cum.gim_ward']=Math.round(entries('ward').reduce((a,e)=>a+Number(e.months||0),0)*10)/10; }
 function renderAdmin(){ if(yearLocked()){ document.getElementById('main').innerHTML=renderLockedBlock(); return; } const hosp=hospitalOptions(); document.getElementById('main').innerHTML=`<section class="section"><div class="sec-head"><span class="sec-title">Profile & deanery</span><span class="sec-rule"></span><span class="sec-note">Used in reports and hospital dropdowns</span></div><div class="panel"><div class="form-grid"><div class="field"><label>ALS expiry</label><input class="input" type="date" value="${state.als||''}" onchange="state.als=this.value;saveState();render()"></div><div class="field"><label>${currentYear} ARCP date</label><input class="input" type="date" value="${state.arcpDates[currentYear]||ARCP_DEFAULTS[currentYear]}" onchange="state.arcpDates['${currentYear}']=this.value;saveState();render()"></div><div class="field full"><label>Add hospital</label><div class="row"><input class="input" id="new-hospital" placeholder="Add hospital not in deanery list"><button class="btn primary" onclick="addAdminHospital()">ADD</button></div></div></div></div></section><section class="section"><div class="sec-head"><span class="sec-title">Hospitals</span><span class="sec-rule"></span><span class="sec-note">${hosp.length} available · delete hospitals you are not rotating in</span></div><div class="grid">${hosp.map(h=>`<div class="card"><div class="card-title">${safe(h)}</div><button class="btn small danger" onclick="deleteHospital('${jsq(h)}')">Delete from list</button></div>`).join('')}</div></section>`; }
 function addAdminHospital(){ const h=val('new-hospital'); if(!h)return; addHospitalIfNew(h); renderAdmin(); }
 function removeHospital(h){ state.hospitals=(state.hospitals||[]).filter(x=>x!==h); saveState(); renderAdmin(); }
@@ -5098,13 +5180,13 @@ function printReport(style){
   ${formalScopedTable('GIM', gimProcsYr, ['date','type','hospital','supervisor','dops','year'], 'gim', `${gimProcsYr.filter(e=>e.dops==='Yes').length} DOPS-signed`, {tally:true})}
 
   ${formalSection('Continuing Professional Development','III.','Recorded study leave and professional development hours.')}
-  <div class="summary-line">GIM CPD \u2014 External: <strong>${gimExternalCpdHours()} h</strong> / 100h. ST7 minimum: <strong>${gimExternalCpdHours(e=>e.year==='ST7')} h</strong> / 20 h.</div>
+  <div class="summary-line">GIM CPD \u2014 External: <strong>${gimExternalCpdHours()} h</strong> / 100h. ${finalYear()} minimum: <strong>${gimExternalCpdHours(e=>e.year===finalYear())} h</strong> / 20 h.</div>
   ${formalScopedTable('GIM', gimCpd, ['date','type','title','hours','year'], 'gim')}
   <div class="summary-line">${safe(sp.short)} CPD \u2014 Total: <strong>${sumHours(specCpd)} h</strong> in ${safe(yr)}.</div>
   ${formalScopedTable(sp.short, specCpd, ['date','type','title','hours','year'], 'spec')}
 
   ${formalSection('Simulation','IV.','Simulation-based training and assessed scenarios.')}
-  <div class="summary-line">Simulation \u2014 Total: <strong>${sumHours(simAll)} h</strong> against a 12-hour minimum. ST7: <strong>${sumHours(simAll,e=>e.year==='ST7')} h</strong> / 4 h.</div>
+  <div class="summary-line">Simulation \u2014 Total: <strong>${sumHours(simAll)} h</strong> against a 12-hour minimum. ${finalYear()}: <strong>${sumHours(simAll,e=>e.year===finalYear())} h</strong> / 4 h.</div>
   ${formalScopedTable('Simulation', simAll, ['date','course','title','hours','hospital','year'], 'gim')}
 
   ${formalSection('Teaching','V.','Teaching delivered, by activity type, and whether its feedback is uploaded.')}
@@ -5759,7 +5841,7 @@ function renderGIM(){
   document.getElementById('main').innerHTML =
     renderOutcomeSelector()+
     section('GIM annual requirements',`For ${currentYear}`,annual)+
-    section('GIM cumulative targets','End-of-training totals; ST7 minimums grey out until final year',cumulative)+
+    section('GIM cumulative targets',`End-of-training totals; ${finalYear()} minimums grey out until final year`,cumulative)+
     section('GIM DOPS procedures',`${doneCount} / ${GIM_DOPS_PROCEDURES.length} completed`,[`<div class="dops-list">${dopsRows}</div>`])+
     section('GIM milestones','One-off items',milestones);
 }
@@ -5905,6 +5987,12 @@ function specDopsStats(){
     }
     return {met:0,total:0,label:''};
   }
+  if(specCfg().dopsBy){
+    const due=Object.entries(specCfg().dopsBy).filter(([,y])=>y===currentYear).map(([p])=>p);
+    if(!due.length) return {met:0,total:0,label:''};
+    const signed=entries('procedures').filter(e=>e.scope!=='gim' && e.dops==='Yes').map(e=>String(e.type||''));
+    return {met:due.filter(p=>signed.includes(p)).length, total:due.length, label:specialtyDisplayName()+' DOPS'};
+  }
   if(!specCfg().procedureChecklist) return {met:0,total:0,label:''};
   const procs=(specCfg().logbook?.procedures||[]).filter(p=>p && p!=='Other');
   const logged=entries('procedures').filter(e=>e.scope!=='gim' && e.dops==='Yes').map(e=>e.type);
@@ -5971,7 +6059,7 @@ function renderGIM(){
   document.getElementById('main').innerHTML =
     renderOutcomeSelector()+
     section('GIM annual requirements',`For ${currentYear}`,annual)+
-    section('GIM cumulative targets','End-of-training totals; ST7 minimums grey out until final year',cumulative)+
+    section('GIM cumulative targets',`End-of-training totals; ${finalYear()} minimums grey out until final year`,cumulative)+
     section('GIM milestones','One-off items',milestones)+
     section('GIM DOPS procedures',`${stats.met} / ${stats.total} completed`,[dopsCardGrid()]);
 }
@@ -6092,7 +6180,7 @@ function isFinalYearOnlyReq(id){ return ['gim_cpd_st7','gim_sim_st7','gim_acute_
 function visibleGimReqs(){
   const out={};
   Object.entries(GIM_REQS).forEach(([id,req])=>{
-    if(isFinalYearOnlyReq(id) && currentYear!=='ST7') return;
+    if(isFinalYearOnlyReq(id) && currentYear!==finalYear()) return;
     out[id]=req;
   });
   return out;
@@ -6115,7 +6203,7 @@ function renderGIM(){
     if(req.deadline==='annual') annual.push(c); else if(req.cumulative) cumulative.push(c); else milestones.push(c);
   });
   const stats=gimDopsStats();
-  const cumulativeNote = currentYear==='ST7' ? 'End-of-training totals including final-year minimums' : 'End-of-training cumulative targets';
+  const cumulativeNote = currentYear===finalYear() ? 'End-of-training totals including final-year minimums' : 'End-of-training cumulative targets';
   document.getElementById('main').innerHTML =
     renderOutcomeSelector()+
     section('GIM annual requirements',`For ${currentYear}`,annual)+
@@ -7094,10 +7182,10 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
 
     // Simulation
     const sim=entries('simulation').filter(keep).sort(asc('date'));
-    const simTotal=H(sim), simSt7=H(sim.filter(e=>e.year==='ST7'));
-    S.push(sotSection('Simulation', yrOnly ? lead(`${simTotal.toFixed(1)}h`,'12h (4h in ST7)') : `Total: <strong>${simTotal.toFixed(1)}h</strong> / 12h${simTotal>=12?' ✓':''} · ST7: ${simSt7.toFixed(1)}h / 4h minimum`,
+    const simTotal=H(sim), simSt7=H(sim.filter(e=>e.year===finalYear()));
+    S.push(sotSection('Simulation', yrOnly ? lead(`${simTotal.toFixed(1)}h`,`12h (4h in ${finalYear()})`) : `Total: <strong>${simTotal.toFixed(1)}h</strong> / 12h${simTotal>=12?' ✓':''} · ${finalYear()}: ${simSt7.toFixed(1)}h / 4h minimum`,
       sotTable(['Date','Course','Title / Session','Hospital / Venue','Hours','Year'], sim.map(e=>[sotDate(e.date), e.course||'', e.title||'', e.hospital||'', e.hours?sotNum(e.hours,1):'', e.year||'']), {num:[4], total:{labelCol:3, valueCol:4, value:simTotal.toFixed(1)}}),
-      ['Note - 12 hours of simulation by CCT, at least 4 hours of which in ST7.']));
+      [`Note - 12 hours of simulation by CCT, at least 4 hours of which in ${finalYear()}.`]));
 
     sotOpen('GIM · Summary of Training', 'gim', S.join(''), mode);
   };
@@ -7142,7 +7230,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
     const acute=entries('acute').slice().sort(desc('start'));
     const ward=entries('ward').slice().sort(desc('start'));
     const fr=firthRows(); const frById=new Map(fr.map(r=>[String(r.id),r]));
-    const totalSim=H(sim), st7Sim=H(sim.filter(e=>e.year==='ST7'));
+    const totalSim=H(sim), st7Sim=H(sim.filter(e=>e.year===finalYear()));
     const totalAcute=acute.reduce((a,e)=>a+(parseFloat(e.estimated)||0),0);
     const totalWard=r1(ward.reduce((a,e)=>a+(parseFloat(e.months)||0),0));
     const onlineHrs=H(gimCpd.filter(isOnline)), onlineCapped=Math.min(onlineHrs,15);
@@ -7257,7 +7345,7 @@ window.CCT_TPL_B64='UEsDBBQAAAAAAAAAIVx03ojnIAYAACAGAAATAAAAW0NvbnRlbnRfVHlwZXNd
   <div class="tw">${tbl(['Date','Type','Title / Event','Hours','Notes'], specCpd.map(e=>[fmt(e.date),E(e.type),E(e.title),e.hours?E(e.hours)+'h':'—',E(e.notes)]), SPC)}</div>
 
   ${secHead('Simulation','gim')}
-  <div class="cpd-summary"><strong>Simulation Summary:</strong> &nbsp; Total: <strong style="color:#0e7490">${totalSim.toFixed(1)}h</strong> / 12h &nbsp;·&nbsp; ST7: <strong>${st7Sim.toFixed(1)}h</strong> / 4h min</div>
+  <div class="cpd-summary"><strong>Simulation Summary:</strong> &nbsp; Total: <strong style="color:#0e7490">${totalSim.toFixed(1)}h</strong> / 12h &nbsp;·&nbsp; ${finalYear()}: <strong>${st7Sim.toFixed(1)}h</strong> / 4h min</div>
   ${subHead(badge('GIM','badge-gim'), `${sim.length} total entries · all years · cumulative target 12h`)}
   <div class="tw">${tbl(['Date','Course','Title / Session','Hours','Hospital / Venue','Year','Notes'], sim.map(e=>[fmt(e.date),E(e.course),E(e.title),e.hours?E(e.hours)+'h':'—',E(e.hospital),E(e.year)||'—',E(e.notes)]), '#0e7490')}</div>
 
@@ -7701,7 +7789,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   window.makeReqCard = function(id, req){
     __wReq[id]=req;
     const v=getReqVal(id,req), locked=yearLocked();
-    const finalOnly=['gim_cpd_st7','gim_sim_st7','gim_acute_st7'].includes(id) && currentYear!=='ST7';
+    const finalOnly=['gim_cpd_st7','gim_sim_st7','gim_acute_st7'].includes(id) && currentYear!==finalYear();
     const dis=(locked||finalOnly)?'disabled':'';
     const st=finalOnly?'na':reqStatus(id,req);
     const dc=deadlinePast(req.deadline)?'past':req.deadline===currentYear?'soon':'';
@@ -7736,7 +7824,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const card=wrap.firstElementChild;
     const draw=()=>{
       const req=__wReq[id], v=getReqVal(id,req), locked=yearLocked(), auto=AUTO_REQ[id];
-      const finalOnly=['gim_cpd_st7','gim_sim_st7','gim_acute_st7'].includes(id) && currentYear!=='ST7', dis=(locked||finalOnly)?'disabled':'';
+      const finalOnly=['gim_cpd_st7','gim_sim_st7','gim_acute_st7'].includes(id) && currentYear!==finalYear(), dis=(locked||finalOnly)?'disabled':'';
       const dc=deadlinePast(req.deadline)?'past':req.deadline===currentYear?'soon':'';
       const who=/^gim_/.test(id)?'GIM':specCfg().short;
       let prog, ctl;
@@ -7749,7 +7837,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         ctl= auto ? `<p class="w-rq-auto">Counted from your logbook.</p><button class="w-sus-go" data-rq="auto" ${finalOnly?'disabled':''}>${safe(auto[0])}${I('chev',18)}</button>`
           : `<div class="w-step w-rq-step"><button ${dis} aria-label="Decrease ${safe(req.label)}" data-rq="-1">−</button><input type="number" inputmode="decimal" min="0" value="${v}" ${dis} aria-label="${safe(req.label)}" data-rq="set"><button ${dis} aria-label="Increase ${safe(req.label)}" data-rq="1">+</button></div>`;
       }
-      const why=locked?'This training year is locked.':finalOnly?'This one counts in ST7.':'';
+      const why=locked?'This training year is locked.':finalOnly?`This one counts in ${finalYear()}.`:'';
       card.innerHTML=`<div class="w-sus-k">${safe(who)} · ${safe(currentYear)}</div>
         <div class="w-ask-t" id="w-rq-t">${safe(req.label)}</div>
         ${prog}
@@ -8706,6 +8794,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       ${row('sliders','Profile','Name, training number and base hospital','openSettings()','Edit')}
       ${row('medal','Badges',bdOn()?'On':'Off','wBadgesToggle()',bdOn()?'Turn off':'Turn on')}
       ${row('compass','Setup guide','Welcome tour and getting-started checklist','wSetupOpen()','Open')}
+      ${myProcs('spec').length+myProcs('gim').length?row('proc','Your procedures',(n=>`${n} you’ve named`)(myProcs('spec').length+myProcs('gim').length),'wMyProcs()','Edit'):''}
       ${row('ul','Import a logbook','From Excel or CSV, with a preview first','wImport()','Import')}
       ${row('lock','About and privacy','What Outcome1 is, what’s stored and where',"window.open('privacy.html','_blank','noopener')",'Open')}
     </div></section>`);
@@ -8906,6 +8995,17 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     return r;
   };
 
+  // Procedures named under "Other": offered in the list next time; removing one leaves logged entries as they are
+  window.wMyProcs=function(){
+    const sp=specCfg().short;
+    const body=()=>{ const g=[['spec',sp],['gim','GIM']].filter(([k])=>myProcs(k).length);
+      return g.length ? g.map(([k,l])=>`<div class="w-rdy-cg">${safe(l)}</div><div class="w-ent">${myProcs(k).map((n,i)=>`<div class="w-ent-r w-mp-r"><span>${safe(n)}</span><button type="button" class="btn small" data-rm="${k}:${i}" aria-label="Remove ${safe(n)}">Remove</button></div>`).join('')}</div>`).join('')
+        : '<p class="w-ask-s">None left. Name one by choosing Other when you log a procedure.</p>'; };
+    const w=suSheet({ title:'Your procedures', sub:'The ones you named under Other. Removing one keeps the entries you’ve logged.', body:`<div id="w-mp">${body()}</div>`, actions:[], closeLabel:'Done',
+      onOpen:w=>{ w.querySelector('#w-mp').addEventListener('click',e=>{ const b=e.target.closest('[data-rm]'); if(!b) return;
+        const [k,i]=b.dataset.rm.split(':'), n=myProcs(k)[+i]; if(n==null) return; forgetProc(k,n); saveState(); w.querySelector('#w-mp').innerHTML=body(); wToast(`Removed ${n}`); }); } });
+  };
+
   // ═══ Entries: tap any entry to see it, edit it or delete it ═══
   const ENTRY_FIELDS = {
     clinics:['date','scope','type','hospital','supervisor','patients','year','notes'],
@@ -8930,7 +9030,8 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   }
   function typeOptions(k,scope){
     const L=specCfg().logbook||{};
-    if(k==='clinics'||k==='procedures') return ((scope==='gim'?GIM_LOGBOOK[k]:L[k])||[]).slice();
+    if(k==='procedures') return procTypes(scope);
+    if(k==='clinics') return ((scope==='gim'?GIM_LOGBOOK[k]:L[k])||[]).slice();
     if(k==='cpd') return CPD_DIARY_TYPES.slice();
     if(k==='teaching') return TEACH_TYPES.slice();
     return [];
@@ -9028,6 +9129,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
             const was={...e}, same=f=>String(e[f]??'')===String(was[f]??'');
             w.querySelectorAll('[data-f]').forEach(el=>{ e[el.dataset.f]=String(el.value).trim(); });
             if(k==='cpd' && !e.category) delete e.category;
+            if(k==='procedures' && e.type){ e.type=canonProc(e.scope, e.type); rememberProc(e.scope, e.type); }   // a new name typed here is offered next time too
             // months and the patient estimate follow the dates, takes and patients, unless typed over in this edit
             if(k==='acute'||k==='ward'){
               if(!e.months || ((!same('start')||!same('end')) && same('months'))) e.months=String(monthsBetween(e.start,e.end)||'');
@@ -9525,7 +9627,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const cpd=yr.filter(x=>x.kind==='cpd'), cpdH=Math.round(cpd.reduce((a,x)=>a+(Number(x.e.hours)||0),0));
     const dops=yr.filter(x=>x.kind==='procedures' && x.e.dops==='Yes').length;
     let ext=null; try{ ext=gimExternalCpdHours(e=>!e.year||e.year===currentYear); }catch(e){}
-    const wba=['gim_sles','gim_acats','spec_sles'].reduce((a,k)=>a+(Number(state.req?.[`${currentYear}.${k}`])||0),0);
+    const wba=['gim_sles','gim_acats','spec_sles','spec_acats','spec_cex','spec_cbd'].reduce((a,k)=>a+(Number(state.req?.[`${currentYear}.${k}`])||0),0);
     const tile=(l,v,s)=>`<div class="ix-n"><span>${l}</span><b>${v}</b><em>${s}</em></div>`;
     return `<div class="ix-card"><div class="ix-h">${safe(currentYear)} in numbers</div><div class="ix-nums">
         ${tile('Entries', yr.length, `${recent(yr)} in the last 4 weeks`)}
@@ -9650,6 +9752,11 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   const countsMet=cs=>cs.length>0 && cs.every(c=>c.v>=c.t);
   // The one ARCP list: everything to do before the panel, grouped by when it's due (counted back from when the portfolio locks).
   // The ARCP screen, the walkthrough, the Home card, "You're ARCP ready" and the badge all read from here.
+  // A specialty's own CiPs (Neurology lists them, with Stroke Medicine's), and the level expected by the end of a year
+  const cipList=y=>(specCfg().cips||[]).map(c=>[c.n, c.lv?.[y]!=null?`Level ${c.lv[y]}`:'', c.g]);
+  const cipGroups=()=>[...new Set((specCfg().cips||[]).map(c=>c.g))];
+  const cipSub=y=>{ const c=specCfg().cips||[]; if(!c.length) return ''; const g={}; c.forEach(x=>{ g[x.g]=(g[x.g]||0)+1; });
+    return Object.entries(g).map(([k,n])=>`${n} ${k}`).join(' + ')+' CiPs'; };
   function readyGroups(){
     const sp=specCfg().short, y=currentYear;
     const cip=what=>`Rate yourself against ${what} on your ePortfolio, then ask your educational supervisor to add their ratings.`;
@@ -9669,7 +9776,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
         { k:'es_spec', t:`ES report: ${sp}`, s:'On your ePortfolio', d:`Your educational supervisor’s ${sp} report for ${y}, completed on your ePortfolio. Book the meeting in good time so it’s there before the portfolio locks.` },
         { k:'es_gim',  t:'ES report: GIM', s:'On your ePortfolio', d:`Your educational supervisor’s GIM report for ${y}, completed on your ePortfolio.` },
         { k:'cip_gen',  t:'Generic CiPs', s:'Rated by you, then your ES', d:cip('each generic CiP') },
-        { k:'cip_spec', t:`${sp} CiPs`, s:'Rated by you, then your ES', d:cip(`each ${sp} specialty CiP`) },
+        { k:'cip_spec', t:`${sp} CiPs`, s:cipSub(y)||'Rated by you, then your ES', d:cip(cipGroups().length?`each ${cipGroups().join(' and ')} CiP`:`each ${sp} specialty CiP`), list:cipList(y) },
         { k:'cip_gim',  t:'GIM CiPs', s:'Rated by you, then your ES', d:cip('each GIM clinical CiP') } ]},
       { g:'1 week before', at:at('uploads'), items:[
         { k:'form_r', doc:'form_r', t:'Form R (Part B)', s:'In your ePortfolio library', d:'Complete this year’s Form R (Part B) and save a copy in your ePortfolio library.' },
@@ -9729,7 +9836,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const drawItem=()=>{
       const it=cur(), on=readyOn(it), na=readyNa(it);
       card.innerHTML=`<div class="w-sus-k">${safe(it.group)}</div>
-        <div class="w-rdy-step"><div class="w-ask-t" id="w-rdy-t">${safe(it.t)}</div><div class="w-ask-s">${safe(it.d)}</div>${it.step&&/ of /.test(it.s||'')?`<div class="w-rdy-live">${safe(it.s)}</div>`:''}${it.tools?`<div class="w-rdy-tools"><span>Open in Outcome1</span>${it.tools.map(([ic,l,id])=>`<button class="w-rdy-tool" data-tool="${id}">${I(ic,16)}${safe(l)}</button>`).join('')}</div>`:''}</div>
+        <div class="w-rdy-step"><div class="w-ask-t" id="w-rdy-t">${safe(it.t)}</div><div class="w-ask-s">${safe(it.d)}</div>${it.list&&it.list.length?`<div class="w-ent w-rdy-cips">${it.list.map(([n,l,g],k,a)=>`${k===0||a[k-1][2]!==g?`<div class="w-rdy-cg">${safe(g)} · by the end of ${safe(currentYear)}</div>`:''}<div class="w-ent-r"><span>${safe(n)}</span><b>${safe(l)}</b></div>`).join('')}</div>`:''}${it.step&&/ of /.test(it.s||'')?`<div class="w-rdy-live">${safe(it.s)}</div>`:''}${it.tools?`<div class="w-rdy-tools"><span>Open in Outcome1</span>${it.tools.map(([ic,l,id])=>`<button class="w-rdy-tool" data-tool="${id}">${I(ic,16)}${safe(l)}</button>`).join('')}</div>`:''}</div>
         <div class="w-sus-acts">${na?'<button class="w-sus-go" data-w="na">It applies to me</button>':on?'<button class="w-sus-alt" data-w="tick">Untick</button>':'<button class="w-sus-go" data-w="tick">Mark as done</button>'}${it.optional&&!on&&!na?'<button class="w-sus-alt" data-w="na">Doesn’t apply to me</button>':''}</div>
         <button class="w-ask-x" data-x="1">Close</button>`;
       card.scrollTop=0;
@@ -10575,7 +10682,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       q('When did you start specialty training?','Your first day as a registrar in this programme. If you came through IMY3, that’s the start of ST4.')+
       `<label class="w-sus-l" for="w-cct-start">Start date</label><input class="input w-sus-in" type="date" id="w-cct-start" data-f="start" value="${safe(a.start||'')}">
        ${a.startGuess?`<p class="w-sus-note">Pencilled in from your training year. Change it to the exact day you started.</p>`:''}`;
-    if(i===1) return q('How long is your programme?','The full-time length from that start date to CCT, in months. ST4 to ST7 is 4 years (48 months). If you’re not sure, check with your TPD.')+
+    if(i===1) return q('How long is your programme?',`The full-time length from that start date to CCT, in months. ${YEARS[0]} to ${finalYear()} is ${YEARS.length} years (${YEARS.length*12} months). If you’re not sure, check with your TPD.`)+
       `<div class="w-cct-chips">${[[48,'4 years'],[60,'5 years'],[72,'6 years']].map(([m,l])=>chip('data-len',m,Number(a.length)===m,`${m} months<small>${l}</small>`)).join('')}</div>
        <label class="w-sus-l" for="w-cct-len">Or type it in months</label><input class="input w-sus-in w-cct-num" type="number" inputmode="decimal" min="1" max="240" step="any" id="w-cct-len" data-f="length" value="${safe(a.length)}">`;
     if(i===2){
@@ -11027,7 +11134,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
     const n=x=>Object.keys(x||{}).length;
     const ptypes=sp.logbook?.procedures||[], pn=e=>String(normProcName(e.type)||e.type||'');
     const has=re=>ptypes.some(t=>re.test(t)), cnt=re=>pr.filter(e=>re.test(pn(e))).length;
-    const RE={bx:/kidney biopsy/i, temp:/^temp hd catheter/i};
+    const RE={bx:/kidney biopsy/i, temp:/^temp hd catheter/i, lp:/^lumbar puncture/i, bont:/botulinum/i};
     // clinic types: the ones on the list plus any typed under Other, each counted once
     const ctypes=new Set(cl.filter(e=>e.scope!=='gim').map(e=>String(e.type||'').trim().toLowerCase()).filter(t=>t && t!=='other')).size;
     const surveys=Object.entries(reqs).filter(([id,r])=>/survey/i.test(id) && r.type==='checkbox');
@@ -11040,6 +11147,8 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
       {id:'house',cat:'Clinical',icon:'list',name:'Full House',tiers:[5],grades:[S],unit:`${sp.short} clinic types`,d:`5 different ${sp.short} clinic types`,v:ctypes},
       {id:'tline',cat:'Clinical',icon:'line',name:'Safe Pair of Hands',tiers:[10,25,50],grades:[B,S,G],unit:'temporary HD lines',d:'Temporary dialysis lines logged, femoral or jugular',v:cnt(RE.temp),show:has(RE.temp)},
       {id:'biopsy',cat:'Clinical',icon:'kidney',name:'Nephron Ninja',tiers:[5,15,30],grades:[B,S,G],unit:'kidney biopsies',d:'Native and transplant kidney biopsies logged',v:cnt(RE.bx),show:has(RE.bx)},
+      {id:'lp',cat:'Clinical',icon:'spine',name:'Spinal Tap',tiers:[10,25,50],grades:[B,S,G],unit:'lumbar punctures',d:'Lumbar punctures logged, diagnostic or therapeutic',v:cnt(RE.lp),show:has(RE.lp)},
+      {id:'bont',cat:'Clinical',icon:'drop',name:'Smooth Operator',tiers:[5,15,30],grades:[B,S,G],unit:'botulinum toxin injections',d:'Botulinum toxin injections logged',v:cnt(RE.bont),show:has(RE.bont)},
       {id:'take',cat:'Clinical',icon:'pulse',name:'Take That',tiers:[500,750],grades:[S,G],unit:'acute patients',d:'Acute GIM patients, from your take log. 750 is the GIM target',v:bdSum(bdOwn('acute'),'estimated')},
       {id:'ward',cat:'Clinical',icon:'bed',name:'Holding the Fort',tiers:[6,12],grades:[S,G],unit:'months of ward cover',d:'Months of IM ward cover. 12 is the GIM target',v:bdSum(bdOwn('ward'),'months')},
       {id:'teach',cat:'Teaching',icon:'board',name:'See One, Do One, Teach One',tiers:[1,10,25],grades:[B,S,G],unit:'sessions taught',d:'Teaching sessions you gave',v:te.length},
@@ -11248,7 +11357,7 @@ ${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentT
   // The Clinic / Procedure / CPD buttons on the Renal and GIM screens open a page for that kind of entry
   // (totals, a breakdown by type, its badges and this year's entries) with Add at the top, instead of going
   // straight to the form. The Renal and GIM screens show their own badges where “Add evidence” was.
-  const BD_SEC={ spec:['house','tline','biopsy','survey','exam'], gim:['take','ward','ext','sim','qip'] };
+  const BD_SEC={ spec:['house','tline','biopsy','lp','bont','survey','exam'], gim:['take','ward','ext','sim','qip'] };
   function bdFor(key){ const ids=BD_SEC[key]||[], list=badgeList(); return ids.map(id=>list.find(b=>b.id===id)).filter(Boolean); }
   function bdGrid(bs){ const all=badgeList(); return `<div class="w-bd-grid">${bs.map(b=>bdTile(b, all.findIndex(x=>x.id===b.id))).join('')}</div>`; }
   // the pocket tab on Renal / GIM: this section's badges, or Add evidence if badges are off
